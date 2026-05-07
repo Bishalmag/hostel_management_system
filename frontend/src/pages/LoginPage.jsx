@@ -17,7 +17,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (user) navigate("/login");
+    if (user) navigate("/students/homepage");
   }, [user, navigate]);
 
   const handleChange = (e) => {
@@ -29,14 +29,14 @@ const Login = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    setTimeout(() => {
-      login({ first_name: "User", role: "student" }, "demo");
-      navigate("/login");
-    }, 800);
-  };
+  setTimeout(() => {
+    login({ first_name: "User", role: "student" }, "demo");
+    navigate("/students/homepage");
+  }, 800);
+};
 
   return (
     <div className="w-full min-h-screen flex items-center justify-center bg-[#050B18] relative overflow-hidden">
@@ -113,7 +113,7 @@ const Login = () => {
           <Link to="/forgot-password" className="hover:text-yellow-400">
             Forgot Password
           </Link>
-          <Link to="/register" className="hover:text-yellow-400">
+          <Link to="/signup" className="hover:text-yellow-400">
             Create Account
           </Link>
         </div>

@@ -166,14 +166,14 @@ export default function Navbar({ onShowAuth }) {
   onClick={() => navigate("/login")}
   className="bg-amber-500 text-amber-900 border border-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-8 py-8 rounded hover:bg-amber-500/15 transition-all duration-200"
 >
-  Sign In
+  Log In
 </button>
 
 <button
   onClick={() => navigate("/signup")}
   className="bg-amber-500 text-amber-900 border border-amber-800 font-mono font-bold text-xs tracking-wide uppercase px-8 py-8 rounded hover:bg-amber-500/15 transition-all duration-200"
 >
-  Sign Up
+  Register
 </button>
 
           {/* Mobile hamburger */}
