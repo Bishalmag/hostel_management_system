@@ -1,19 +1,27 @@
 from rest_framework import serializers
-from .models import RoomAllocation
+from .models import User, Role
 
-class RoomAllocationSerializer(serializers.ModelSerializer):
+class RoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RoomAllocation
-        fields = '__all__'      # or list specific fields
+        model = Role
+        fields = ['id', 'name']
 
-# For creating allocation with validation
-class CreateAllocationSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+
     class Meta:
-        model = RoomAllocation
-        fields = ['student', 'room_number']
+        model = User
+        fields = ['id', 'email', 'full_name', 'phone', 'role', 'is_active']
 
-    def validate_room_number(self, value):
-        # Custom validation logic
-        if RoomAllocation.objects.filter(room_number=value, is_active=True).exists():
-            raise serializers.ValidationError("Room already occupied!")
-        return value
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(), source='role'
+    )
+
+    class Meta:
+        model = User
+        fields = ['email', 'full_name', 'phone', 'password', 'role_id']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)

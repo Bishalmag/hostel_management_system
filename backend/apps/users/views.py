@@ -1,24 +1,25 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import RoomAllocation
-from .serializers import RoomAllocationSerializer
+from rest_framework import generics, permissions
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .serializers import RegisterSerializer, UserSerializer
+from .models import User
 
-class RoomAllocationView(APIView):
+class CustomTokenSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = UserSerializer(self.user).data
+        return data
 
-    # GET /api/allocations/ → fetch all
-    def get(self, request):
-        allocations = RoomAllocation.objects.all()
-        serializer = RoomAllocationSerializer(allocations, many=True)
-        return Response(serializer.data)
+class LoginView(TokenObtainPairView):
+    serializer_class = CustomTokenSerializer
 
-    # POST /api/allocations/ → create new
-    def post(self, request):
-        serializer = RoomAllocationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    # class RoomAllocationView(APIView):
-    # permission_classes = [IsHostelAdmin]  # only admin can access
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+class MeView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

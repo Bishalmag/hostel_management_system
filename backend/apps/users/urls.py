@@ -1,10 +1,10 @@
 from django.urls import path
-from .views import RoomAllocationView
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import LoginView, RegisterView, MeView
 
 urlpatterns = [
-    path('allocations/', RoomAllocationView.as_view(), name='room-allocation'),
+    path('auth/login/',    LoginView.as_view(),       name='login'),
+    path('auth/refresh/',  TokenRefreshView.as_view(), name='refresh'),
+    path('auth/register/', RegisterView.as_view(),     name='register'),
+    path('auth/me/',       MeView.as_view(),           name='me'),
 ]
-
-# This means:
-# GET  /api/allocations/  → list all allocations
-# POST /api/allocations/  → create new allocation
