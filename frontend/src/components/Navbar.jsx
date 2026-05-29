@@ -163,17 +163,10 @@ export default function Navbar({ onShowAuth }) {
         {/* ── CTA + Auth buttons ── */}
         <div className="flex items-center gap-5">
           <button
-  onClick={() => navigate("/login")}
+  onClick={() => navigate("/loginPortal")}
   className="bg-amber-500 text-amber-900 border border-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-8 py-8 rounded hover:bg-amber-500/15 transition-all duration-200"
 >
   Log In
-</button>
-
-<button
-  onClick={() => navigate("/signup")}
-  className="bg-amber-500 text-amber-900 border border-amber-800 font-mono font-bold text-xs tracking-wide uppercase px-8 py-8 rounded hover:bg-amber-500/15 transition-all duration-200"
->
-  Register
 </button>
 
           {/* Mobile hamburger */}

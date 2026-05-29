@@ -1,31 +1,16 @@
-"""
-URL configuration for hostel project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/v1/users/',        include('apps.users.urls')),
-    path('api/v1/students/',     include('apps.students.urls')),
-    # path('api/v1/hostel/',       include('apps.hostel.urls')),
-    path('api/v1/discipline/',   include('apps.discipline.urls')),
-    path('api/v1/inventory/',    include('apps.inventory.urls')),
-    path('api/v1/maintenance/',  include('apps.maintenance.urls')),
-    path('api/v1/bookings/',     include('apps.bookings.urls')),
-    path('api/v1/allocation/',   include('apps.allocation.urls')),
-    path('api/v1/notifications/', include('apps.common.urls')),
+    path('admin/',             admin.site.urls),
+    path('api/users/',         include('apps.users.urls')),
+    path('api/students/',      include('apps.students.urls')),
+    path('api/hostel/',        include('apps.hostel.urls')),
+    path('api/maintenance/',   include('apps.maintenance.urls')),
+    path('api/bookings/',      include('apps.bookings.urls')),
+    path('api/discipline/',    include('apps.discipline.urls')),
+    path('api/inventory/',     include('apps.inventory.urls')),
+    path('api/allocation/',    include('apps.allocation.urls')),
+    path('api/notifications/', include('apps.notification.urls')),
+    path('api/complaints/',   include('apps.complaints.urls')),
 ]

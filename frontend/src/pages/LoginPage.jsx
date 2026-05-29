@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../components/Auth";
+import { loginUser } from '../api/auth';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,14 +29,28 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+
+
+const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
+  setErrors({});
+  try {
+    const { data } = await loginUser(formData.email, formData.password);
+    login(data.user, data.access, data.refresh);
 
-  setTimeout(() => {
-    login({ first_name: "User", role: "student" }, "demo");
-    navigate("/students/homepage");
-  }, 800);
+    // Role-based redirect
+    const role = data.user?.role?.name || '';
+    if (role === 'Student')              navigate('/students/homepage');
+    // else if (role === 'Super Admin')     navigate('/admin/dashboard');
+    // else if (role === 'Hostel Admin')    navigate('/admin/dashboard');
+    // else                                 navigate('/students/homepage');
+
+  } catch (err) {
+    setErrors({ general: err.response?.data?.detail || 'Login failed' });
+  } finally {
+    setLoading(false);
+  }
 };
 
   return (
@@ -83,7 +98,9 @@ const Login = () => {
               className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/10 focus:border-yellow-400 focus:outline-none pr-10"
               placeholder="Enter password"
             />
-
+              {errors.general && (
+                  <p className="text-red-400 text-sm mb-3 text-center">{errors.general}</p>
+             )}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

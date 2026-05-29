@@ -53,8 +53,9 @@ INSTALLED_APPS = [
     'apps.discipline',
     'apps.inventory',
     'apps.maintenance',
-    'apps.common',
-    'apps.accounts'
+    'apps.accounts',
+    'apps.notification',
+    'apps.complaints'
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
@@ -68,6 +69,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
 ]
 
 ROOT_URLCONF = 'config.urls'

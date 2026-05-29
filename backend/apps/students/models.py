@@ -1,22 +1,43 @@
 from django.db import models
-from apps.users.models import User
-from apps.hostel.models import Room
 
 
 class Student(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE)
+
+    # Personal info
+    registration_no   = models.CharField(max_length=50, blank=True, null=True)
+    course            = models.CharField(max_length=100, blank=True, null=True)
+    middle_name       = models.CharField(max_length=100, blank=True, null=True)
+    gender            = models.CharField(max_length=20, choices=[
+                          ('male','Male'),('female','Female'),('other','Other')
+                        ], blank=True, null=True)
+    phone             = models.CharField(max_length=20, blank=True, null=True)
+
+    # Emergency contact
+    guardian_name     = models.CharField(max_length=100, blank=True, null=True)
+    guardian_relation = models.CharField(max_length=50, blank=True, null=True)
+    guardian_contact  = models.CharField(max_length=20, blank=True, null=True)
+
+    # Temporary address
+    temp_address  = models.TextField(blank=True, null=True)
+    temp_city     = models.CharField(max_length=100, blank=True, null=True)
+    temp_state    = models.CharField(max_length=100, blank=True, null=True)
+    temp_pincode  = models.CharField(max_length=10, blank=True, null=True)
+
+    # Permanent address
+    perm_address  = models.TextField(blank=True, null=True)
+    perm_city     = models.CharField(max_length=100, blank=True, null=True)
+    perm_state    = models.CharField(max_length=100, blank=True, null=True)
+    perm_pincode  = models.CharField(max_length=10, blank=True, null=True)
+
+    # Preferences
+    department      = models.CharField(max_length=100, blank=True, null=True)
+    year            = models.IntegerField(blank=True, null=True)
     preferred_floor = models.IntegerField(blank=True, null=True)
-    roommate_type = models.CharField(
-        max_length=20,
-        choices=[
-            ('introvert', 'Introvert'),
-            ('extrovert', 'Extrovert'),
-        ],
-        blank=True, null=True
-    )
-    noise_tolerance = models.TextField(blank=True, null=True)
-    study_habits = models.TextField(blank=True, null=True)
-    assigned_room = models.ForeignKey(Room, on_delete=models.SET_NULL, blank=True, null=True)
+    assigned_room   = models.ForeignKey(
+                        'hostel.Room', on_delete=models.SET_NULL,
+                        blank=True, null=True
+                      )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
