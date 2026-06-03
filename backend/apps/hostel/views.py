@@ -8,9 +8,17 @@ class HostelViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class BlockViewSet(viewsets.ModelViewSet):
-    queryset = Block.objects.select_related('hostel').all()
     serializer_class = BlockSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Block.objects.select_related('hostel').all()
+        hostel_id = self.request.query_params.get('hostel')
+
+        if hostel_id:
+            queryset = queryset.filter(hostel_id=hostel_id)
+
+        return queryset
 
 class FloorViewSet(viewsets.ModelViewSet):
     queryset = Floor.objects.select_related('block').all()
@@ -23,3 +31,4 @@ class RoomViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filterset_fields = ['room_type', 'floor']
     search_fields = ['room_number']
+

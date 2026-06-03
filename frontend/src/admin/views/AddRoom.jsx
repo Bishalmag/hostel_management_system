@@ -239,7 +239,7 @@ const AddRoom = () => {
             className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
           >
             <option value="single">Single</option>
-            <option value="shared">Shared</option>
+            <option value="swwwwhared">Shared</option>
           </select>
         </div>
 

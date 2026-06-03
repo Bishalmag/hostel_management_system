@@ -1,32 +1,56 @@
 from rest_framework import serializers
 from .models import Hostel, Block, Floor, Room
 
-class RoomSerializer(serializers.ModelSerializer):
-    class Meta:
-        model  = Room
-        fields = ['id', 'floor', 'room_number', 'capacity',
-                  'current_occupancy', 'room_type', 'facilities']
 
-
-
-class BlockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model  = Block
-        fields = ['id', 'hostel', 'name']
-
+# ---------------- HOSTEL ----------------
 class HostelSerializer(serializers.ModelSerializer):
     class Meta:
-        model  = Hostel
-        fields = ['id', 'name', 'address', 'created_at']
+        model = Hostel
+        fields = ['id', 'name', 'address']
 
-class FloorSerializer(serializers.ModelSerializer):
-    rooms = RoomSerializer(many=True, read_only=True)
-    
-    block = serializers.PrimaryKeyRelatedField(
-        queryset=Block.objects.all()
-    )
-    block_name = serializers.CharField(read_only=True, source='block.name')
-    hostel_name = serializers.CharField(read_only=True, source='block.hostel.name')
+
+# ---------------- BLOCK ----------------
+class BlockSerializer(serializers.ModelSerializer):
+    hostel_name = serializers.CharField(source='hostel.name', read_only=True)
+
     class Meta:
-        model  = Floor
-        fields = ['id', 'block', 'hostel_name', 'block_name', 'floor_number', 'rooms', ]
+        model = Block
+        fields = ['id', 'hostel', 'hostel_name', 'name']
+
+
+# ---------------- FLOOR ----------------
+class FloorSerializer(serializers.ModelSerializer):
+    block_name = serializers.CharField(source='block.name', read_only=True)
+    hostel = serializers.IntegerField(source='block.hostel.id', read_only=True)
+
+    class Meta:
+        model = Floor
+        fields = [
+            'id',
+            'block',
+            'block_name',
+            'hostel',
+            'floor_number'
+        ]
+
+
+# ---------------- ROOM ----------------
+class RoomSerializer(serializers.ModelSerializer):
+    block = serializers.IntegerField(source='floor.block.id', read_only=True)
+    hostel = serializers.IntegerField(source='floor.block.hostel.id', read_only=True)
+    floor_number = serializers.IntegerField(source='floor.floor_number', read_only=True)
+
+    class Meta:
+        model = Room
+        fields = [
+            'id',
+            'hostel',
+            'block',
+            'floor',
+            'floor_number',
+            'room_number',
+            'capacity',
+            'current_occupancy',
+            'room_type',
+            'facilities'
+        ]
