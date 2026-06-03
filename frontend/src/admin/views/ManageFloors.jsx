@@ -71,7 +71,6 @@ const ManageFloors = () => {
           <thead className="text-xs uppercase bg-gray-800 text-gray-400">
             <tr>
               <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Hostel</th>
               <th className="px-4 py-3">Block</th>
               <th className="px-4 py-3">Floor Number</th>
               <th className="px-4 py-3">Actions</th>
@@ -90,12 +89,7 @@ const ManageFloors = () => {
                 <tr key={f.id} className="border-t border-gray-800">
 
                   <td className="px-4 py-3">{f.id}</td>
-
-                  {/* nested relations */}
-                  <td className="px-4 py-3">
-                    {f.hostel_name || '—'}
-                  </td>
-
+                  
                   <td className="px-4 py-3">
                     {f.block_name || '—'}
                   </td>

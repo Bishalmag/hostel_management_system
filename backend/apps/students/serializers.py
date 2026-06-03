@@ -9,10 +9,10 @@ class StudentSerializer(serializers.ModelSerializer):
         model  = Student
         fields = [
             'id', 'user', 'user_email', 'user_name',
-            'registration_no', 'course', 'middle_name', 'gender', 'phone',
+            'middle_name', 'gender', 'phone',
             'guardian_name', 'guardian_relation', 'guardian_contact',
-            'temp_address', 'temp_city', 'temp_state', 'temp_pincode',
-            'perm_address', 'perm_city', 'perm_state', 'perm_pincode',
-            'department', 'year', 'preferred_floor', 'assigned_room',
+            'temp_address', 'temp_city', 'temp_state',
+            'perm_address', 'perm_city', 'perm_state',
+            'preferred_floor', 'assigned_room',
             'created_at',
         ]

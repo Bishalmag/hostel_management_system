@@ -11,7 +11,7 @@ import LoginPortal from "./pages/LoginPortal";
 import AdminLogin from "./pages/AdminLoginPage";
 import MainLayout from "./layouts/MainLayouts";
 
-/* Student */
+/* Student Panel */
 import StudentLayout from "./layouts/StudentLayouts";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentHomePage from "./students/components/layouts/HomePage";
@@ -20,11 +20,15 @@ import RoomDetails from "./students/pages/RoomDetails";
 import ComplaintRegistration from "./students/pages/ComplaintRegistration";
 import RegisteredComplaints from "./students/pages/RegisteredComplaints";
 import Feedback from "./students/pages/Feedback";
+import PaymentHistory from "./students/pages/PaymentHistory";
+import Profile from "./students/pages/Profile";
+import Billings from "./students/pages/Billings";
+import PayRent from "./students/pages/PayRent";
+import MyBookings from "./students/views/MyBookings";
 
-/* Admin Layout (YOU SAID THIS ALREADY CONTAINS SIDEBAR/NAVBAR) */
+
+/* Admin Panel */
 import AdminDashboard from "./admin/components/AdminDashboard";
-
-/* Admin Pages */
 import ManageHostel from "./admin/views/ManageHostel";
 import AddHostel from "./admin/views/AddHostel";
 import ManageBlocks from "./admin/views/ManageBlocks";
@@ -43,6 +47,7 @@ import ManageComplaints from "./admin/views/ManageComplaints";
 import ManageFeedbacks from "./admin/views/ManageFeedbacks";
 import ManageFloors from "./admin/views/ManageFloors";
 
+
 export default function App() {
   useEffect(() => {
     const id = "hostel-mgmt-global-styles";
@@ -56,7 +61,6 @@ export default function App() {
     return () => style.remove();
   }, []);
 
-  // ✅ Dashboard page (NO new file needed)
   const AdminHome = () => {
     return <h2>Admin Dashboard Home</h2>;
   };
@@ -76,7 +80,7 @@ export default function App() {
             <Route path="/adminlogin" element={<AdminLogin />} />
           </Route>
 
-          {/* STUDENT */}
+        {/* STUDENT Section */}
           <Route
             path="/students"
             element={
@@ -87,14 +91,21 @@ export default function App() {
           >
             <Route index element={<StudentHomePage />} />
             <Route path="homepage" element={<StudentHomePage />} />
+            <Route path="hostels" element={<BookHostel />} />
+            <Route path="hostels/:id" element={<RoomDetails />} />
             <Route path="book-hostels" element={<BookHostel />} />
-            <Route path="room-details" element={<RoomDetails />} />
+            <Route path="room-details/:id" element={<RoomDetails />} />
             <Route path="complaints/new" element={<ComplaintRegistration />} />
             <Route path="complaints" element={<RegisteredComplaints />} />
             <Route path="feedback" element={<Feedback />} />
+            <Route path="payment-history" element={<PaymentHistory />} />
+            <Route path="billings" element={<Billings />} />''
+            <Route path="profile" element={<Profile />} />
+            <Route path="pay-rent" element={<PayRent />} />  
+            <Route path="/students/my-bookings" element={<MyBookings />} />     
           </Route>
 
-          {/* ADMIN (FIXED CLEAN STRUCTURE) */}
+          {/* ADMIN Section*/}
           <Route
             path="/admin"
             element={
@@ -103,40 +114,24 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-
-            {/* Dashboard */}
             <Route index element={<AdminHome />} />
             <Route path="dashboard" element={<AdminHome />} />
-
-            {/* Hostel */}
             <Route path="hostels" element={<ManageHostel />} />
             <Route path="hostels/add" element={<AddHostel />} />
-
-            {/* Rooms */}
             <Route path="rooms" element={<ManageRooms />} />
             <Route path="rooms/add" element={<AddRoom />} />
             <Route path="rooms/edit/:id" element={<EditRoom />} />
-
-            {/* Blocks & Floors */}
             <Route path="blocks" element={<ManageBlocks />} />
             <Route path="blocks/add" element={<AddBlock />} />
             <Route path="floors" element={<ManageFloors />} />
             <Route path="floors/add" element={<AddFloor />} />
-
-            {/* Bookings */}
             <Route path="bookings" element={<ManageBookings />} />
             <Route path="bookings/:id" element={<ApproveBooking />} />
-
-            {/* Students */}
             <Route path="students" element={<ManageStudents />} />
             <Route path="students/:id" element={<StudentDetail />} />
             <Route path="students/allocation" element={<ManageAllocations />} />
             <Route path="students/run-allocation" element={<RunAllocation />} />
-
-            {/* Complaints */}
             <Route path="complaints" element={<ManageComplaints />} />
-
-            {/* Feedback */}
             <Route path="feedbacks" element={<ManageFeedbacks />} />
           </Route>
 

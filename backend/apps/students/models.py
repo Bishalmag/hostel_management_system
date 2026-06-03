@@ -5,8 +5,6 @@ class Student(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE)
 
     # Personal info
-    registration_no   = models.CharField(max_length=50, blank=True, null=True)
-    course            = models.CharField(max_length=100, blank=True, null=True)
     middle_name       = models.CharField(max_length=100, blank=True, null=True)
     gender            = models.CharField(max_length=20, choices=[
                           ('male','Male'),('female','Female'),('other','Other')
@@ -22,17 +20,13 @@ class Student(models.Model):
     temp_address  = models.TextField(blank=True, null=True)
     temp_city     = models.CharField(max_length=100, blank=True, null=True)
     temp_state    = models.CharField(max_length=100, blank=True, null=True)
-    temp_pincode  = models.CharField(max_length=10, blank=True, null=True)
 
     # Permanent address
     perm_address  = models.TextField(blank=True, null=True)
     perm_city     = models.CharField(max_length=100, blank=True, null=True)
     perm_state    = models.CharField(max_length=100, blank=True, null=True)
-    perm_pincode  = models.CharField(max_length=10, blank=True, null=True)
 
     # Preferences
-    department      = models.CharField(max_length=100, blank=True, null=True)
-    year            = models.IntegerField(blank=True, null=True)
     preferred_floor = models.IntegerField(blank=True, null=True)
     assigned_room   = models.ForeignKey(
                         'hostel.Room', on_delete=models.SET_NULL,

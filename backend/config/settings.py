@@ -50,12 +50,11 @@ INSTALLED_APPS = [
     'apps.hostel',
     'apps.allocation',
     'apps.bookings',
-    'apps.discipline',
-    'apps.inventory',
     'apps.maintenance',
     'apps.accounts',
     'apps.notification',
-    'apps.complaints'
+    'apps.complaints',
+    'apps.feedback',
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
