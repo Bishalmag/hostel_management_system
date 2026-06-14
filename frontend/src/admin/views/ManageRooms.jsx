@@ -8,23 +8,44 @@ const ManageRooms = () => {
   const [loading, setLoading] = useState(true);
   const [search,  setSearch]  = useState('');
 
-  const fetchRooms = () => {
-    api.get('/hostel/rooms/')
-      .then(res => setRooms(res.data.results ?? res.data))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/hostel/rooms/');
+      setRooms(response.data.results ?? response.data);
+    } catch (err) {
+      console.error('Error fetching rooms:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchRooms(); }, []);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this room?')) return;
-    try { await api.delete(`/hostel/rooms/${id}/`); fetchRooms(); }
-    catch { alert('Failed.'); }
+    try { 
+      await api.delete(`/hostel/rooms/${id}/`); 
+      fetchRooms(); 
+    } catch { 
+      alert('Failed to delete room.'); 
+    }
+  };
+
+  // Function to get room status with more details
+  const getRoomStatus = (room) => {
+    const availableSpots = room.capacity - room.current_occupancy;
+    if (availableSpots === 0) {
+      return { text: 'Full', color: 'bg-red-500/20 text-red-400 border-red-500/30' };
+    } else if (availableSpots === room.capacity) {
+      return { text: 'Available', color: 'bg-green-500/20 text-green-400 border-green-500/30' };
+    } else {
+      return { text: `Partial (${availableSpots} left)`, color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
+    }
   };
 
   const filtered = rooms.filter(r =>
-    r.room_number?.toLowerCase().includes(search.toLowerCase())
+    r.room_number?.toString().toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -45,52 +66,70 @@ const ManageRooms = () => {
 
       {loading ? <div className="text-gray-500 text-center py-10">Loading...</div> : (
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
-                <th className="px-5 py-3 text-left">Room No</th>
-                <th className="px-5 py-3 text-left">Type</th>
-                <th className="px-5 py-3 text-left">Capacity</th>
-                <th className="px-5 py-3 text-left">Occupancy</th>
-                <th className="px-5 py-3 text-left">Status</th>
-                <th className="px-5 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-800">
-              {filtered.map(room => (
-                <tr key={room.id} className="hover:bg-gray-800/50 transition">
-                  <td className="px-5 py-3 font-mono text-white">Room {room.room_number}</td>
-                  <td className="px-5 py-3 text-gray-400 capitalize">{room.room_type}</td>
-                  <td className="px-5 py-3 text-gray-400">{room.capacity}</td>
-                  <td className="px-5 py-3 text-gray-400">{room.current_occupancy}/{room.capacity}</td>
-                  <td className="px-5 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full border ${
-                      room.current_occupancy < room.capacity
-                        ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                        : 'bg-red-500/20 text-red-400 border-red-500/30'
-                    }`}>
-                      {room.current_occupancy < room.capacity ? 'Available' : 'Full'}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => navigate(`/admin/rooms/edit/${room.id}`)}
-                        className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700">
-                        Edit
-                      </button>
-                      <button onClick={() => handleDelete(room.id)}
-                        className="text-xs px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded border border-red-500/30">
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-800/50 border-b border-gray-800">
+                <tr className="text-gray-500 text-xs uppercase tracking-wide">
+                  <th className="px-5 py-4 text-left">Room No</th>
+                  <th className="px-5 py-4 text-left">Type</th>
+                  <th className="px-5 py-4 text-left">Capacity</th>
+                  <th className="px-5 py-4 text-left">Occupancy</th>
+                  <th className="px-5 py-4 text-left">Available Spots</th>
+                  <th className="px-5 py-4 text-left">Status</th>
+                  <th className="px-5 py-4 text-left">Actions</th>
                 </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={6} className="px-5 py-10 text-center text-gray-600">No rooms found.</td></tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-800">
+                {filtered.map(room => {
+                  const availableSpots = room.capacity - room.current_occupancy;
+                  const status = getRoomStatus(room);
+                  return (
+                    <tr key={room.id} className="hover:bg-gray-800/50 transition">
+                      <td className="px-5 py-4 font-mono text-white">Room {room.room_number}</td>
+                      <td className="px-5 py-4 text-gray-400 capitalize">{room.room_type}</td>
+                      <td className="px-5 py-4 text-gray-400">{room.capacity}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-cyan-500 rounded-full transition-all duration-300"
+                              style={{ width: `${(room.current_occupancy / room.capacity) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-400 text-xs">{room.current_occupancy}/{room.capacity}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-gray-400">
+                          {availableSpots} {availableSpots === 1 ? 'spot' : 'spots'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`text-xs px-2 py-1 rounded-full border ${status.color}`}>
+                          {status.text}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => navigate(`/admin/rooms/edit/${room.id}`)}
+                            className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700">
+                            Edit
+                          </button>
+                          <button onClick={() => handleDelete(room.id)}
+                            className="text-xs px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded border border-red-500/30">
+                            Delete
+                          </button>
+                        </div>
+                       </td>
+                     </tr>
+                   );
+                })}
+                {filtered.length === 0 && (
+                  <tr><td colSpan={7} className="px-5 py-12 text-center text-gray-500">No rooms found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

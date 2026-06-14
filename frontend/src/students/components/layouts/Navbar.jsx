@@ -25,7 +25,8 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
   const handleLogout = () => {
     setMenuOpen(false);
     logout();
-    navigate('/login');
+    // localStorage.clear();
+    navigate('/loginPortal');
   };
 
   return (

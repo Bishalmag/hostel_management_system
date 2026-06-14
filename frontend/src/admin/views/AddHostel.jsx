@@ -54,6 +54,22 @@ const AddHostel = () => {
             rows={3}
             className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 resize-none" />
         </div>
+        
+        <div>
+          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Latitude</label>
+          <input type="number" step="any" value={form.latitude}
+            onChange={e => setForm(f => ({...f, latitude: e.target.value}))}
+            placeholder="e.g. 27.7172"
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500" />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Longitude</label>
+          <input type="number" step="any" value={form.longitude}
+            onChange={e => setForm(f => ({...f, longitude: e.target.value}))}
+            placeholder="e.g. 85.3240"
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500" />
+        </div>
+
         <button type="submit" disabled={loading}
           className="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50">
           {loading ? 'Adding...' : 'Add Hostel'}

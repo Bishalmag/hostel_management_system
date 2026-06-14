@@ -11,8 +11,11 @@ const AddRoom = () => {
     floor: '',
     room_number: '',
     capacity: '',
-    room_type: 'Single',
-    current_occupancy: 0
+    room_type: 'single',
+    ac_type: 'non_ac',
+    bathroom_type: 'shared',
+    current_occupancy: 0,
+    price_per_month: ''
   });
 
   const [hostels, setHostels] = useState([]);
@@ -22,14 +25,34 @@ const AddRoom = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // ✅ Load hostels
+  // Price suggestions based on room type, AC, and bathroom
+  const getSuggestedPrice = (roomType, acType, bathroomType) => {
+    const prices = {
+      single: { non_ac: { shared: 5000, attached: 6000 }, ac: { shared: 8000, attached: 9000 } },
+      double: { non_ac: { shared: 8000, attached: 9500 }, ac: { shared: 12000, attached: 13500 } },
+      triple: { non_ac: { shared: 10000, attached: 11500 }, ac: { shared: 15000, attached: 16500 } }
+    };
+    return prices[roomType]?.[acType]?.[bathroomType] || '';
+  };
+
+  // Auto-suggest price when room type, AC, or bathroom changes
+  useEffect(() => {
+    if (form.room_type && form.ac_type && form.bathroom_type) {
+      const suggestedPrice = getSuggestedPrice(form.room_type, form.ac_type, form.bathroom_type);
+      if (suggestedPrice && !form.price_per_month) {
+        setForm(f => ({ ...f, price_per_month: suggestedPrice }));
+      }
+    }
+  }, [form.room_type, form.ac_type, form.bathroom_type]);
+
+  // Load hostels
   useEffect(() => {
     api.get('/hostel/hostels/')
       .then(res => setHostels(res.data.results ?? res.data))
       .catch(() => {});
   }, []);
 
-  // ✅ Load blocks when hostel changes
+  // Load blocks when hostel changes
   useEffect(() => {
     if (!form.hostel) {
       setBlocks([]);
@@ -41,7 +64,7 @@ const AddRoom = () => {
       .catch(() => {});
   }, [form.hostel]);
 
-  // ✅ Load floors when block changes
+  // Load floors when block changes
   useEffect(() => {
     if (!form.block) {
       setFloors([]);
@@ -63,7 +86,10 @@ const AddRoom = () => {
         room_number: form.room_number,
         capacity: form.capacity,
         room_type: form.room_type,
-        current_occupancy: form.current_occupancy
+        ac_type: form.ac_type,
+        bathroom_type: form.bathroom_type,
+        current_occupancy: form.current_occupancy,
+        price_per_month: form.price_per_month
       });
 
       setMessage({
@@ -239,8 +265,75 @@ const AddRoom = () => {
             className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
           >
             <option value="single">Single</option>
-            <option value="swwwwhared">Shared</option>
+            <option value="double">Double</option>
+            <option value="triple">Triple</option>
           </select>
+        </div>
+
+        {/* AC TYPE */}
+        <div>
+          <label className="block text-xs text-gray-500 uppercase mb-1">
+            AC Type *
+          </label>
+
+          <select
+            value={form.ac_type}
+            onChange={set('ac_type')}
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+          >
+            <option value="non_ac">Non-AC</option>
+            <option value="ac">AC</option>
+          </select>
+        </div>
+
+        {/* BATHROOM TYPE */}
+        <div>
+          <label className="block text-xs text-gray-500 uppercase mb-1">
+            Bathroom Type *
+          </label>
+
+          <select
+            value={form.bathroom_type}
+            onChange={set('bathroom_type')}
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+          >
+            <option value="shared">Shared Bathroom</option>
+            <option value="attached">Attached Bathroom</option>
+          </select>
+        </div>
+
+        {/* PRICE */}
+        <div>
+          <label className="block text-xs text-gray-500 uppercase mb-1">
+            Price per Month (NPR)
+          </label>
+
+          <input
+            type="number"
+            value={form.price_per_month}
+            onChange={set('price_per_month')}
+            placeholder="e.g. 5000"
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+          />
+          <p className="text-gray-500 text-xs mt-1">
+            Suggested price for {form.room_type}, {form.ac_type}, {form.bathroom_type}: 
+            Rs. {getSuggestedPrice(form.room_type, form.ac_type, form.bathroom_type) || 'N/A'}
+          </p>
+        </div>
+
+        {/* CURRENT OCCUPANCY */}
+        <div>
+          <label className="block text-xs text-gray-500 uppercase mb-1">
+            Current Occupancy
+          </label>
+
+          <input
+            type="number"
+            value={form.current_occupancy}
+            onChange={set('current_occupancy')}
+            placeholder="0"
+            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+          />
         </div>
 
         <button

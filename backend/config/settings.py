@@ -171,3 +171,16 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': 'your-secret-key-change-in-production',
 }
+
+
+# eSewa Configuration
+ESEWA_MERCHANT_CODE = "EPAYTEST"
+ESEWA_SECRET_KEY = "8gBm/:&EnhH.1/q"
+ESEWA_SUCCESS_URL = "http://localhost:8000/api/bookings/payment/success/"
+ESEWA_FAILURE_URL = "http://localhost:8000/api/bookings/payment/failure/"
+ESEWA_TEST_MODE = True
+
+if ESEWA_TEST_MODE:
+    ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
+else:
+    ESEWA_PAYMENT_URL = "https://epay.esewa.com.np/api/epay/main/v2/form"
