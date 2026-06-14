@@ -1,8 +1,16 @@
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from .views import BookingViewSet, PaymentViewSet
 
-router = DefaultRouter()
-router.include_format_suffixes = False
-router.register('bookings', BookingViewSet, basename='bookings')
-router.register('payments', PaymentViewSet, basename='payments')
-urlpatterns = router.urls
+urlpatterns = [
+    # Booking URLs
+    path('bookings/', BookingViewSet.as_view({'get': 'list', 'post': 'create'}), name='booking-list'),
+    path('bookings/<int:pk>/', BookingViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='booking-detail'),
+    
+    # Payment URLs
+    path('payments/', PaymentViewSet.as_view({'get': 'list', 'post': 'create'}), name='payment-list'),
+    path('payments/<int:pk>/', PaymentViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='payment-detail'),
+    path('payments/initiate/', PaymentViewSet.as_view({'post': 'initiate_esewa_payment'}), name='initiate-payment'),
+    path('payment/success/', PaymentViewSet.as_view({'get': 'payment_success'}), name='payment-success'),
+    path('payment/failure/', PaymentViewSet.as_view({'get': 'payment_failure'}), name='payment-failure'),
+    path('payments/my-payments/', PaymentViewSet.as_view({'get': 'my_payments'}), name='my-payments'),
+]

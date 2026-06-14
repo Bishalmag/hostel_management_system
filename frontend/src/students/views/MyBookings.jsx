@@ -12,6 +12,7 @@ const MyBookings = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [processingPayment, setProcessingPayment] = useState(null);
 
   useEffect(() => {
     fetchUserBookings();
@@ -92,14 +93,32 @@ const MyBookings = () => {
     }
   };
 
-  const handlePayment = (booking) => {
-    navigate('/students/pay-rent', { state: { booking } });
+  const handlePayment = async (booking) => {
+    setProcessingPayment(booking.id);
+    try {
+      const response = await api.post('/bookings/payments/initiate/', {
+        booking_id: booking.id
+      });
+      
+      // Create a temporary div and submit the form to eSewa
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = response.data.form;
+      document.body.appendChild(tempDiv);
+      const form = tempDiv.querySelector('form');
+      if (form) {
+        form.submit();
+      }
+    } catch (err) {
+      console.error('Payment initiation failed:', err);
+      alert(err.response?.data?.error || 'Failed to initiate payment. Please try again.');
+      setProcessingPayment(null);
+    }
   };
 
   const getStatusColor = (status, isPast) => {
     if (isPast) return 'text-gray-400 bg-gray-500/10 border-gray-500/30';
     switch (status?.toLowerCase()) {
-      case 'confirmed':
+      case 'approved':
         return 'text-green-400 bg-green-500/10 border-green-500/30';
       case 'pending':
         return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
@@ -115,6 +134,14 @@ const MyBookings = () => {
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const getDaysRemaining = (checkOutDate) => {
+    const today = new Date();
+    const checkOut = new Date(checkOutDate);
+    const diffTime = checkOut - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
   };
 
   const getFilteredBookings = () => {
@@ -160,7 +187,42 @@ const MyBookings = () => {
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white">My Booking</h1>
+        <h1 className="text-3xl font-bold text-white">My Bookings</h1>
+        <p className="text-gray-400 mt-1">View and manage your hostel bookings</p>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-800">
+        <button
+          onClick={() => setActiveTab('upcoming')}
+          className={`px-4 py-2 text-sm font-medium transition ${
+            activeTab === 'upcoming'
+              ? 'text-cyan-400 border-b-2 border-cyan-400'
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Active & Upcoming
+          {bookings.filter(b => new Date(b.check_out_date) >= new Date()).length > 0 && (
+            <span className="ml-2 px-1.5 py-0.5 text-xs bg-cyan-500/20 rounded-full">
+              {bookings.filter(b => new Date(b.check_out_date) >= new Date()).length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('past')}
+          className={`px-4 py-2 text-sm font-medium transition ${
+            activeTab === 'past'
+              ? 'text-cyan-400 border-b-2 border-cyan-400'
+              : 'text-gray-400 hover:text-gray-300'
+          }`}
+        >
+          Past Bookings
+          {bookings.filter(b => new Date(b.check_out_date) < new Date()).length > 0 && (
+            <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-500/20 rounded-full">
+              {bookings.filter(b => new Date(b.check_out_date) < new Date()).length}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* Bookings Table */}
@@ -175,6 +237,14 @@ const MyBookings = () => {
               ? "You don't have any past bookings."
               : "You haven't made any hostel bookings yet."}
           </p>
+          {(activeTab === 'upcoming' || activeTab === 'all') && (
+            <button
+              onClick={() => navigate('/students/book-hostels')}
+              className="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+            >
+              Browse Hostels
+            </button>
+          )}
         </div>
       ) : (
         <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
@@ -193,6 +263,8 @@ const MyBookings = () => {
               <tbody className="divide-y divide-gray-800">
                 {filteredBookings.map((booking) => {
                   const isPast = new Date(booking.check_out_date) < new Date();
+                  const isPending = booking.status === 'pending';
+                  
                   return (
                     <tr key={booking.id} className="hover:bg-gray-800/30 transition">
                       <td className="px-6 py-4">
@@ -221,7 +293,7 @@ const MyBookings = () => {
                         <p className="text-white">{formatDate(booking.check_out_date)}</p>
                         {!isPast && (
                           <p className="text-yellow-400 text-xs mt-1">
-                            {Math.ceil((new Date(booking.check_out_date) - new Date()) / (1000 * 60 * 60 * 24))} days left
+                            {getDaysRemaining(booking.check_out_date)} days left
                           </p>
                         )}
                       </td>
@@ -238,13 +310,21 @@ const MyBookings = () => {
                           >
                             View
                           </button>
-                          {!isPast && (
+                          {!isPast && isPending && (
                             <>
                               <button
                                 onClick={() => handlePayment(booking)}
-                                className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-sm font-medium rounded-lg transition"
+                                disabled={processingPayment === booking.id}
+                                className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-sm font-medium rounded-lg transition disabled:opacity-50 flex items-center gap-1"
                               >
-                                Pay Now
+                                {processingPayment === booking.id ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-400"></div>
+                                    Processing...
+                                  </>
+                                ) : (
+                                  'Pay Now'
+                                )}
                               </button>
                               <button
                                 onClick={() => setSelectedBooking(booking)}

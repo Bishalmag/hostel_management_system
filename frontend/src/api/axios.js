@@ -36,7 +36,8 @@ api.interceptors.response.use(
         return api(original);
       } catch {
         localStorage.clear();
-        window.location.href = '/login';
+        // delete api.defaults.headers.Authorization;
+        window.location.href = '/loginPortal';
       }
     }
     return Promise.reject(error);

@@ -51,12 +51,12 @@ const ManageHostel = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Manage Hostels</h1>
 
-        <button
+        {/* <button
           onClick={() => navigate('/admin/hostels/add')}
           className="px-4 py-2 text-sm bg-purple-500 hover:bg-purple-400 text-white rounded-lg transition"
         >
           + Add Hostel
-        </button>
+        </button> */}
       </div>
 
       {/* ERROR */}

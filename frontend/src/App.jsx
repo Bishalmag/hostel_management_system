@@ -16,6 +16,7 @@ import StudentLayout from "./layouts/StudentLayouts";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentHomePage from "./students/components/layouts/HomePage";
 import BookHostel from "./students/pages/BookHostel";
+import RoomSelection from "./students/pages/RoomSelection";
 import RoomDetails from "./students/pages/RoomDetails";
 import ComplaintRegistration from "./students/pages/ComplaintRegistration";
 import RegisteredComplaints from "./students/pages/RegisteredComplaints";
@@ -23,17 +24,21 @@ import Feedback from "./students/pages/Feedback";
 import PaymentHistory from "./students/pages/PaymentHistory";
 import Profile from "./students/pages/Profile";
 import Billings from "./students/pages/Billings";
-import PayRent from "./students/pages/PayRent";
+// import PayRent from "./students/pages/PayRent";
 import MyBookings from "./students/views/MyBookings";
-
+import PaymentSuccess from './students/views/PaymentSuccess';
+import PaymentFailure from './students/views/PaymentFailure';
+import PayNowButton from './students/views/PayNowButton';
 
 /* Admin Panel */
 import AdminDashboard from "./admin/components/AdminDashboard";
 import ManageHostel from "./admin/views/ManageHostel";
 import AddHostel from "./admin/views/AddHostel";
+import EditHostel from "./admin/views/EditHostel";
 import ManageBlocks from "./admin/views/ManageBlocks";
 import AddBlock from "./admin/views/AddBlock";
 import AddFloor from "./admin/views/AddFloor";
+import ManageFloors from "./admin/views/ManageFloors";
 import ManageRooms from "./admin/views/ManageRooms";
 import AddRoom from "./admin/views/AddRoom";
 import EditRoom from "./admin/views/EditRoom";
@@ -44,8 +49,9 @@ import ApproveBooking from "./admin/views/ApproveBooking";
 import ManageAllocations from "./admin/views/ManageAllocations";
 import RunAllocation from "./admin/views/RunAllocation";
 import ManageComplaints from "./admin/views/ManageComplaints";
+import PendingComplaints from "./admin/views/PendingComplaints";
+import ResolvedComplaints from "./admin/views/ResolvedComplaints";
 import ManageFeedbacks from "./admin/views/ManageFeedbacks";
-import ManageFloors from "./admin/views/ManageFloors";
 
 
 export default function App() {
@@ -69,7 +75,6 @@ export default function App() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <main style={{ flex: 1 }}>
         <Routes>
-
           {/* PUBLIC */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<LandingPage />} />
@@ -80,7 +85,7 @@ export default function App() {
             <Route path="/adminlogin" element={<AdminLogin />} />
           </Route>
 
-        {/* STUDENT Section */}
+          {/* STUDENT Section */}
           <Route
             path="/students"
             element={
@@ -95,17 +100,22 @@ export default function App() {
             <Route path="hostels/:id" element={<RoomDetails />} />
             <Route path="book-hostels" element={<BookHostel />} />
             <Route path="room-details/:id" element={<RoomDetails />} />
+            <Route path="room-selection" element={<RoomSelection />} />
             <Route path="complaints/new" element={<ComplaintRegistration />} />
             <Route path="complaints" element={<RegisteredComplaints />} />
             <Route path="feedback" element={<Feedback />} />
             <Route path="payment-history" element={<PaymentHistory />} />
-            <Route path="billings" element={<Billings />} />''
+            <Route path="billings" element={<Billings />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="pay-rent" element={<PayRent />} />  
-            <Route path="/students/my-bookings" element={<MyBookings />} />     
+            {/* <Route path="pay-rent" element={<PayRent />} />   */}
+            <Route path="my-bookings" element={<MyBookings />} />  
+            <Route path="payment/success" element={<PaymentSuccess />} />
+            <Route path="payment/failure" element={<PaymentFailure />} />  
+            <Route path="pay/:bookingId" element={<PayNowButton />} />
+             
           </Route>
 
-          {/* ADMIN Section*/}
+          {/* ADMIN Section */}
           <Route
             path="/admin"
             element={
@@ -118,6 +128,7 @@ export default function App() {
             <Route path="dashboard" element={<AdminHome />} />
             <Route path="hostels" element={<ManageHostel />} />
             <Route path="hostels/add" element={<AddHostel />} />
+            <Route path="hostels/edit/:id" element={<EditHostel />} /> 
             <Route path="rooms" element={<ManageRooms />} />
             <Route path="rooms/add" element={<AddRoom />} />
             <Route path="rooms/edit/:id" element={<EditRoom />} />
@@ -132,9 +143,10 @@ export default function App() {
             <Route path="students/allocation" element={<ManageAllocations />} />
             <Route path="students/run-allocation" element={<RunAllocation />} />
             <Route path="complaints" element={<ManageComplaints />} />
+            <Route path="complaints/pending" element={<PendingComplaints />} />
+            <Route path="complaints/resolved" element={<ResolvedComplaints />} />
             <Route path="feedbacks" element={<ManageFeedbacks />} />
           </Route>
-
         </Routes>
       </main>
     </div>
