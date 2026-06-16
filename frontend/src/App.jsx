@@ -24,11 +24,12 @@ import Feedback from "./students/pages/Feedback";
 import PaymentHistory from "./students/pages/PaymentHistory";
 import Profile from "./students/pages/Profile";
 import Billings from "./students/pages/Billings";
-// import PayRent from "./students/pages/PayRent";
+import PayNowPage from "./students/views/PayNow";
+import PayRent from "./students/pages/PayRent";
 import MyBookings from "./students/views/MyBookings";
 import PaymentSuccess from './students/views/PaymentSuccess';
 import PaymentFailure from './students/views/PaymentFailure';
-import PayNowButton from './students/views/PayNowButton';
+import PayNowButton from "./students/components/PayNowButton";
 
 /* Admin Panel */
 import AdminDashboard from "./admin/components/AdminDashboard";
@@ -107,11 +108,11 @@ export default function App() {
             <Route path="payment-history" element={<PaymentHistory />} />
             <Route path="billings" element={<Billings />} />
             <Route path="profile" element={<Profile />} />
-            {/* <Route path="pay-rent" element={<PayRent />} />   */}
+            <Route path="pay-rent" element={<PayRent />} />  
             <Route path="my-bookings" element={<MyBookings />} />  
             <Route path="payment/success" element={<PaymentSuccess />} />
             <Route path="payment/failure" element={<PaymentFailure />} />  
-            <Route path="pay/:bookingId" element={<PayNowButton />} />
+            <Route path="pay/:bookingId" element={<PayNowPage />} />
              
           </Route>
 
