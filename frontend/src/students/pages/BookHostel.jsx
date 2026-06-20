@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../components/Auth';
+import { useNotification } from '../../context/NotificationContext';
 
 const BookHostel = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { showBooking, showError, showSuccess } = useNotification();
   const [hostels, setHostels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -172,7 +174,7 @@ const BookHostel = () => {
       setSelectedRoomForBooking(option.rooms[0]);
       setShowBookingForm(true);
     } else {
-      // If multiple rooms, navigate to room selection
+      // ✅ FIX: Navigate to room selection with hostel ID in URL
       navigate(`/students/room-selection/${selectedHostel.id}`, {
         state: {
           hostel: selectedHostel,
@@ -208,97 +210,102 @@ const BookHostel = () => {
   };
 
   const handleBookingSubmit = async (e) => {
-  e.preventDefault();
-  
-  // Validate required fields
-  const requiredFields = ['phone', 'guardian_name', 'guardian_contact', 'check_in_date', 'check_out_date'];
-  const missingFields = requiredFields.filter(field => !bookingForm[field]);
-  
-  if (missingFields.length > 0) {
-    alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
-    return;
-  }
-  
-  if (new Date(bookingForm.check_in_date) >= new Date(bookingForm.check_out_date)) {
-    alert('Check-out date must be after check-in date');
-    return;
-  }
-
-  setSubmitting(true);
-  try {
-    // 1. Update or create student profile
-    let studentId;
-    const studentData = {
-      middle_name: bookingForm.middle_name || null,
-      gender: bookingForm.gender || null,
-      phone: bookingForm.phone,
-      guardian_name: bookingForm.guardian_name,
-      guardian_relation: bookingForm.guardian_relation || null,
-      guardian_contact: bookingForm.guardian_contact,
-      temp_address: bookingForm.temp_address || null,
-      temp_city: bookingForm.temp_city || null,
-      temp_state: bookingForm.temp_state || null,
-      perm_address: bookingForm.same_as_temp ? bookingForm.temp_address : bookingForm.perm_address || null,
-      perm_city: bookingForm.same_as_temp ? bookingForm.temp_city : bookingForm.perm_city || null,
-      perm_state: bookingForm.same_as_temp ? bookingForm.temp_state : bookingForm.perm_state || null,
-    };
-
-    if (studentProfile) {
-      await api.patch(`/students/${studentProfile.id}/`, studentData);
-      studentId = studentProfile.id;
-    } else {
-      const response = await api.post('/students/', {
-        user: user.id,
-        ...studentData
-      });
-      studentId = response.data.id;
-      setStudentProfile(response.data);
+    e.preventDefault();
+    
+    // Validate required fields
+    const requiredFields = ['phone', 'guardian_name', 'guardian_contact', 'check_in_date', 'check_out_date'];
+    const missingFields = requiredFields.filter(field => !bookingForm[field]);
+    
+    if (missingFields.length > 0) {
+      showError(`Please fill in all required fields: ${missingFields.join(', ')}`, 'Validation Error');
+      return;
+    }
+    
+    if (new Date(bookingForm.check_in_date) >= new Date(bookingForm.check_out_date)) {
+      showError('Check-out date must be after check-in date', 'Validation Error');
+      return;
     }
 
-    // 2. Calculate total amount (use decimal with 2 decimal places)
-    const days = Math.ceil((new Date(bookingForm.check_out_date) - new Date(bookingForm.check_in_date)) / (1000 * 60 * 60 * 24));
-    const pricePerMonth = selectedRoomForBooking.price_per_month || 5000;
-    const totalAmount = Number(((pricePerMonth / 30) * days).toFixed(2)); // Keep 2 decimal places
+    setSubmitting(true);
+    try {
+      // 1. Update or create student profile
+      let studentId;
+      const studentData = {
+        middle_name: bookingForm.middle_name || null,
+        gender: bookingForm.gender || null,
+        phone: bookingForm.phone,
+        guardian_name: bookingForm.guardian_name,
+        guardian_relation: bookingForm.guardian_relation || null,
+        guardian_contact: bookingForm.guardian_contact,
+        temp_address: bookingForm.temp_address || null,
+        temp_city: bookingForm.temp_city || null,
+        temp_state: bookingForm.temp_state || null,
+        perm_address: bookingForm.same_as_temp ? bookingForm.temp_address : bookingForm.perm_address || null,
+        perm_city: bookingForm.same_as_temp ? bookingForm.temp_city : bookingForm.perm_city || null,
+        perm_state: bookingForm.same_as_temp ? bookingForm.temp_state : bookingForm.perm_state || null,
+      };
 
-    // 3. Create booking - validate all fields
-    const bookingData = {
-      student: studentId,
-      room: selectedRoomForBooking.id,
-      check_in_date: bookingForm.check_in_date,
-      check_out_date: bookingForm.check_out_date,
-      total_amount: totalAmount  // Send as number, not string
-    };
-    
-    console.log('Sending booking data:', bookingData);
-    
-    const bookingResponse = await api.post('/bookings/bookings/', bookingData);
-    console.log('Booking response:', bookingResponse.data);
-
-    // 4. Navigate to payment
-    navigate(`/students/pay/${bookingResponse.data.id}`);
-    
-  } catch (err) {
-    console.error('Booking failed:', err);
-    console.error('Error response:', err.response?.data);
-    
-    // Show detailed error message
-    let errorMessage = 'Failed to create booking. ';
-    if (err.response?.data) {
-      const errorData = err.response.data;
-      if (typeof errorData === 'object') {
-        const messages = Object.values(errorData).flat();
-        errorMessage += messages.join(', ');
+      if (studentProfile) {
+        await api.patch(`/students/${studentProfile.id}/`, studentData);
+        studentId = studentProfile.id;
       } else {
-        errorMessage += errorData;
+        const response = await api.post('/students/', {
+          user: user.id,
+          ...studentData
+        });
+        studentId = response.data.id;
+        setStudentProfile(response.data);
       }
-    } else {
-      errorMessage += 'Please try again.';
+
+      // 2. Calculate total amount (use decimal with 2 decimal places)
+      const days = Math.ceil((new Date(bookingForm.check_out_date) - new Date(bookingForm.check_in_date)) / (1000 * 60 * 60 * 24));
+      const pricePerMonth = selectedRoomForBooking.price_per_month || 5000;
+      const totalAmount = Number(((pricePerMonth / 30) * days).toFixed(2));
+
+      // 3. Create booking - validate all fields
+      const bookingData = {
+        student: studentId,
+        room: selectedRoomForBooking.id,
+        check_in_date: bookingForm.check_in_date,
+        check_out_date: bookingForm.check_out_date,
+        total_amount: totalAmount
+      };
+      
+      console.log('Sending booking data:', bookingData);
+      
+      const bookingResponse = await api.post('/bookings/bookings/', bookingData);
+      console.log('Booking response:', bookingResponse.data);
+
+      showBooking(
+        `Room ${selectedRoomForBooking.room_number} booked successfully!`,
+        'Booking Confirmed',
+        `Check-in: ${bookingForm.check_in_date} | Check-out: ${bookingForm.check_out_date}`
+      );
+
+      // 4. Navigate to payment
+      navigate(`/students/pay/${bookingResponse.data.id}`);
+      
+    } catch (err) {
+      console.error('Booking failed:', err);
+      console.error('Error response:', err.response?.data);
+      
+      let errorMessage = 'Failed to create booking. ';
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        if (typeof errorData === 'object') {
+          const messages = Object.values(errorData).flat();
+          errorMessage += messages.join(', ');
+        } else {
+          errorMessage += errorData;
+        }
+      } else {
+        errorMessage += 'Please try again.';
+      }
+      showError(errorMessage, 'Booking Failed');
+    } finally {
+      setSubmitting(false);
     }
-    alert(errorMessage);
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   const handleBackToRooms = () => {
     setShowBookingForm(false);

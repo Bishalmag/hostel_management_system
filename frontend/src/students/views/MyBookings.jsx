@@ -304,11 +304,12 @@ const MyBookings = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          {/* ✅ Updated View button */}
                           <button
-                            onClick={() => window.open(`/students/booking-details/${booking.id}`, '_blank')}
+                            onClick={() => navigate(`/students/booking/${booking.id}`)}
                             className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-cyan-400 text-sm font-medium rounded-lg transition"
                           >
-                            View
+                            View Details
                           </button>
                           {!isPast && isPending && (
                             <>

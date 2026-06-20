@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.notification',
     'apps.complaints',
     'apps.feedback',
+    'apps.events',
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
