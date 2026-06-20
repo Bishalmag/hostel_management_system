@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
-// import { useNotification } from '../../context/NotificationContext';
+import { useNotification } from '../../context/NotificationContext';
 
 const ManageComplaints = () => {
   const navigate = useNavigate();

@@ -22,14 +22,12 @@ class Graph {
     }
   }
 
-  // Dijkstra's Algorithm - finds shortest path from start to end
   findShortestPath(startNode, endNode) {
     const distances = new Map();
     const previous = new Map();
     const unvisited = new Set();
     const visitedOrder = [];
 
-    // Initialize distances
     for (const [nodeId] of this.nodes) {
       distances.set(nodeId, Infinity);
       unvisited.add(nodeId);
@@ -37,7 +35,6 @@ class Graph {
     distances.set(startNode, 0);
 
     while (unvisited.size > 0) {
-      // Find node with smallest distance
       let current = null;
       let smallestDistance = Infinity;
       for (const nodeId of unvisited) {
@@ -64,7 +61,6 @@ class Graph {
       }
     }
 
-    // Reconstruct path
     const path = [];
     let current = endNode;
     while (current !== startNode && previous.has(current)) {
@@ -90,11 +86,9 @@ class Graph {
   }
 }
 
-// Initialize the hostel internal map graph
 const initializeHostelGraph = () => {
   const graph = new Graph();
 
-  // Define nodes (locations within the hostel)
   const locations = {
     main_gate: { name: "Main Gate", type: "entry", lat: 27.7429, lng: 85.4360 },
     reception: { name: "Reception", type: "service", lat: 27.7430, lng: 85.4361 },
@@ -110,12 +104,10 @@ const initializeHostelGraph = () => {
     laundry: { name: "Laundry Room", type: "facility", lat: 27.7440, lng: 85.4371 },
   };
 
-  // Add nodes to graph
   Object.entries(locations).forEach(([id, data]) => {
     graph.addNode(id, data);
   });
 
-  // Define edges (hallways/paths with distances in meters)
   const edges = [
     { from: "main_gate", to: "reception", weight: 15 },
     { from: "reception", to: "block_a", weight: 25 },
@@ -148,6 +140,7 @@ const HomePage = () => {
   const [currentBooking, setCurrentBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [events, setEvents] = useState([]);
   
   // Location states
   const [hostelLocation, setHostelLocation] = useState(null);
@@ -167,7 +160,6 @@ const HomePage = () => {
   const [showPathfinding, setShowPathfinding] = useState(false);
   const [pathfindingStatus, setPathfindingStatus] = useState("");
 
-  // Default location (Subedi Gau)
   const DEFAULT_LOCATION = {
     lat: 27.7429167,
     lng: 85.4360556,
@@ -210,10 +202,11 @@ const HomePage = () => {
           });
         }
         
+        // Fetch complaints for updates
         const complaintsRes = await api.get("/complaints/");
         const complaints = complaintsRes.data.results ?? complaintsRes.data;
         
-        const events = complaints
+        const complaintEvents = complaints
           .filter(c => c.status === "in_progress")
           .map(c => ({
             id: `complaint-${c.id}`,
@@ -224,7 +217,22 @@ const HomePage = () => {
           .sort((a, b) => new Date(b.date) - new Date(a.date))
           .slice(0, 3);
         
-        setUpcomingEvents(events);
+        setUpcomingEvents(complaintEvents);
+
+        // ---------------- FETCH EVENTS ----------------
+        try {
+          const eventsRes = await api.get("/events/");
+          const allEvents = eventsRes.data.results ?? eventsRes.data;
+          // Filter only upcoming and ongoing events
+          const now = new Date();
+          const filteredEvents = allEvents
+            .filter(e => e.is_active && new Date(e.end_date) >= now)
+            .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+            .slice(0, 5); // Show only latest 5 events
+          setEvents(filteredEvents);
+        } catch (eventsErr) {
+          console.log('No events found or events API not available');
+        }
         
       } catch (err) {
         console.error('Error fetching student data:', err);
@@ -262,7 +270,7 @@ const HomePage = () => {
     fetchHostelLocation();
   }, [currentBooking]);
 
-  // ---------------- FIND SHORTEST PATH USING DIJKSTRA ----------------
+  // ---------------- FIND SHORTEST PATH ----------------
   const findShortestPathToDestination = () => {
     if (!hostelGraph) {
       setPathfindingStatus("Graph not initialized");
@@ -272,7 +280,6 @@ const HomePage = () => {
     setPathfindingStatus("🧮 Running Dijkstra's Algorithm to find shortest path...");
     setShowPathfinding(true);
 
-    // Simulate algorithm processing (for UI feedback)
     setTimeout(() => {
       const startNode = "main_gate";
       const endNode = selectedDestination;
@@ -406,6 +413,36 @@ const HomePage = () => {
     return diffDays > 0 ? diffDays : 0;
   };
 
+  const getEventStatus = (event) => {
+    const now = new Date();
+    const start = new Date(event.start_date);
+    const end = new Date(event.end_date);
+    
+    if (end < now) return { label: 'Past', color: 'text-gray-400 bg-gray-500/20' };
+    if (start <= now && end >= now) return { label: 'Ongoing', color: 'text-green-400 bg-green-500/20' };
+    return { label: 'Upcoming', color: 'text-blue-400 bg-blue-500/20' };
+  };
+
+  const formatEventDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const getEventTypeIcon = (type) => {
+    const icons = {
+      general: '📋',
+      academic: '📚',
+      cultural: '🎭',
+      sports: '⚽',
+      maintenance: '🔧',
+      emergency: '🚨',
+      holiday: '🎉',
+      other: '📌',
+    };
+    return icons[type] || '📅';
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -490,6 +527,71 @@ const HomePage = () => {
             </div>
           )}
         </div>
+
+        {/* Events Section */}
+        {events.length > 0 && (
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
+              <h2 className="text-white font-semibold flex items-center gap-2">
+                <span className="text-xl">📅</span> Upcoming Events
+              </h2>
+              <p className="text-gray-500 text-xs mt-1">Stay updated with hostel events</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {events.map((event) => {
+                  const status = getEventStatus(event);
+                  return (
+                    <div key={event.id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 hover:border-cyan-500/30 transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{getEventTypeIcon(event.event_type)}</span>
+                          <h3 className="text-white font-semibold text-sm">{event.title}</h3>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${status.color}`}>
+                          {status.label}
+                        </span>
+                      </div>
+                      
+                      <p className="text-gray-400 text-sm line-clamp-2">{event.description}</p>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-700 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">Start:</span>
+                          <span className="text-gray-300">{formatEventDate(event.start_date)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-gray-500">End:</span>
+                          <span className="text-gray-300">{formatEventDate(event.end_date)}</span>
+                        </div>
+                        {event.location && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-500">📍</span>
+                            <span className="text-gray-300">{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {event.is_featured && (
+                        <div className="mt-2">
+                          <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-0.5 rounded-full">⭐ Featured Event</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 text-center">
+                <button
+                  onClick={() => navigate('/students/events')}
+                  className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition"
+                >
+                  View All Events →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Route Navigator with Dijkstra's Algorithm */}
         <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
@@ -741,85 +843,7 @@ const HomePage = () => {
             )}
           </div>
         </div>
-
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Announcements */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl">
-            <div className="px-6 py-4 border-b border-gray-800">
-              <h2 className="text-white font-semibold flex items-center gap-2">
-                <span className="text-xl">📢</span> Announcements
-              </h2>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="flex items-start gap-3 pb-3 border-b border-gray-800">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center text-lg">📅</div>
-                <div>
-                  <p className="text-white text-sm font-medium">Semester Break</p>
-                  <p className="text-gray-500 text-xs">Hostel will remain open during break</p>
-                  <p className="text-gray-600 text-xs mt-1">December 25 - January 5</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 pb-3 border-b border-gray-800">
-                <div className="w-10 h-10 bg-yellow-500/20 rounded-lg flex items-center justify-center text-lg">🔧</div>
-                <div>
-                  <p className="text-white text-sm font-medium">Maintenance Notice</p>
-                  <p className="text-gray-500 text-xs">Water supply maintenance on Sunday</p>
-                  <p className="text-gray-600 text-xs mt-1">December 22, 9:00 AM - 2:00 PM</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-lg">🎉</div>
-                <div>
-                  <p className="text-white text-sm font-medium">Year End Party</p>
-                  <p className="text-gray-500 text-xs">Hostel celebration at common hall</p>
-                  <p className="text-gray-600 text-xs mt-1">December 28, 7:00 PM</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Help & Support */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl">
-            <div className="px-6 py-4 border-b border-gray-800">
-              <h2 className="text-white font-semibold flex items-center gap-2">
-                <span className="text-xl">💬</span> Need Help?
-              </h2>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="bg-gray-800/30 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center text-lg">👨‍💼</div>
-                  <div>
-                    <p className="text-white text-sm font-medium">Hostel Warden</p>
-                    <p className="text-gray-500 text-xs">Mr. Rajesh Kumar</p>
-                    <p className="text-gray-600 text-xs mt-1">+91 98765 43210</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-800/30 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-lg">🛠️</div>
-                  <div>
-                    <p className="text-white text-sm font-medium">Maintenance Team</p>
-                    <p className="text-gray-500 text-xs">24/7 Support Available</p>
-                    <p className="text-gray-600 text-xs mt-1">+91 98765 43211</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-800/30 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center text-lg">🚨</div>
-                  <div>
-                    <p className="text-white text-sm font-medium">Emergency</p>
-                    <p className="text-gray-500 text-xs">Security / Medical Emergency</p>
-                    <p className="text-gray-600 text-xs mt-1">+91 98765 43212</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
         {/* Complaint Updates */}
         {upcomingEvents.length > 0 && (

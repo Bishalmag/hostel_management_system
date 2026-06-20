@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
+import CreateAnnouncementModal from '../components/CreateAnnouncementModal';
 
 const AdminHomePage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const AdminHomePage = () => {
   const [recentComplaints, setRecentComplaints] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -31,7 +33,7 @@ const AdminHomePage = () => {
           api.get('/hostel/rooms/'),
           api.get('/students/'),
           api.get('/bookings/bookings/'),
-          api.get('/complaints/'),  // Fixed: removed duplicate 'complaints'
+          api.get('/complaints/'),
         ]);
 
         const hostels = hostelsRes.data.results ?? hostelsRes.data;
@@ -48,17 +50,14 @@ const AdminHomePage = () => {
         const pendingBookings = bookings.filter(b => b.status === 'pending').length;
         const pendingComplaints = complaints.filter(c => c.status === 'registered').length;
         
-        // Get recent bookings (last 5)
         const recent = [...bookings]
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 5);
         
-        // Get recent complaints (last 5)
         const recentComp = [...complaints]
           .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
           .slice(0, 5);
 
-        // Create calendar events from bookings and complaints
         const calendarEvents = [
           ...bookings.map(b => ({
             date: b.check_in_date,
@@ -170,26 +169,54 @@ const AdminHomePage = () => {
       <div className="relative overflow-hidden bg-gradient-to-r from-cyan-600/20 via-indigo-600/20 to-purple-600/20 border border-cyan-500/30 rounded-2xl p-8">
         <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div>
         <div className="relative">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome back, Admin 👋
-          </h1>
-          <p className="text-gray-400">Here's what's happening with your hostel management system today.</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Welcome back, Admin 👋
+              </h1>
+              <p className="text-gray-400">Here's what's happening with your hostel management system today.</p>
+            </div>
+            <button
+              onClick={() => setShowAnnouncementModal(true)}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2 transition shadow-lg shadow-red-500/25 hover:shadow-red-500/40"
+            >
+              <span className="text-lg">📢</span>
+              Send Announcement
+            </button>
+          </div>
         </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <button
+          onClick={() => navigate('/admin/rooms/add')}
+          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-cyan-500/50 transition-all group text-left"
+        >
+          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🚪</div>
+          <p className="text-white font-medium text-sm">Add Room</p>
+          <p className="text-gray-500 text-xs">Create new room</p>
+        </button>
+        <button
+          onClick={() => navigate('/admin/bookings')}
+          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-cyan-500/50 transition-all group text-left"
+        >
+          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📋</div>
+          <p className="text-white font-medium text-sm">Manage Bookings</p>
+          <p className="text-gray-500 text-xs">View all bookings</p>
+        </button>
+        <button
+          onClick={() => setShowAnnouncementModal(true)}
+          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-red-500/50 transition-all group text-left"
+        >
+          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📢</div>
+          <p className="text-white font-medium text-sm">Send Announcement</p>
+          <p className="text-gray-500 text-xs">Notify all students</p>
+        </button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 hover:border-cyan-500/30 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-xl">🏨</div>
-            <span className="text-2xl font-bold text-white">{stats.totalHostels}</span>
-          </div>
-          <p className="text-gray-400 text-sm">Total Hostels</p>
-          <div className="mt-2 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full w-full bg-cyan-500 rounded-full"></div>
-          </div>
-        </div>
-
         <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 hover:border-cyan-500/30 transition-all">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-xl">🚪</div>
@@ -277,7 +304,6 @@ const AdminHomePage = () => {
           </div>
           
           <div className="p-6">
-            {/* Calendar Header */}
             <div className="flex items-center justify-between mb-6">
               <button
                 onClick={prevMonth}
@@ -300,7 +326,6 @@ const AdminHomePage = () => {
               </button>
             </div>
 
-            {/* Week Days */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {weekDays.map(day => (
                 <div key={day} className="text-center text-xs text-gray-500 py-2">
@@ -309,7 +334,6 @@ const AdminHomePage = () => {
               ))}
             </div>
 
-            {/* Calendar Days */}
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: firstDay }).map((_, i) => (
                 <div key={`empty-${i}`} className="text-center py-2 text-xs text-gray-600"></div>
@@ -347,7 +371,6 @@ const AdminHomePage = () => {
               })}
             </div>
 
-            {/* Legend */}
             <div className="mt-6 pt-4 border-t border-gray-800 flex justify-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-green-500"></div>
@@ -422,6 +445,15 @@ const AdminHomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Announcement Modal */}
+      <CreateAnnouncementModal
+        isOpen={showAnnouncementModal}
+        onClose={() => setShowAnnouncementModal(false)}
+        onSuccess={() => {
+          // Refresh or update if needed
+        }}
+      />
     </div>
   );
 };

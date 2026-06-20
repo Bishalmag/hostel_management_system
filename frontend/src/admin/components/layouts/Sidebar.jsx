@@ -85,6 +85,17 @@ const navItems = [
       { label: 'Analytics', to: '/admin/feedbacks/analytics' },
     ],
   },
+
+  /* EVENTS */
+  {
+    label: 'Events',
+    icon: '📅',
+    children: [
+      { label: 'All Events', to: '/admin/events' },
+      { label: 'Add Event', to: '/admin/events/add' },
+      { label: 'Edit Event', to: '/admin/events/edit/:id' }, // This will be dynamic
+    ],
+  },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
@@ -177,17 +188,23 @@ const AdminSidebar = ({ collapsed, onToggle }) => {
               {/* Dropdown */}
               {!collapsed && isOpen && (
                 <div className="ml-4 mt-0.5 pl-3 border-l border-gray-800 space-y-0.5">
-                  {item.children.map(child => (
-                    <Link key={child.to} to={child.to}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all
-                        ${isActive(child.to)
-                          ? 'text-purple-400 bg-purple-500/10'
-                          : 'text-gray-500 hover:text-white hover:bg-gray-800'}
-                      `}>
-                      <span className="w-1 h-1 rounded-full bg-current flex-shrink-0" />
-                      {child.label}
-                    </Link>
-                  ))}
+                  {item.children.map(child => {
+                    // Skip rendering "Edit Event" as a direct link since it needs an ID
+                    if (child.to === '/admin/events/edit/:id') {
+                      return null;
+                    }
+                    return (
+                      <Link key={child.to} to={child.to}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all
+                          ${isActive(child.to)
+                            ? 'text-purple-400 bg-purple-500/10'
+                            : 'text-gray-500 hover:text-white hover:bg-gray-800'}
+                        `}>
+                        <span className="w-1 h-1 rounded-full bg-current flex-shrink-0" />
+                        {child.label}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
 
