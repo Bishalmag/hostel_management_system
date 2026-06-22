@@ -31,6 +31,8 @@ import MyBookings from "./students/views/MyBookings";
 import ViewBooking from "./students/views/ViewBooking";
 import PaymentSuccess from './students/views/PaymentSuccess';
 import PaymentFailure from './students/views/PaymentFailure';
+import AllEvents from "./students/views/AllEvents";
+import ViewReceipts from "./students/views/ViewReciepts";
 
 /* Admin Panel */
 import AdminDashboard from "./admin/components/AdminDashboard";
@@ -57,6 +59,7 @@ import ManageFeedbacks from "./admin/views/ManageFeedbacks";
 import ManageEvents from './admin/pages/ManageEvents';
 import AddEvent from './admin/pages/AddEvents';
 import EditEvent from './admin/pages/EditEvents';
+import AdminComplaintDetails from "./admin/views/AdminComplaintDetails";
 
 export default function App() {
   useEffect(() => {
@@ -119,6 +122,8 @@ export default function App() {
               <Route path="payment/success" element={<PaymentSuccess />} />
               <Route path="payment/failure" element={<PaymentFailure />} />
               <Route path="pay/:bookingId" element={<PayNowPage />} />
+              <Route path="allevents" element={<AllEvents />} />
+              <Route path="receipts/:bookingId" element={<ViewReceipts />} />
             </Route>
 
             {/* ADMIN Section */}
@@ -151,6 +156,7 @@ export default function App() {
               <Route path="complaints" element={<ManageComplaints />} />
               <Route path="complaints/pending" element={<PendingComplaints />} />
               <Route path="complaints/resolved" element={<ResolvedComplaints />} />
+              <Route path="complaint/:complaintId" element={<AdminComplaintDetails />} />
               <Route path="feedbacks" element={<ManageFeedbacks />} />
               <Route path="events" element={<ManageEvents />} />
               <Route path="events/add" element={<AddEvent />} />

@@ -10,7 +10,7 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = ['id', 'student', 'student_name', 'room', 'room_number', 
                   'check_in_date', 'check_out_date', 'status', 'total_amount', 
                   'created_at', 'updated_at']
-        read_only_fields = ['status', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
     
     def validate_total_amount(self, value):
         """Ensure total_amount is a valid decimal"""

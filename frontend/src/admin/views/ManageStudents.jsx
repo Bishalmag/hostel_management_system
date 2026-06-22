@@ -42,8 +42,6 @@ const ManageStudents = () => {
               <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
                 <th className="px-5 py-3 text-left">Name</th>
                 <th className="px-5 py-3 text-left">Email</th>
-                <th className="px-5 py-3 text-left">Reg No</th>
-                <th className="px-5 py-3 text-left">Course</th>
                 <th className="px-5 py-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -52,8 +50,6 @@ const ManageStudents = () => {
                 <tr key={s.id} className="hover:bg-gray-800/50 transition">
                   <td className="px-5 py-3 text-white">{s.user_name ?? '—'}</td>
                   <td className="px-5 py-3 text-gray-400">{s.user_email ?? '—'}</td>
-                  <td className="px-5 py-3 text-gray-400 font-mono">{s.registration_no ?? '—'}</td>
-                  <td className="px-5 py-3 text-gray-400">{s.course ?? '—'}</td>
                   <td className="px-5 py-3">
                     <button onClick={() => navigate(`/admin/students/${s.id}`)}
                       className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700">

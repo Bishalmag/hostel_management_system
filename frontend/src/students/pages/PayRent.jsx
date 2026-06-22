@@ -47,9 +47,47 @@ const PayRent = () => {
       const unpaid = studentPayments.filter(p => p.paid_status === 'pending' || p.paid_status === 'overdue');
       const paid = studentPayments.filter(p => p.paid_status === 'paid');
 
+      // Fetch booking and room details for each paid payment
+      const paidWithDetails = await Promise.all(
+        paid.map(async (payment) => {
+          try {
+            let roomNumber = 'N/A';
+            let hostelName = 'N/A';
+            
+            if (payment.booking) {
+              const bookingRes = await api.get(`/bookings/bookings/${payment.booking}/`);
+              const booking = bookingRes.data;
+              
+              if (booking.room) {
+                const roomRes = await api.get(`/hostel/rooms/${booking.room}/`);
+                const room = roomRes.data;
+                roomNumber = room.room_number;
+                
+                // Get floor and block details for hostel name
+                const floorRes = await api.get(`/hostel/floors/${room.floor}/`);
+                const floor = floorRes.data;
+                const blockRes = await api.get(`/hostel/blocks/${floor.block}/`);
+                const block = blockRes.data;
+                const hostelRes = await api.get(`/hostel/hostels/${block.hostel}/`);
+                hostelName = hostelRes.data.name;
+              }
+            }
+            
+            return {
+              ...payment,
+              room_number: roomNumber,
+              hostel_name: hostelName,
+            };
+          } catch (err) {
+            console.error('Error fetching details for payment:', payment.id, err);
+            return payment;
+          }
+        })
+      );
+
       setPayments(studentPayments);
       setUnpaidPayments(unpaid);
-      setPaidPayments(paid);
+      setPaidPayments(paidWithDetails);
 
     } catch (err) {
       console.error('Error fetching payment data:', err);
@@ -66,7 +104,11 @@ const PayRent = () => {
 
   const handlePaymentSuccess = () => {
     setShowPaymentModal(false);
-    fetchPaymentData(); // Refresh data
+    fetchPaymentData();
+  };
+
+  const handleViewReceipt = (payment) => {
+    navigate(`/students/receipts/${payment.booking}`);
   };
 
   const formatDate = (dateString) => {
@@ -243,7 +285,7 @@ const PayRent = () => {
                         <p className="text-white font-semibold">{formatPrice(payment.amount)}</p>
                       </td>
                       <td className="px-5 py-4">
-                        <p className="text-gray-300">Room {payment.booking_room || 'N/A'}</p>
+                        <p className="text-gray-300">Room {payment.room_number || 'N/A'}</p>
                       </td>
                       <td className="px-5 py-4">
                         <p className="text-gray-300 text-sm">{formatDate(payment.paid_at)}</p>
@@ -256,11 +298,13 @@ const PayRent = () => {
                       </td>
                       <td className="px-5 py-4">
                         <button
-                          onClick={() => {
-                            alert(`Receipt #${payment.receipt_number || 'N/A'}\nAmount: ${formatPrice(payment.amount)}\nDate: ${formatDate(payment.paid_at)}`);
-                          }}
-                          className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded-lg transition"
+                          onClick={() => handleViewReceipt(payment)}
+                          className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded-lg transition flex items-center gap-1"
                         >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
                           View Receipt
                         </button>
                       </td>
