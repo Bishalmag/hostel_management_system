@@ -1,24 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useNotification } from '../../context/NotificationContext';
+
+const statusColors = {
+  registered: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  in_progress: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+  resolved: 'bg-green-500/20 text-green-400 border-green-500/30',
+  rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+};
 
 const ManageComplaints = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
   const [complaints, setComplaints] = useState([]);
-  const [students, setStudents] = useState({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [processing, setProcessing] = useState(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       
       const complaintsRes = await api.get('/complaints/');
       const allComplaints = complaintsRes.data.results ?? complaintsRes.data;
-      console.log('Fetched complaints:', allComplaints);
+      console.log('✅ Fetched complaints:', allComplaints);
       
       const studentsRes = await api.get('/students/');
       const allStudents = studentsRes.data.results ?? studentsRes.data;
@@ -38,29 +44,45 @@ const ManageComplaints = () => {
       }));
       
       setComplaints(complaintsWithNames);
-      setStudents(studentMap);
     } catch (err) {
       console.error('Error fetching data:', err);
       showError('Failed to load complaints', 'Error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const updateStatus = async (id, newStatus) => {
+    if (processing === id) return;
+    
     setProcessing(id);
-    console.log(`Updating complaint ${id} to status: ${newStatus}`);
+    console.log(`🔄 Updating complaint ${id} to status: ${newStatus}`);
+    
+    const originalComplaint = complaints.find(c => c.id === id);
+    if (!originalComplaint) {
+      showError('Complaint not found', 'Error');
+      setProcessing(null);
+      return;
+    }
+    
+    setComplaints(prevComplaints => 
+      prevComplaints.map(complaint => 
+        complaint.id === id 
+          ? { ...complaint, status: newStatus }
+          : complaint
+      )
+    );
     
     try {
       const response = await api.patch(`/complaints/${id}/`, { 
         status: newStatus 
       });
       
-      console.log('Update response:', response.data);
+      console.log('✅ Update response:', response.data);
       
       const statusMessages = {
         in_progress: 'started processing',
@@ -76,8 +98,30 @@ const ManageComplaints = () => {
       await fetchData();
       
     } catch (err) {
-      console.error('Error updating status:', err);
-      const errorMsg = err.response?.data?.message || err.response?.data?.status || 'Failed to update complaint status';
+      console.error('❌ Error updating status:', err);
+      console.error('❌ Error response:', err.response?.data);
+      
+      setComplaints(prevComplaints => 
+        prevComplaints.map(complaint => 
+          complaint.id === id 
+            ? { ...complaint, status: originalComplaint.status }
+            : complaint
+        )
+      );
+      
+      let errorMsg = 'Failed to update complaint status. ';
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        if (typeof errorData === 'object') {
+          const messages = Object.values(errorData).flat();
+          errorMsg += messages.join(', ');
+        } else {
+          errorMsg += errorData;
+        }
+      } else {
+        errorMsg += 'Please try again.';
+      }
+      
       showError(errorMsg, 'Update Failed');
     } finally {
       setProcessing(null);
@@ -90,8 +134,8 @@ const ManageComplaints = () => {
     setProcessing(id);
     try {
       await api.delete(`/complaints/${id}/`);
+      setComplaints(prev => prev.filter(c => c.id !== id));
       showSuccess(`Complaint #${id} has been deleted`, 'Deleted');
-      await fetchData();
     } catch (err) {
       console.error('Error deleting complaint:', err);
       showError('Failed to delete complaint', 'Delete Failed');
@@ -100,9 +144,12 @@ const ManageComplaints = () => {
     }
   };
 
-  const filtered = filter === 'all' 
-    ? complaints 
-    : complaints.filter(c => c.status === filter);
+  const getFilteredComplaints = () => {
+    if (filter === 'all') return complaints;
+    return complaints.filter(c => c.status === filter);
+  };
+
+  const filtered = getFilteredComplaints();
 
   const getStatusBadge = (status) => {
     const colors = {
@@ -233,10 +280,7 @@ const ManageComplaints = () => {
                       <p className="text-gray-400 text-xs font-mono">#{complaint.id}</p>
                     </td>
                     <td className="px-5 py-4">
-                      <div>
-                        <p className="text-white text-sm font-medium">{complaint.student_name}</p>
-                        <p className="text-gray-500 text-xs">User ID: {complaint.user}</p>
-                      </div>
+                      <p className="text-white text-sm font-medium">{complaint.student_name}</p>
                     </td>
                     <td className="px-5 py-4">
                       <p className="text-white text-sm font-medium">{complaint.title}</p>
@@ -296,10 +340,9 @@ const ManageComplaints = () => {
                           </button>
                         )}
                         
+                        {/* ✅ FIXED: Navigate to Complaint Details page */}
                         <button
-                          onClick={() => {
-                            alert(`Complaint #${complaint.id}\nStudent: ${complaint.student_name}\nTitle: ${complaint.title}\nStatus: ${complaint.status}\n\nDescription:\n${complaint.description}`);
-                          }}
+                          onClick={() => navigate(`/admin/complaint/${complaint.id}`)}
                           className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-medium rounded transition flex items-center gap-1"
                           title="View Details"
                         >

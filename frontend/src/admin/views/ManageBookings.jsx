@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useNotification } from '../../context/NotificationContext';
@@ -17,8 +17,9 @@ const ManageBookings = () => {
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState('all');
   const [processing, setProcessing] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
       const response = await api.get('/bookings/bookings/');
@@ -69,9 +70,11 @@ const ManageBookings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
-  useEffect(() => { fetchBookings(); }, []);
+  useEffect(() => { 
+    fetchBookings(); 
+  }, [fetchBookings, refreshKey]);
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     if (processing === bookingId) return;
@@ -79,67 +82,67 @@ const ManageBookings = () => {
     setProcessing(bookingId);
     console.log(`🔄 Updating booking ${bookingId} to status: ${newStatus}`);
     
+    // Find the booking
+    const originalBooking = bookings.find(b => b.id === bookingId);
+    if (!originalBooking) {
+      showError('Booking not found', 'Error');
+      setProcessing(null);
+      return;
+    }
+
+    // ✅ UPDATE UI IMMEDIATELY - Remove the booking from current list and re-add with new status
+    setBookings(prevBookings => 
+      prevBookings.map(b => 
+        b.id === bookingId 
+          ? { ...b, status: newStatus }
+          : b
+      )
+    );
+
     try {
-      // Find the booking
-      const booking = bookings.find(b => b.id === bookingId);
-      if (!booking) {
-        showError('Booking not found', 'Error');
-        setProcessing(null);
-        return;
-      }
+      // Update booking status
+      await api.patch(`/bookings/bookings/${bookingId}/`, {
+        status: newStatus
+      });
 
-      console.log(`📋 Current booking status: ${booking.status}`);
-
-      // ✅ UPDATE BOOKING STATUS FIRST
-      const updateData = { status: newStatus };
-      console.log(`📤 Updating booking status to: ${newStatus}`);
-      
-      const patchResponse = await api.patch(`/bookings/bookings/${bookingId}/`, updateData);
-      console.log(`✅ Booking status updated:`, patchResponse.data);
-
-      // ✅ UPDATE ROOM OCCUPANCY
-      if (newStatus === 'approved' && booking.status === 'pending') {
+      // Update room occupancy if needed
+      if (newStatus === 'approved' && originalBooking.status === 'pending') {
         try {
-          const roomRes = await api.get(`/hostel/rooms/${booking.room}/`);
+          const roomRes = await api.get(`/hostel/rooms/${originalBooking.room}/`);
           const room = roomRes.data;
           
-          // Check if room has available capacity
           if (room.current_occupancy >= room.capacity) {
             showError(`Room ${room.room_number} is fully occupied!`, 'Cannot Approve');
+            // Revert
+            setBookings(prevBookings => 
+              prevBookings.map(b => 
+                b.id === bookingId 
+                  ? { ...b, status: originalBooking.status }
+                  : b
+              )
+            );
             setProcessing(null);
             return;
           }
           
-          await api.patch(`/hostel/rooms/${booking.room}/`, {
+          await api.patch(`/hostel/rooms/${originalBooking.room}/`, {
             current_occupancy: room.current_occupancy + 1
           });
-          console.log(`✅ Room ${room.room_number} occupancy increased`);
         } catch (roomErr) {
           console.error('Error updating room occupancy:', roomErr);
         }
       } 
-      else if (newStatus === 'rejected' && booking.status === 'approved') {
+      else if (newStatus === 'rejected' && originalBooking.status === 'approved') {
         try {
-          const roomRes = await api.get(`/hostel/rooms/${booking.room}/`);
+          const roomRes = await api.get(`/hostel/rooms/${originalBooking.room}/`);
           const room = roomRes.data;
-          
-          await api.patch(`/hostel/rooms/${booking.room}/`, {
+          await api.patch(`/hostel/rooms/${originalBooking.room}/`, {
             current_occupancy: Math.max(0, room.current_occupancy - 1)
           });
-          console.log(`✅ Room ${room.room_number} occupancy decreased`);
         } catch (roomErr) {
           console.error('Error updating room occupancy:', roomErr);
         }
       }
-
-      // ✅ UPDATE LOCAL STATE IMMEDIATELY
-      setBookings(prevBookings => 
-        prevBookings.map(b => 
-          b.id === bookingId 
-            ? { ...b, status: newStatus }
-            : b
-        )
-      );
 
       // Show success message
       if (newStatus === 'approved') {
@@ -148,12 +151,20 @@ const ManageBookings = () => {
         showSuccess(`Booking #${bookingId} has been rejected`, 'Rejected');
       }
 
-      // ✅ REFRESH FROM API TO ENSURE CONSISTENCY
-      await fetchBookings();
+      // ✅ FORCE REFRESH - Trigger a complete re-fetch
+      setRefreshKey(prev => prev + 1);
 
     } catch (err) {
       console.error('❌ Error updating booking status:', err);
-      console.error('Error response:', err.response?.data);
+      
+      // Revert on error
+      setBookings(prevBookings => 
+        prevBookings.map(b => 
+          b.id === bookingId 
+            ? { ...b, status: originalBooking.status }
+            : b
+        )
+      );
       
       let errorMsg = 'Failed to update booking status. ';
       if (err.response?.data) {
@@ -169,9 +180,6 @@ const ManageBookings = () => {
       }
       
       showError(errorMsg, 'Update Failed');
-      
-      // ✅ Revert optimistic update if API call failed
-      await fetchBookings();
     } finally {
       setProcessing(null);
     }
@@ -184,7 +192,6 @@ const ManageBookings = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Calculate counts for display
   const getCount = (status) => {
     if (status === 'all') return bookings.length;
     return bookings.filter(b => b.status === status).length;

@@ -583,7 +583,7 @@ const HomePage = () => {
               </div>
               <div className="mt-4 text-center">
                 <button
-                  onClick={() => navigate('/students/events')}
+                  onClick={() => navigate('/students/allevents')}
                   className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition"
                 >
                   View All Events →
