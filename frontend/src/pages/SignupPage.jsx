@@ -14,7 +14,6 @@ const Register = () => {
     phone_number:     '',
     password:         '',
     password_confirm: '',
-    role:             'Student',
     agreeTerms:       false,
   });
 
@@ -72,7 +71,7 @@ const Register = () => {
         phone_number:     formData.phone_number,
         password:         formData.password,
         password_confirm: formData.password_confirm,
-        role:             formData.role,
+        role:             'Student', // Always set to Student
       });
       setMessage({ type: 'success', text: 'Account created! Redirecting to login...' });
       setTimeout(() => navigate('/login'), 1500);
@@ -112,6 +111,11 @@ const Register = () => {
             Create <span className="text-yellow-400">Account</span>
           </h1>
           <p className="text-gray-400 text-sm mt-1">Join the Smart Hostel Management System</p>
+          <div className="mt-3 inline-block bg-yellow-400/10 border border-yellow-400/30 px-4 py-1.5 rounded-full">
+            <span className="text-yellow-400 text-xs font-medium uppercase tracking-wider">
+              Student Registration
+            </span>
+          </div>
         </div>
 
         <div className="px-8 pb-8">
@@ -163,29 +167,15 @@ const Register = () => {
               {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
             </div>
 
-            {/* Phone + Role */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                  Phone <span className="text-red-400">*</span>
-                </label>
-                <input type="tel" name="phone_number" value={formData.phone_number}
-                  onChange={handleChange} placeholder="Phone number" disabled={loading}
-                  className={`${inputBase} ${errors.phone_number ? inputError : ''}`} />
-                {errors.phone_number && <p className="mt-1 text-xs text-red-400">{errors.phone_number}</p>}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                  Account Type
-                </label>
-                <select name="role" value={formData.role} onChange={handleChange}
-                  disabled={loading} className={`${inputBase} cursor-pointer`}>
-                  <option value="Student">Student</option>
-                  <option value="Hostel Admin">Hostel Admin</option>
-                  <option value="Warden">Warden</option>
-                  <option value="Discipline Incharge">Discipline Incharge</option>
-                </select>
-              </div>
+            {/* Phone */}
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+                Phone <span className="text-red-400">*</span>
+              </label>
+              <input type="tel" name="phone_number" value={formData.phone_number}
+                onChange={handleChange} placeholder="Phone number" disabled={loading}
+                className={`${inputBase} ${errors.phone_number ? inputError : ''}`} />
+              {errors.phone_number && <p className="mt-1 text-xs text-red-400">{errors.phone_number}</p>}
             </div>
 
             {/* Password */}
@@ -273,7 +263,7 @@ const Register = () => {
           <div className="mt-6 pt-5 border-t border-[#1f2d40] text-center">
             <p className="text-sm text-gray-500">
               Already have an account?{' '}
-              <Link to="/login" className="text-yellow-400 hover:text-yellow-300 font-medium">Login here</Link>
+              <Link to="/loginPortal" className="text-yellow-400 hover:text-yellow-300 font-medium">Login here</Link>
             </p>
           </div>
         </div>

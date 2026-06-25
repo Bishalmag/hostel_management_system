@@ -11,6 +11,8 @@ import LoginPage from "./pages/LoginPage";
 import LoginPortal from "./pages/LoginPortal";
 import AdminLogin from "./pages/AdminLoginPage";
 import MainLayout from "./layouts/MainLayouts";
+import ChangePassword from "./pages/ChangePassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 /* Student Panel */
 import StudentLayout from "./layouts/StudentLayouts";
@@ -33,6 +35,7 @@ import PaymentSuccess from './students/views/PaymentSuccess';
 import PaymentFailure from './students/views/PaymentFailure';
 import AllEvents from "./students/views/AllEvents";
 import ViewReceipts from "./students/views/ViewReciepts";
+
 
 /* Admin Panel */
 import AdminDashboard from "./admin/components/AdminDashboard";
@@ -92,6 +95,8 @@ export default function App() {
               <Route path="/loginPortal" element={<LoginPortal />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/adminlogin" element={<AdminLogin />} />
+              <Route path="/change-password" element={<ChangePassword />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Route>
 
             {/* STUDENT Section */}

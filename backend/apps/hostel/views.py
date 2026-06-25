@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import models
+from django.db.models import Sum  # ADD THIS IMPORT
 from .models import Hostel, Block, Floor, Room
 from .serializers import HostelSerializer, BlockSerializer, FloorSerializer, RoomSerializer
 
@@ -36,12 +37,42 @@ class RoomViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         """Allow public access to room summary and available rooms endpoints"""
-        if self.action in ['room_types_summary', 'available_rooms']:
+        # ADD 'dashboard_stats' to the list of public endpoints
+        if self.action in ['room_types_summary', 'available_rooms', 'dashboard_stats']:
             return [AllowAny()]
         return [IsAuthenticated()]
     
     def get_queryset(self):
         return Room.objects.all()
+    
+    # ADD THIS NEW METHOD
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def dashboard_stats(self, request):
+        """Get dashboard statistics - Public access"""
+        # Get total hostels
+        total_hostels = Hostel.objects.count()
+        
+        # Get total rooms
+        total_rooms = Room.objects.count()
+        
+        # Get total students
+        from apps.students.models import Student
+        total_students = Student.objects.count()
+        
+        # Calculate occupancy
+        total_capacity = Room.objects.aggregate(Sum('capacity'))['capacity__sum'] or 0
+        total_occupied = Room.objects.aggregate(Sum('current_occupancy'))['current_occupancy__sum'] or 0
+        occupancy_percentage = (total_occupied / total_capacity * 100) if total_capacity > 0 else 0
+        
+        return Response({
+            'hostels': total_hostels,
+            'rooms': total_rooms,
+            'students': total_students,
+            'occupancy_percentage': round(occupancy_percentage, 1),
+            'total_capacity': total_capacity,
+            'total_occupied': total_occupied,
+            'message': 'Dashboard stats fetched successfully'
+        })
     
     @action(detail=True, methods=['post'])
     def increment_occupancy(self, request, pk=None):
