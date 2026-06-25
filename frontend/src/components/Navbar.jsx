@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // ─── Navigation links config for Hostel Management ──────────────────────────
 const NAV_LINKS = [
   { label: "Home",         href: "#home" },
   { label: "Features",     href: "#features" },
-  { label: "Reviews", href: "#reviews" },
+  { label: "Reviews",      href: "#reviews" },
   { label: "Contact",      href: "#contact" },
 ];
 
@@ -67,16 +67,23 @@ export default function Navbar({ onShowAuth }) {
   const [scrolled,  setScrolled]  = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [activeLink, setActiveLink] = useState("#home");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Detect scroll to apply backdrop blur / border
+  // Check if we're on the landing page
+  const isLandingPage = location.pathname === "/";
+
+  // Detect scroll to apply backdrop blur / border (only on landing page)
   useEffect(() => {
+    if (!isLandingPage) return;
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isLandingPage]);
 
-  // Track active section via IntersectionObserver
+  // Track active section via IntersectionObserver (only on landing page)
   useEffect(() => {
+    if (!isLandingPage) return;
     const ids = NAV_LINKS.map(l => l.href.replace("#", ""));
     const observers = ids.map(id => {
       const el = document.getElementById(id);
@@ -89,31 +96,55 @@ export default function Navbar({ onShowAuth }) {
       return obs;
     });
     return () => observers.forEach(o => o?.disconnect());
-  }, []);
+  }, [isLandingPage]);
 
   const handleNavClick = (href) => {
-    setActiveLink(href);
     setMenuOpen(false);
+    
+    // If on landing page, scroll to section
+    if (isLandingPage) {
+      setActiveLink(href);
+      const id = href.replace("#", "");
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // If on another page, navigate to landing page with hash
+      navigate(`/${href}`);
+    }
   };
-  const navigate = useNavigate();
+
+  const handleBrandClick = () => {
+    setMenuOpen(false);
+    if (isLandingPage) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setActiveLink("#home");
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <>
       <nav
-  role="navigation"
-  aria-label="Main navigation"
-  className={`fixed inset-x-0 z-50 flex h-16 items-center justify-between px-6 transition-all duration-300 ${
-    scrolled
-      ? "bg-grey/95 backdrop-blur border-b"
-      : "bg-transparent"
-  }`}
->
+        role="navigation"
+        aria-label="Main navigation"
+        className={`fixed inset-x-0 z-50 flex h-16 items-center justify-between px-6 transition-all duration-300 ${
+          scrolled || !isLandingPage
+            ? "bg-grey/95 backdrop-blur border-b"
+            : "bg-transparent"
+        }`}
+      >
         {/* ── Brand ── */}
         <a
-          href="#home"
+          href={isLandingPage ? "#home" : "/"}
           aria-label="Hostel Management System home"
-          className="flex items-center gap-4.5 text-decoration-none"
-          onClick={() => handleNavClick("#home")}
+          className="flex items-center gap-4.5 text-decoration-none cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            handleBrandClick();
+          }}
         >
           <LogoMark />
           <div>
@@ -136,21 +167,28 @@ export default function Navbar({ onShowAuth }) {
             return (
               <li key={href}>
                 <a
-                  href={href}
+                  href={isLandingPage ? href : "/"}
                   aria-current={isActive ? "page" : undefined}
-                  onClick={() => handleNavClick(href)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(href);
+                  }}
                   className={`block px-5.5 py-1.5 font-mono font-semibold text-xs tracking-wider uppercase transition-colors duration-200
-                    ${isActive
+                    ${isActive && isLandingPage
                       ? 'text-amber-500 border-b-2 border-amber-800'
                       : 'text-textDim hover:text-text'
                     }`}
                   onMouseEnter={e => {
-                    if (!isActive) e.currentTarget.classList.remove('text-textDim');
-                    if (!isActive) e.currentTarget.classList.add('text-text');
+                    if (!isActive || !isLandingPage) {
+                      e.currentTarget.classList.remove('text-textDim');
+                      e.currentTarget.classList.add('text-text');
+                    }
                   }}
                   onMouseLeave={e => {
-                    if (!isActive) e.currentTarget.classList.remove('text-text');
-                    if (!isActive) e.currentTarget.classList.add('text-textDim');
+                    if (!isActive || !isLandingPage) {
+                      e.currentTarget.classList.remove('text-text');
+                      e.currentTarget.classList.add('text-textDim');
+                    }
                   }}
                 >
                   {label}
@@ -161,13 +199,22 @@ export default function Navbar({ onShowAuth }) {
         </ul>
 
         {/* ── CTA + Auth buttons ── */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-6">
+          {/* Login Button */}
           <button
-  onClick={() => navigate("/loginPortal")}
-  className="bg-amber-500 text-amber-900 border border-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-8 py-8 rounded hover:bg-amber-500/15 transition-all duration-200"
->
-  Log In
-</button>
+            onClick={() => navigate("/loginPortal")}
+            className="bg-amber-500 text-amber-900 border border-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-6 py-2 rounded hover:bg-amber-500/80 transition-all duration-200"
+          >
+            Log In
+          </button>
+
+          {/* Sign Up Button */}
+          <button
+            onClick={() => navigate("/signup")}
+            className="bg-transparent text-white border border-white/30 font-mono font-bold text-xs tracking-wide uppercase px-6 py-2 rounded hover:bg-white/10 transition-all duration-200"
+          >
+            Sign Up
+          </button>
 
           {/* Mobile hamburger */}
           <button
@@ -176,7 +223,7 @@ export default function Navbar({ onShowAuth }) {
             onClick={() => setMenuOpen(o => !o)}
             className="hidden md:block p-1"
           >
-            {/* <HamburgerIcon open={menuOpen} /> */}
+            <HamburgerIcon open={menuOpen} />
           </button>
         </div>
       </nav>
@@ -192,10 +239,14 @@ export default function Navbar({ onShowAuth }) {
           {NAV_LINKS.map(({ label, href }) => (
             <a
               key={href}
-              href={href}
-              onClick={() => handleNavClick(href)}
+              href={isLandingPage ? href : "/"}
+              onClick={(e) => {
+                e.preventDefault();
+                handleNavClick(href);
+                setMenuOpen(false);
+              }}
               className={`block px-12 py-3.5 font-mono font-semibold text-xs tracking-tighter uppercase transition-colors duration-150
-                ${activeLink === href
+                ${activeLink === href && isLandingPage
                   ? 'text-amber-500 border-l-3 border-amber-500'
                   : 'text-text'
                 }`}
@@ -203,6 +254,27 @@ export default function Navbar({ onShowAuth }) {
               {label}
             </a>
           ))}
+          {/* Mobile Auth Buttons */}
+          <div className="flex flex-col gap-3 mt-4 px-4">
+            <button
+              onClick={() => {
+                navigate("/loginPortal");
+                setMenuOpen(false);
+              }}
+              className="bg-amber-500 text-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-6 py-3 rounded w-full"
+            >
+              Log In
+            </button>
+            <button
+              onClick={() => {
+                navigate("/signup");
+                setMenuOpen(false);
+              }}
+              className="bg-transparent border border-white/30 text-white font-mono font-bold text-xs tracking-wide uppercase px-6 py-3 rounded w-full"
+            >
+              Sign Up
+            </button>
+          </div>
         </div>
       )}
 

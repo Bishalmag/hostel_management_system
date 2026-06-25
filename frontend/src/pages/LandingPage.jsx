@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { colors, fonts } from "../theme";
+import axios from "axios";
 
 // ─── Section label helper ─────────────────────────────────────────────────────
 function SectionTag({ text }) {
@@ -22,8 +23,8 @@ function SectionTag({ text }) {
 function Counter({ value, label, color }) {
   const [display, setDisplay] = useState(0);
   const ref = useRef();
-  const num = parseInt(value.replace(/\D/g, ""), 10);
-  const suffix = value.replace(/\d/g, "");
+  const num = typeof value === 'number' ? value : parseInt(value.replace(/\D/g, ""), 10);
+  const suffix = typeof value === 'string' ? value.replace(/\d/g, "") : "";
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => {
@@ -57,9 +58,11 @@ function Counter({ value, label, color }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HERO SECTION - Using your project name and features
+// HERO SECTION - Updated with direct navigation
 // ═══════════════════════════════════════════════════════════════════════════════
-function HeroSection({ onNavigate, onShowAuth }) {
+function HeroSection() {
+  const navigate = useNavigate();
+
   return (
     <section id="home" style={{
       minHeight: "calc(100vh - 64px)",
@@ -100,7 +103,7 @@ function HeroSection({ onNavigate, onShowAuth }) {
               width: 6, height: 6, borderRadius: "50%",
               background: colors.teal, animation: "pulse 2s ease-in-out infinite",
             }} />
-            🏠 SMART-HOMS — Hostel Management System
+            🏠 SMART Hostel Management System
           </div>
 
           {/* Headline */}
@@ -149,7 +152,7 @@ function HeroSection({ onNavigate, onShowAuth }) {
             animation: "fadeUp 0.5s ease 0.42s both",
           }}>
             <button
-              onClick={() => onShowAuth("signup")}
+              onClick={() => navigate("/signup")}
               style={{
                 background: colors.amber, color: colors.bg,
                 border: "none", cursor: "pointer",
@@ -163,20 +166,7 @@ function HeroSection({ onNavigate, onShowAuth }) {
               onMouseLeave={e => { e.currentTarget.style.background = colors.amber; e.currentTarget.style.transform = "translateY(0)"; }}
             >Get Started</button>
 
-            <button
-              onClick={() => onShowAuth("login")}
-              style={{
-                background: "transparent",
-                border: `1px solid ${colors.border}`,
-                color: colors.text, cursor: "pointer",
-                fontFamily: fonts.mono, fontWeight: 700,
-                fontSize: 12, letterSpacing: "0.1em",
-                textTransform: "uppercase", padding: "14px 36px",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = colors.amber; e.currentTarget.style.color = colors.amber; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = colors.border; e.currentTarget.style.color = colors.text; }}
-            >Admin Login</button>
+           
           </div>
 
           {/* Trust strips */}
@@ -373,9 +363,9 @@ function FeatureCard({ icon, title, description, accent, delay }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// STATS STRIP
+// STATS STRIP - UPDATED WITH REAL DATA
 // ═══════════════════════════════════════════════════════════════════════════════
-function StatsStrip() {
+function StatsStrip({ stats }) {
   return (
     <section style={{
       borderTop: `1px solid ${colors.border}`,
@@ -386,20 +376,35 @@ function StatsStrip() {
         display: "grid", gridTemplateColumns: "repeat(5, 1fr)",
         maxWidth: 1280, margin: "0 auto",
       }}>
-        {[
-          { value: "3",    label: "Hostels",      color: colors.amber },
-          { value: "150+", label: "Rooms",        color: colors.teal  },
-          { value: "200+", label: "Students",     color: colors.amber },
-          { value: "100%", label: "Online",       color: colors.teal  },
-          { value: "24/7", label: "Support",      color: colors.amber },
-        ].map((s, i) => (
-          <div key={i} style={{
-            padding: "34px 24px",
-            borderRight: i < 4 ? `1px solid ${colors.border}` : "none",
-          }}>
-            <Counter value={s.value} label={s.label} color={s.color} />
-          </div>
-        ))}
+        <div style={{
+          padding: "34px 24px",
+          borderRight: `1px solid ${colors.border}`,
+        }}>
+          <Counter value={stats.hostels} label="Hostels" color={colors.amber} />
+        </div>
+        <div style={{
+          padding: "34px 24px",
+          borderRight: `1px solid ${colors.border}`,
+        }}>
+          <Counter value={stats.rooms} label="Rooms" color={colors.teal} />
+        </div>
+        <div style={{
+          padding: "34px 24px",
+          borderRight: `1px solid ${colors.border}`,
+        }}>
+          <Counter value={stats.students} label="Students" color={colors.amber} />
+        </div>
+        <div style={{
+          padding: "34px 24px",
+          borderRight: `1px solid ${colors.border}`,
+        }}>
+          <Counter value={stats.occupancy_percentage} label="Occupancy" color={colors.teal} />
+        </div>
+        <div style={{
+          padding: "34px 24px",
+        }}>
+          <Counter value="24/7" label="Support" color={colors.amber} />
+        </div>
       </div>
     </section>
   );
@@ -408,7 +413,7 @@ function StatsStrip() {
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOW IT WORKS - Using your system flow
 // ═══════════════════════════════════════════════════════════════════════════════
-function HowItWorksSection({ onShowAuth }) {
+function HowItWorksSection() {
   const steps = [
     { 
       num: "01", 
@@ -589,9 +594,11 @@ function ReviewCard({ review, delay }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CTA SECTION
+// CTA SECTION - Updated with direct navigation
 // ═══════════════════════════════════════════════════════════════════════════════
-function CTASection({ onShowAuth }) {
+function CTASection() {
+  const navigate = useNavigate();
+
   return (
     <section style={{
       padding: "100px 80px",
@@ -624,7 +631,7 @@ function CTASection({ onShowAuth }) {
           </p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <button
-              onClick={() => onShowAuth("signup")}
+              onClick={() => navigate("/signup")}
               style={{
                 background: colors.amber, color: colors.bg, border: "none",
                 cursor: "pointer", fontFamily: fonts.mono, fontWeight: 700,
@@ -637,7 +644,7 @@ function CTASection({ onShowAuth }) {
               onMouseLeave={e => e.currentTarget.style.background = colors.amber}
             >Get Started Now</button>
             <button
-              onClick={() => onShowAuth("login")}
+              onClick={() => navigate("/loginPortal")}
               style={{
                 background: "transparent",
                 border: `1px solid ${colors.teal}`,
@@ -657,22 +664,56 @@ function CTASection({ onShowAuth }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ROOT EXPORT
+// ROOT EXPORT - UPDATED WITH API FETCH
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function LandingPage({ onNavigate, showAuthModal, setShowAuthModal, authMode, setAuthMode }) {
-  const handleShowAuth = (mode) => {
-    setAuthMode(mode);
-    setShowAuthModal(true);
-  };
+  const [stats, setStats] = useState({
+    hostels: 0,
+    rooms: 0,
+    students: 0,
+    occupancy_percentage: 0,
+    total_capacity: 0,
+    total_occupied: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch dashboard stats from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:8000/api/hostel/rooms/dashboard_stats/');
+        setStats(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+        setError('Failed to load statistics');
+        // Keep showing the static stats as fallback
+        setStats({
+          hostels: 1,
+          rooms: 3,
+          students: 1,
+          occupancy_percentage: 50,
+          total_capacity: 6,
+          total_occupied: 3
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <>
-      <HeroSection onNavigate={onNavigate} onShowAuth={handleShowAuth} />
-      <StatsStrip />
+      <HeroSection />
+      <StatsStrip stats={stats} />
       <FeaturesSection />
-      <HowItWorksSection onShowAuth={handleShowAuth} />
+      <HowItWorksSection />
       <TestimonialsSection />
-      <CTASection onShowAuth={handleShowAuth} />
+      <CTASection />
 
       <style>{`
         @keyframes fadeUp {
