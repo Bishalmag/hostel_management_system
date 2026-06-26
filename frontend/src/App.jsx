@@ -63,6 +63,7 @@ import ManageEvents from './admin/pages/ManageEvents';
 import AddEvent from './admin/pages/AddEvents';
 import EditEvent from './admin/pages/EditEvents';
 import AdminComplaintDetails from "./admin/views/AdminComplaintDetails";
+import Procurement from "./admin/pages/Procurement";
 
 export default function App() {
   useEffect(() => {
@@ -166,6 +167,7 @@ export default function App() {
               <Route path="events" element={<ManageEvents />} />
               <Route path="events/add" element={<AddEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />
+              <Route path="procurement" element={<Procurement />} />
             </Route>
           </Routes>
         </main>

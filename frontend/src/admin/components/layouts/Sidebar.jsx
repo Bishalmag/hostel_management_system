@@ -55,6 +55,11 @@ const navItems = [
     to: '/admin/events',
     icon: '📅',
   },
+  {
+    label: 'Procurement',
+    to: '/admin/procurement',
+    icon: '⚡',
+  },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
