@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'rest_framework_simplejwt',
-    # 'apps.auth',  # or 'auth' depending on your setup
     'corsheaders',
 
     # Your apps
@@ -56,6 +55,7 @@ INSTALLED_APPS = [
     'apps.complaints',
     'apps.feedback',
     'apps.events',
+    'apps.inventory',
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model

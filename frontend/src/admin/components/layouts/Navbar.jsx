@@ -34,10 +34,6 @@ const AdminNavbar = () => {
 
         {/* Right */}
         <div className="flex items-center gap-4">
-          {/* Badge */}
-          <span className="hidden sm:block text-xs px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30 font-medium">
-            {user?.role?.name ?? 'Admin'}
-          </span>
 
           {/* Avatar dropdown */}
           <div className="relative">
