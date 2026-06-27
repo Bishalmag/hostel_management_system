@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../components/Auth';
 import { useNotification } from '../../context/NotificationContext';
 
 const BookHostel = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { showBooking, showError, showSuccess } = useNotification();
   const [hostels, setHostels] = useState([]);
@@ -19,6 +20,37 @@ const BookHostel = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [studentProfile, setStudentProfile] = useState(null);
+
+  // Check for pre-selected room from RoomDetails navigation
+  useEffect(() => {
+    const { preSelectedRoom, preSelectedHostel, preSelectedFilters } = location.state || {};
+    
+    console.log('Location state:', location.state);
+    
+    if (preSelectedRoom) {
+      console.log('Pre-selected room found:', preSelectedRoom);
+      // Set the selected room and show booking form
+      setSelectedRoomForBooking(preSelectedRoom);
+      setShowBookingForm(true);
+      if (preSelectedHostel) {
+        setSelectedHostel(preSelectedHostel);
+      }
+      
+      // Pre-fill any filters if needed
+      if (preSelectedFilters) {
+        // You can store these if needed
+        console.log('Filters:', preSelectedFilters);
+      }
+      
+      // Scroll to booking form after a delay
+      setTimeout(() => {
+        document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+      
+      // Clear the state to prevent re-triggering (optional)
+      // navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state]);
 
   // Booking form state
   const [bookingForm, setBookingForm] = useState({
@@ -169,13 +201,17 @@ const BookHostel = () => {
   };
 
   const handleBookNow = (option) => {
-    // If there's only one room in this group, show booking form
+    // If there's only one room in this group, show booking form directly
     if (option.rooms.length === 1) {
       setSelectedRoomForBooking(option.rooms[0]);
       setShowBookingForm(true);
+      // Scroll to booking form
+      setTimeout(() => {
+        document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } else {
-      // ✅ FIX: Navigate to room selection with hostel ID in URL
-      navigate(`/students/room-selection/${selectedHostel.id}`, {
+      // Navigate to RoomDetails with the hostel and room type filters
+      navigate(`/students/room-details/${selectedHostel.id}`, {
         state: {
           hostel: selectedHostel,
           roomType: option.room_type,
@@ -351,7 +387,7 @@ const BookHostel = () => {
     );
   }
 
-  if (error && !showRoomOptions) {
+  if (error && !showRoomOptions && !showBookingForm) {
     return (
       <div className="max-w-6xl mx-auto p-6">
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
@@ -385,10 +421,11 @@ const BookHostel = () => {
           ← Back to Rooms
         </button>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8">
+        <div id="booking-form" className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8">
           <h2 className="text-2xl font-bold text-white mb-2">Complete Your Booking</h2>
           <p className="text-gray-400 text-sm mb-6">
             Room {selectedRoomForBooking.room_number} • {selectedRoomForBooking.room_type} • {selectedRoomForBooking.ac_type === 'ac' ? 'AC' : 'Non-AC'}
+            {selectedRoomForBooking.floor_number && ` • Floor ${selectedRoomForBooking.floor_number}`}
           </p>
 
           <form onSubmit={handleBookingSubmit} className="space-y-6">
@@ -614,6 +651,10 @@ const BookHostel = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Room Type</span>
                   <span className="text-white capitalize">{selectedRoomForBooking.room_type} • {selectedRoomForBooking.ac_type === 'ac' ? 'AC' : 'Non-AC'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400">Floor</span>
+                  <span className="text-white">Floor {selectedRoomForBooking.floor_number || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Stay Duration</span>

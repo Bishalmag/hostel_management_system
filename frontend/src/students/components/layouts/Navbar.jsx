@@ -1,23 +1,146 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../components/Auth';
 import api from '../../../api/axios';
-
-
 
 const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
   const { user, logout } = useAuth();
   const [menuOpen,  setMenuOpen]  = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifs,    setNotifs]    = useState([]);
+  const [loading,   setLoading]   = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  const notifRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
-    api.get('/notifications/')
-      .then(res => setNotifs(res.data.results ?? res.data))
-      .catch(() => {});
+    fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setNotifOpen(false);
+      }
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get('/notifications/');
+      setNotifs(res.data.results ?? res.data);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  // Method 1: Try PATCH first, then fallback to individual updates
+  const markAllAsRead = async () => {
+    const unreadIds = notifs.filter(n => !n.read_status).map(n => n.id);
+    
+    if (unreadIds.length === 0) {
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Try PATCH request first
+      await api.patch('/notifications/mark-all-read/', { ids: unreadIds });
+      
+      // Update local state
+      setNotifs(prev => prev.map(n => ({ ...n, read_status: true })));
+      setLoading(false);
+      
+      // Close dropdown after success
+      setTimeout(() => setNotifOpen(false), 1000);
+      
+    } catch (error) {
+      console.log('PATCH failed, trying POST...', error);
+      
+      try {
+        // Try POST request as fallback
+        await api.post('/notifications/mark-all-read/', { ids: unreadIds });
+        
+        setNotifs(prev => prev.map(n => ({ ...n, read_status: true })));
+        setLoading(false);
+        setTimeout(() => setNotifOpen(false), 1000);
+        
+      } catch (postError) {
+        console.log('POST failed, trying individual updates...', postError);
+        
+        // Final fallback: Update individually
+        try {
+          const promises = unreadIds.map(id => 
+            api.patch(`/notifications/${id}/`, { read_status: true })
+          );
+          await Promise.all(promises);
+          
+          setNotifs(prev => prev.map(n => ({ ...n, read_status: true })));
+          setLoading(false);
+          setTimeout(() => setNotifOpen(false), 1000);
+          
+        } catch (fallbackError) {
+          console.error('All methods failed:', fallbackError);
+          setLoading(false);
+          alert('Failed to mark notifications as read. Please try again.');
+        }
+      }
+    }
+  };
+
+  // Alternative: Simple individual update approach
+  const markAllAsReadSimple = async () => {
+    const unreadIds = notifs.filter(n => !n.read_status).map(n => n.id);
+    
+    if (unreadIds.length === 0) {
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      // Update each notification individually
+      const promises = unreadIds.map(id => 
+        api.patch(`/notifications/${id}/`, { read_status: true })
+      );
+      await Promise.all(promises);
+      
+      // Update local state
+      setNotifs(prev => prev.map(n => ({ ...n, read_status: true })));
+      setLoading(false);
+      
+      // Close dropdown after success
+      setTimeout(() => setNotifOpen(false), 1000);
+      
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+      setLoading(false);
+      alert('Failed to mark notifications as read. Please try again.');
+    }
+  };
+
+  const markSingleAsRead = async (notifId) => {
+    try {
+      await api.patch(`/notifications/${notifId}/`, { read_status: true });
+      
+      setNotifs(prev => prev.map(n => 
+        n.id === notifId ? { ...n, read_status: true } : n
+      ));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
 
   const unreadCount = notifs.filter(n => !n.read_status).length;
   const isActive = (path) => location.pathname === path;
@@ -25,7 +148,6 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
   const handleLogout = () => {
     setMenuOpen(false);
     logout();
-    // localStorage.clear();
     navigate('/loginPortal');
   };
 
@@ -60,15 +182,17 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
           <div className="flex items-center gap-2 sm:gap-3">
 
             {/* Notifications */}
-            <div className="relative">
-              <button onClick={() => setNotifOpen(!notifOpen)}
-                className="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">
+            <div className="relative" ref={notifRef}>
+              <button 
+                onClick={() => setNotifOpen(!notifOpen)}
+                className="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0" />
                 </svg>
                 {unreadCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 h-4 w-4 flex items-center justify-center text-[10px] font-bold text-white bg-cyan-500 rounded-full ring-2 ring-gray-900">
-                    {unreadCount}
+                    {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
@@ -77,14 +201,29 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
                 <div className="absolute right-0 mt-2 w-80 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl overflow-hidden z-50">
                   <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-white">Notifications</h3>
-                    <span className="text-xs text-cyan-400 cursor-pointer">Mark all read</span>
+                    {unreadCount > 0 && (
+                      <button 
+                        onClick={markAllAsReadSimple}
+                        disabled={loading}
+                        className={`text-xs text-cyan-400 hover:text-cyan-300 transition-colors ${
+                          loading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {loading ? 'Marking...' : 'Mark all read'}
+                      </button>
+                    )}
                   </div>
                   <div className="max-h-64 overflow-y-auto">
                     {notifs.length === 0 ? (
                       <p className="text-xs text-gray-600 text-center py-6">No notifications</p>
-                    ) : notifs.slice(0, 5).map(notif => (
-                      <div key={notif.id}
-                        className={`px-4 py-3 border-b border-gray-700/50 hover:bg-gray-700 transition-colors cursor-pointer ${!notif.read_status ? 'bg-cyan-500/10' : ''}`}>
+                    ) : notifs.slice(0, 10).map(notif => (
+                      <div 
+                        key={notif.id}
+                        onClick={() => markSingleAsRead(notif.id)}
+                        className={`px-4 py-3 border-b border-gray-700/50 hover:bg-gray-700/50 transition-colors cursor-pointer ${
+                          !notif.read_status ? 'bg-cyan-500/10' : ''
+                        }`}
+                      >
                         <div className="flex items-start gap-2">
                           {!notif.read_status && <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-cyan-400 flex-shrink-0" />}
                           <div className={!notif.read_status ? '' : 'pl-3.5'}>
@@ -96,9 +235,20 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
                         </div>
                       </div>
                     ))}
+                    {notifs.length > 10 && (
+                      <div className="px-4 py-2 text-center border-t border-gray-700">
+                        <p className="text-xs text-gray-500">
+                          Showing 10 of {notifs.length} notifications
+                        </p>
+                      </div>
+                    )}
                   </div>
                   <div className="px-4 py-2 text-center border-t border-gray-700">
-                    <Link to="/students/notices" className="text-xs text-cyan-400 hover:text-cyan-300" onClick={() => setNotifOpen(false)}>
+                    <Link 
+                      to="/students/notices" 
+                      className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                      onClick={() => setNotifOpen(false)}
+                    >
                       View all →
                     </Link>
                   </div>
@@ -107,7 +257,7 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
             </div>
 
             {/* User menu */}
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg border border-gray-700 hover:border-gray-600 hover:bg-gray-800 transition-all">
                 <div className="w-7 h-7 rounded-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
@@ -130,6 +280,7 @@ const Navbar = ({ mobileOpen = false, onMobileMenuClick = () => {} }) => {
                   </div>
                   {[
                     { to: '/students/profile',  label: 'View Profile', icon: '👤' },
+                    
                   ].map(item => (
                     <Link key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-700 transition-colors">

@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/notifications/', include('apps.notification.urls')),
     path('api/complaints/',    include('apps.complaints.urls')),
     path('api/inventory/',     include('apps.inventory.urls')),
+    path('api/forecasting/',   include('apps.forecasting.urls')),
 ]

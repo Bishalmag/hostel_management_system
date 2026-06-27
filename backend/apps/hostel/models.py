@@ -1,3 +1,4 @@
+# models.py
 from django.db import models
 
 
@@ -35,7 +36,8 @@ class Floor(models.Model):
     created_at   = models.DateTimeField(auto_now_add=True)
     updated_at   = models.DateTimeField(auto_now=True)
 
-    def __str__(self): return f"{self.block.hostel.name} - {self.block.name} - Floor {self.floor_number}"
+    def __str__(self):
+        return f"{self.block.hostel.name} - {self.block.name} - Floor {self.floor_number}"
 
     class Meta:
         verbose_name = 'Floor'
@@ -50,40 +52,51 @@ class Room(models.Model):
         ('triple', 'Triple'),
     ]
     
+    ROOM_PURPOSE_CHOICES = [
+        ('residential', 'Residential'),
+        ('reception', 'Reception'),
+        ('office', 'Office'),
+        ('lobby', 'Lobby'),
+        ('DI_room', 'DI Room'),
+        ('library', 'Library'),
+        ('canteen', 'Canteen'),
+        ('hall', 'Hall'),
+    ]
+    
     AC_CHOICES = [
-        ('ac', 'AC'),
+        ('ac',     'AC'),
         ('non_ac', 'Non-AC'),
     ]
     
     BATHROOM_CHOICES = [
         ('attached', 'Attached Bathroom'),
-        ('shared', 'Shared Bathroom'),
+        ('shared',   'Shared Bathroom'),
     ]
-    
+
     floor             = models.ForeignKey(Floor, on_delete=models.CASCADE, related_name='rooms')
     room_number       = models.CharField(max_length=10)
     capacity          = models.IntegerField()
     current_occupancy = models.IntegerField(default=0)
     room_type         = models.CharField(max_length=10, choices=ROOM_TYPE_CHOICES)
-    
-    # facility choices
+    room_purpose      = models.CharField(max_length=20, choices=ROOM_PURPOSE_CHOICES, default='residential')
     ac_type           = models.CharField(max_length=10, choices=AC_CHOICES, default='non_ac')
     bathroom_type     = models.CharField(max_length=10, choices=BATHROOM_CHOICES, default='shared')
     created_at        = models.DateTimeField(auto_now_add=True)
     updated_at        = models.DateTimeField(auto_now=True)
     price_per_month   = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
+
     def __str__(self):
         return f"{self.floor.block.hostel.name} - Room {self.room_number} ({self.get_room_type_display()}, {self.get_ac_type_display()}, {self.get_bathroom_type_display()})"
-    
+
     @property
     def is_available(self):
-        return self.current_occupancy < self.capacity
-    
+        # Only residential rooms can be booked
+        return self.room_purpose == 'residential' and self.current_occupancy < self.capacity
+
     @property
     def available_spots(self):
-        return self.capacity - self.current_occupancy
-    
+        return self.capacity - self.current_occupancy if self.room_purpose == 'residential' else 0
+
     @property
     def full_description(self):
         return f"{self.get_room_type_display()} Room, {self.get_ac_type_display()}, {self.get_bathroom_type_display()}"
@@ -92,3 +105,40 @@ class Room(models.Model):
         verbose_name = 'Room'
         verbose_name_plural = 'Rooms'
         unique_together = ('floor', 'room_number')
+
+
+# ── Navigation / Pathfinding ──────────────────────────────
+
+class LocationNode(models.Model):
+    NODE_TYPES = [
+        ('entrance', 'Entrance'),
+        ('block',    'Block'),
+        ('floor',    'Floor'),
+        ('room',     'Room'),
+        ('common',   'Common Area'),
+    ]
+    name      = models.CharField(max_length=100)
+    node_type = models.CharField(max_length=20, choices=NODE_TYPES)
+    block     = models.ForeignKey(Block,  null=True, blank=True, on_delete=models.SET_NULL)
+    floor     = models.ForeignKey(Floor,  null=True, blank=True, on_delete=models.SET_NULL)
+    room      = models.ForeignKey(Room,   null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self): return f"[{self.node_type}] {self.name}"
+
+    class Meta:
+        db_table = 'hostel_location_node'
+
+
+class NodeEdge(models.Model):
+    from_node     = models.ForeignKey(LocationNode, related_name='edges_out', on_delete=models.CASCADE)
+    to_node       = models.ForeignKey(LocationNode, related_name='edges_in',  on_delete=models.CASCADE)
+    weight        = models.FloatField(default=1.0)
+    bidirectional = models.BooleanField(default=True)
+
+    def __str__(self):
+        arrow = '↔' if self.bidirectional else '→'
+        return f"{self.from_node.name} {arrow} {self.to_node.name} (w={self.weight})"
+
+    class Meta:
+        db_table = 'hostel_node_edge'
+        unique_together = ('from_node', 'to_node')

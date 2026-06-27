@@ -61,10 +61,16 @@ const navItems = [
     icon: '⚡',
   },
   {
+    label: 'Forecast',
+    to: '/admin/forecast',
+    icon: '📈',
+  },
+  {
     label: 'Navigation',
     to: '/admin/navigation',
     icon: '🗺️',
-  },
+  }
+  
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {

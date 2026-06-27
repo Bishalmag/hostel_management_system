@@ -4,30 +4,65 @@ import api from '../../api/axios';
 
 const ManageRooms = () => {
   const navigate = useNavigate();
-  const [rooms,   setRooms]   = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search,  setSearch]  = useState('');
+  const [search, setSearch] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
 
-  const fetchRooms = async () => {
+  const fetchAllRooms = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/hostel/rooms/');
-      setRooms(response.data.results ?? response.data);
+      let allRooms = [];
+      let nextUrl = '/hostel/rooms/';
+      let count = 0;
+
+      // Keep fetching until there's no next page
+      while (nextUrl) {
+        console.log('Fetching from URL:', nextUrl);
+        const response = await api.get(nextUrl);
+        console.log('Response data:', response.data);
+        
+        const results = response.data.results || [];
+        allRooms = [...allRooms, ...results];
+        count = response.data.count || 0;
+        nextUrl = response.data.next;
+        
+        console.log(`Fetched ${results.length} rooms, total so far: ${allRooms.length}`);
+      }
+
+      console.log(`Total rooms fetched: ${allRooms.length}`);
+      setRooms(allRooms);
+      setTotalCount(count);
     } catch (err) {
       console.error('Error fetching rooms:', err);
+      // Fallback: try with a different parameter name
+      try {
+        console.log('Trying alternative approach...');
+        const response = await api.get('/hostel/rooms/?limit=1000');
+        console.log('Alternative response:', response.data);
+        const results = response.data.results || response.data || [];
+        setRooms(Array.isArray(results) ? results : []);
+        setTotalCount(results.length);
+      } catch (fallbackErr) {
+        console.error('Fallback also failed:', fallbackErr);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchRooms(); }, []);
+  useEffect(() => { 
+    fetchAllRooms();
+  }, []);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this room?')) return;
     try { 
       await api.delete(`/hostel/rooms/${id}/`); 
-      fetchRooms(); 
-    } catch { 
+      // Refresh the list after deletion
+      fetchAllRooms();
+    } catch (error) {
+      console.error('Error deleting room:', error);
       alert('Failed to delete room.'); 
     }
   };
@@ -60,11 +95,25 @@ const ManageRooms = () => {
         </div>
       </div>
 
-      <input value={search} onChange={e => setSearch(e.target.value)}
-        placeholder="Search by room number..."
-        className="w-full max-w-sm px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500" />
+      <div className="flex flex-wrap gap-4 items-center">
+        <input 
+          value={search} 
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by room number..."
+          className="flex-1 min-w-[200px] max-w-sm px-4 py-2.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-purple-500" 
+        />
+        
+        {/* Show total count */}
+        {!loading && (
+          <span className="text-gray-400 text-sm">
+            Showing {filtered.length} of {totalCount} rooms
+          </span>
+        )}
+      </div>
 
-      {loading ? <div className="text-gray-500 text-center py-10">Loading...</div> : (
+      {loading ? (
+        <div className="text-gray-500 text-center py-10">Loading...</div>
+      ) : (
         <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -111,21 +160,29 @@ const ManageRooms = () => {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex gap-2">
-                          <button onClick={() => navigate(`/admin/rooms/edit/${room.id}`)}
-                            className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700">
+                          <button 
+                            onClick={() => navigate(`/admin/rooms/edit/${room.id}`)}
+                            className="text-xs px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700"
+                          >
                             Edit
                           </button>
-                          <button onClick={() => handleDelete(room.id)}
-                            className="text-xs px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded border border-red-500/30">
+                          <button 
+                            onClick={() => handleDelete(room.id)}
+                            className="text-xs px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded border border-red-500/30"
+                          >
                             Delete
                           </button>
                         </div>
-                       </td>
-                     </tr>
-                   );
+                      </td>
+                    </tr>
+                  );
                 })}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={7} className="px-5 py-12 text-center text-gray-500">No rooms found.</td></tr>
+                  <tr>
+                    <td colSpan={7} className="px-5 py-12 text-center text-gray-500">
+                      {rooms.length === 0 ? 'No rooms found in database.' : 'No rooms match your search.'}
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

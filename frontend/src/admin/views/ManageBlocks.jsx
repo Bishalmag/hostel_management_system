@@ -28,8 +28,17 @@ const ManageBlocks = () => {
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this block?')) return;
-    try { await api.delete(`/hostel/blocks/${id}/`); fetchData(); }
-    catch { alert('Failed.'); }
+    try { 
+      await api.delete(`/hostel/blocks/${id}/`); 
+      fetchData(); 
+    } catch { 
+      alert('Failed to delete block.'); 
+    }
+  };
+
+  const handleEdit = (id) => {
+    console.log('Navigating to edit block:', id);
+    navigate(`/admin/blocks/edit/${id}`);
   };
 
   return (
@@ -54,12 +63,16 @@ const ManageBlocks = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  {/* <button onClick={() => navigate(`/hostel/floors?block=${block.id}`)}
-                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg border border-gray-700">
-                    + Floor
-                  </button> */}
-                  <button onClick={() => handleDelete(block.id)}
-                    className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+                  <button 
+                    onClick={() => handleEdit(block.id)}
+                    className="px-3 py-1.5 text-xs bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/30 hover:bg-blue-500/30 transition"
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(block.id)}
+                    className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition"
+                  >
                     Delete
                   </button>
                 </div>

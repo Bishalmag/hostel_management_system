@@ -44,9 +44,11 @@ import ManageHostel from "./admin/views/ManageHostel";
 import AddHostel from "./admin/views/AddHostel";
 import EditHostel from "./admin/views/EditHostel";
 import ManageBlocks from "./admin/views/ManageBlocks";
+import EditBlock from "./admin/views/EditBlock";
 import AddBlock from "./admin/views/AddBlock";
 import AddFloor from "./admin/views/AddFloor";
 import ManageFloors from "./admin/views/ManageFloors";
+import EditFloor from "./admin/views/EditFloor";
 import ManageRooms from "./admin/views/ManageRooms";
 import AddRoom from "./admin/views/AddRoom";
 import EditRoom from "./admin/views/EditRoom";
@@ -66,6 +68,7 @@ import EditEvent from './admin/pages/EditEvents';
 import AdminComplaintDetails from "./admin/views/AdminComplaintDetails";
 import Procurement from "./admin/pages/Procurement";
 import NavigationManager from "./admin/views/NavigationManager";
+import Forecast from "./admin/pages/Forecast";
 
 export default function App() {
   useEffect(() => {
@@ -154,8 +157,10 @@ export default function App() {
               <Route path="rooms/edit/:id" element={<EditRoom />} />
               <Route path="blocks" element={<ManageBlocks />} />
               <Route path="blocks/add" element={<AddBlock />} />
+              <Route path="blocks/edit/:id" element={<EditBlock />} />
               <Route path="floors" element={<ManageFloors />} />
               <Route path="floors/add" element={<AddFloor />} />
+              <Route path="floors/edit/:id" element={<EditFloor />} />
               <Route path="bookings" element={<ManageBookings />} />
               <Route path="bookings/:id" element={<ApproveBooking />} />
               <Route path="students" element={<ManageStudents />} />
@@ -172,6 +177,7 @@ export default function App() {
               <Route path="events/edit/:id" element={<EditEvent />} />
               <Route path="procurement" element={<Procurement />} />
               <Route path="navigation" element={<NavigationManager />} />
+              <Route path="forecast" element={<Forecast />} />
             </Route>
           </Routes>
         </main>

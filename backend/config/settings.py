@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.feedback',
     'apps.events',
     'apps.inventory',
+    'apps.forecasting',
 ]
 
 AUTH_USER_MODEL = 'users.User'  # Custom user model
