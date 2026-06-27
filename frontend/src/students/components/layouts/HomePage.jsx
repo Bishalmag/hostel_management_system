@@ -3,136 +3,6 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import { useAuth } from "../../../components/Auth";
 
-// ---------- DIJKSTRA'S ALGORITHM IMPLEMENTATION ----------
-class Graph {
-  constructor() {
-    this.nodes = new Map();
-  }
-
-  addNode(nodeId, nodeData) {
-    this.nodes.set(nodeId, { ...nodeData, edges: [] });
-  }
-
-  addEdge(fromNode, toNode, weight) {
-    const from = this.nodes.get(fromNode);
-    const to = this.nodes.get(toNode);
-    if (from && to) {
-      from.edges.push({ node: toNode, weight });
-      to.edges.push({ node: fromNode, weight });
-    }
-  }
-
-  findShortestPath(startNode, endNode) {
-    const distances = new Map();
-    const previous = new Map();
-    const unvisited = new Set();
-    const visitedOrder = [];
-
-    for (const [nodeId] of this.nodes) {
-      distances.set(nodeId, Infinity);
-      unvisited.add(nodeId);
-    }
-    distances.set(startNode, 0);
-
-    while (unvisited.size > 0) {
-      let current = null;
-      let smallestDistance = Infinity;
-      for (const nodeId of unvisited) {
-        const dist = distances.get(nodeId);
-        if (dist < smallestDistance) {
-          smallestDistance = dist;
-          current = nodeId;
-        }
-      }
-
-      if (current === null || current === endNode) break;
-
-      unvisited.delete(current);
-      visitedOrder.push(current);
-      
-      const currentNode = this.nodes.get(current);
-
-      for (const edge of currentNode.edges) {
-        const alt = distances.get(current) + edge.weight;
-        if (alt < distances.get(edge.node)) {
-          distances.set(edge.node, alt);
-          previous.set(edge.node, current);
-        }
-      }
-    }
-
-    const path = [];
-    let current = endNode;
-    while (current !== startNode && previous.has(current)) {
-      path.unshift(current);
-      current = previous.get(current);
-    }
-    path.unshift(startNode);
-
-    return {
-      path,
-      totalDistance: distances.get(endNode),
-      visitedNodes: visitedOrder.length,
-      algorithmName: "Dijkstra's Algorithm"
-    };
-  }
-
-  getNode(nodeId) {
-    return this.nodes.get(nodeId);
-  }
-
-  getAllNodes() {
-    return Array.from(this.nodes.keys());
-  }
-}
-
-const initializeHostelGraph = () => {
-  const graph = new Graph();
-
-  const locations = {
-    main_gate: { name: "Main Gate", type: "entry", lat: 27.7429, lng: 85.4360 },
-    reception: { name: "Reception", type: "service", lat: 27.7430, lng: 85.4361 },
-    block_a: { name: "Block A", type: "block", lat: 27.7431, lng: 85.4362 },
-    block_b: { name: "Block B", type: "block", lat: 27.7432, lng: 85.4363 },
-    block_c: { name: "Block C", type: "block", lat: 27.7433, lng: 85.4364 },
-    mess_hall: { name: "Mess Hall", type: "facility", lat: 27.7434, lng: 85.4365 },
-    library: { name: "Library", type: "facility", lat: 27.7435, lng: 85.4366 },
-    gym: { name: "Gym", type: "facility", lat: 27.7436, lng: 85.4367 },
-    warden_office: { name: "Warden's Office", type: "admin", lat: 27.7437, lng: 85.4368 },
-    medical_room: { name: "Medical Room", type: "emergency", lat: 27.7438, lng: 85.4369 },
-    parking: { name: "Parking Area", type: "facility", lat: 27.7439, lng: 85.4370 },
-    laundry: { name: "Laundry Room", type: "facility", lat: 27.7440, lng: 85.4371 },
-  };
-
-  Object.entries(locations).forEach(([id, data]) => {
-    graph.addNode(id, data);
-  });
-
-  const edges = [
-    { from: "main_gate", to: "reception", weight: 15 },
-    { from: "reception", to: "block_a", weight: 25 },
-    { from: "reception", to: "block_b", weight: 30 },
-    { from: "reception", to: "block_c", weight: 35 },
-    { from: "reception", to: "warden_office", weight: 40 },
-    { from: "block_a", to: "mess_hall", weight: 20 },
-    { from: "block_b", to: "mess_hall", weight: 20 },
-    { from: "block_c", to: "mess_hall", weight: 20 },
-    { from: "block_a", to: "library", weight: 30 },
-    { from: "block_b", to: "gym", weight: 25 },
-    { from: "block_c", to: "medical_room", weight: 15 },
-    { from: "mess_hall", to: "laundry", weight: 35 },
-    { from: "library", to: "gym", weight: 40 },
-    { from: "parking", to: "main_gate", weight: 10 },
-    { from: "laundry", to: "parking", weight: 25 },
-  ];
-
-  edges.forEach(edge => {
-    graph.addEdge(edge.from, edge.to, edge.weight);
-  });
-
-  return { graph, locations };
-};
-
 const HomePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -151,27 +21,12 @@ const HomePage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [distance, setDistance] = useState(null);
-  
-  // Dijkstra pathfinding states
-  const [hostelGraph, setHostelGraph] = useState(null);
-  const [hostelLocations, setHostelLocations] = useState(null);
-  const [shortestPath, setShortestPath] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState("mess_hall");
-  const [showPathfinding, setShowPathfinding] = useState(false);
-  const [pathfindingStatus, setPathfindingStatus] = useState("");
 
   const DEFAULT_LOCATION = {
     lat: 27.7429167,
     lng: 85.4360556,
     name: "Subedi Gau"
   };
-
-  // Initialize graph on component mount
-  useEffect(() => {
-    const { graph, locations } = initializeHostelGraph();
-    setHostelGraph(graph);
-    setHostelLocations(locations);
-  }, []);
 
   // ---------------- FETCH STUDENT DATA ----------------
   useEffect(() => {
@@ -269,34 +124,6 @@ const HomePage = () => {
 
     fetchHostelLocation();
   }, [currentBooking]);
-
-  // ---------------- FIND SHORTEST PATH ----------------
-  const findShortestPathToDestination = () => {
-    if (!hostelGraph) {
-      setPathfindingStatus("Graph not initialized");
-      return;
-    }
-
-    setPathfindingStatus("🧮 Running Dijkstra's Algorithm to find shortest path...");
-    setShowPathfinding(true);
-
-    setTimeout(() => {
-      const startNode = "main_gate";
-      const endNode = selectedDestination;
-      
-      const result = hostelGraph.findShortestPath(startNode, endNode);
-      
-      if (result.totalDistance < Infinity) {
-        setShortestPath(result);
-        setPathfindingStatus(
-          `✅ Shortest path found! Distance: ${result.totalDistance} meters | ` +
-          `Algorithm: ${result.algorithmName} | Nodes visited: ${result.visitedNodes}`
-        );
-      } else {
-        setPathfindingStatus("❌ No path found to destination");
-      }
-    }, 500);
-  };
 
   // ---------------- AUTO DETECT LOCATION ----------------
   const detectLocation = useCallback(() => {
@@ -593,13 +420,13 @@ const HomePage = () => {
           </div>
         )}
 
-        {/* Route Navigator with Dijkstra's Algorithm */}
+        {/* Route Navigator */}
         <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
             <h2 className="text-white font-semibold flex items-center gap-2">
-              <span className="text-xl">🗺️</span> Dijkstra's Algorithm - Shortest Path Routing
+              <span className="text-xl">🗺️</span> Route Navigator
             </h2>
-            <p className="text-gray-500 text-xs mt-1">Finds the optimal route using Dijkstra's shortest path algorithm</p>
+            <p className="text-gray-500 text-xs mt-1">Find your way to the hostel</p>
           </div>
 
           <div className="p-6 space-y-4">
@@ -696,72 +523,6 @@ const HomePage = () => {
               </div>
             </div>
 
-            {/* Dijkstra's Algorithm - Internal Pathfinding */}
-            <div className="border-t border-gray-800 pt-4 mt-2">
-              <h3 className="text-cyan-400 text-sm font-semibold mb-3">🧮 Internal Pathfinding (Dijkstra's Algorithm)</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="text-xs text-gray-500 block mb-2">Select Destination within Hostel:</label>
-                  <select
-                    value={selectedDestination}
-                    onChange={(e) => setSelectedDestination(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
-                  >
-                    {hostelLocations && Object.entries(hostelLocations).map(([id, loc]) => (
-                      <option key={id} value={id}>{loc.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-end">
-                  <button
-                    onClick={findShortestPathToDestination}
-                    className="w-full px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm font-medium transition"
-                  >
-                    🚀 Find Shortest Path (Dijkstra)
-                  </button>
-                </div>
-              </div>
-
-              {pathfindingStatus && (
-                <div className="bg-gray-800/30 rounded-lg p-3 mb-3">
-                  <p className="text-xs text-cyan-400">{pathfindingStatus}</p>
-                </div>
-              )}
-
-              {shortestPath && (
-                <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-                  <h4 className="text-green-400 text-sm font-semibold mb-2">✓ Shortest Path Result</h4>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {shortestPath.path.map((node, idx) => (
-                        <React.Fragment key={node}>
-                          <span className="text-white text-xs px-2 py-1 bg-gray-800 rounded">
-                            {hostelLocations?.[node]?.name || node}
-                          </span>
-                          {idx < shortestPath.path.length - 1 && (
-                            <span className="text-gray-500">→</span>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                    <div className="flex justify-between text-xs pt-2 border-t border-green-500/30">
-                      <span className="text-gray-400">Total Distance</span>
-                      <span className="text-green-400 font-bold">{shortestPath.totalDistance} meters</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">Algorithm</span>
-                      <span className="text-cyan-400">{shortestPath.algorithmName}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">Nodes Visited</span>
-                      <span className="text-cyan-400">{shortestPath.visitedNodes} locations</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Distance to Hostel */}
             {distance !== null && currentLocation && hostelLocation && (
               <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 flex items-center justify-between">
@@ -810,27 +571,7 @@ const HomePage = () => {
               </div>
             )}
 
-            {/* Algorithm Explanation */}
-            <div className="bg-gray-800/30 rounded-lg p-3 border border-gray-700">
-              <details className="cursor-pointer">
-                <summary className="text-cyan-400 text-xs font-medium">ℹ️ How Dijkstra's Algorithm Works</summary>
-                <div className="mt-2 text-gray-400 text-xs space-y-2">
-                  <p>Dijkstra's Algorithm finds the shortest path between nodes in a weighted graph:</p>
-                  <ol className="list-decimal list-inside space-y-1 ml-2">
-                    <li>Initialize distances from source to all nodes as infinity, source distance = 0</li>
-                    <li>Mark all nodes as unvisited</li>
-                    <li>Select unvisited node with smallest distance (current node)</li>
-                    <li>For each neighbor, calculate alternative distance = current distance + edge weight</li>
-                    <li>If alternative distance is smaller, update the neighbor's distance</li>
-                    <li>Mark current node as visited and repeat until destination is reached</li>
-                  </ol>
-                  <p className="text-gray-500 mt-2">Time Complexity: O(V²) or O(E log V) with priority queue</p>
-                  <p className="text-gray-500">Space Complexity: O(V)</p>
-                </div>
-              </details>
-            </div>
-
-            {/* Google Maps Link (Optional) */}
+            {/* Google Maps Link */}
             {currentLocation && hostelLocation && (
               <a
                 href={`https://www.google.com/maps/dir/${currentLocation.lat},${currentLocation.lng}/${hostelLocation.lat},${hostelLocation.lng}`}
@@ -843,7 +584,6 @@ const HomePage = () => {
             )}
           </div>
         </div>
-       
 
         {/* Complaint Updates */}
         {upcomingEvents.length > 0 && (

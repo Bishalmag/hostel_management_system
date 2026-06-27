@@ -35,6 +35,7 @@ import PaymentSuccess from './students/views/PaymentSuccess';
 import PaymentFailure from './students/views/PaymentFailure';
 import AllEvents from "./students/views/AllEvents";
 import ViewReceipts from "./students/views/ViewReciepts";
+import FindPath from "./students/pages/FindPath";
 
 
 /* Admin Panel */
@@ -64,6 +65,7 @@ import AddEvent from './admin/pages/AddEvents';
 import EditEvent from './admin/pages/EditEvents';
 import AdminComplaintDetails from "./admin/views/AdminComplaintDetails";
 import Procurement from "./admin/pages/Procurement";
+import NavigationManager from "./admin/views/NavigationManager";
 
 export default function App() {
   useEffect(() => {
@@ -130,6 +132,7 @@ export default function App() {
               <Route path="pay/:bookingId" element={<PayNowPage />} />
               <Route path="allevents" element={<AllEvents />} />
               <Route path="receipts/:bookingId" element={<ViewReceipts />} />
+              <Route path="find-path" element={<FindPath />} />
             </Route>
 
             {/* ADMIN Section */}
@@ -168,6 +171,7 @@ export default function App() {
               <Route path="events/add" element={<AddEvent />} />
               <Route path="events/edit/:id" element={<EditEvent />} />
               <Route path="procurement" element={<Procurement />} />
+              <Route path="navigation" element={<NavigationManager />} />
             </Route>
           </Routes>
         </main>

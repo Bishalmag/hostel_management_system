@@ -60,6 +60,11 @@ const navItems = [
     to: '/admin/procurement',
     icon: '⚡',
   },
+  {
+    label: 'Navigation',
+    to: '/admin/navigation',
+    icon: '🗺️',
+  },
 ];
 
 const AdminSidebar = ({ collapsed, onToggle }) => {
