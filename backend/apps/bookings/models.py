@@ -35,6 +35,16 @@ class Booking(models.Model):
         """Check if booking is in the future"""
         return self.status == 'approved' and self.check_in_date > timezone.now().date()
 
+    def approve(self):
+        """Admin approves the booking. Independent of payment status."""
+        self.status = 'approved'
+        self.save()
+
+    def reject(self):
+        """Admin rejects the booking."""
+        self.status = 'rejected'
+        self.save()
+
     class Meta:
         ordering = ['-created_at']
         verbose_name = 'Booking'
@@ -84,7 +94,7 @@ class Payment(models.Model):
         return f"RCP-{date_str}-{random_str}"
 
     def mark_as_paid(self, transaction_code=None):
-        """Mark payment as paid"""
+        """Mark payment as paid. Does NOT change booking status — admin approves separately."""
         self.paid_status = 'paid'
         self.paid_at = timezone.now()
         if transaction_code:
@@ -92,11 +102,6 @@ class Payment(models.Model):
         if not self.receipt_number:
             self.receipt_number = self.generate_receipt_number()
         self.save()
-        
-        # Also update booking status if booking exists
-        if self.booking and self.booking.status == 'pending':
-            self.booking.status = 'approved'
-            self.booking.save()
 
     def mark_as_failed(self):
         """Mark payment as failed"""

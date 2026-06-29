@@ -141,34 +141,19 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     try:
                         payment = Payment.objects.get(transaction_uuid=transaction_uuid)
                         
-                        # IMPORTANT: Check room availability before approving
-                        if payment.booking:
-                            room = payment.booking.room
-                            
-                            # Check if room has available capacity
-                            if room.current_occupancy >= room.capacity:
-                                print(f"❌ Room {room.room_number} is fully occupied! Capacity: {room.capacity}/{room.current_occupancy}")
-                                payment.paid_status = 'failed'
-                                payment.save()
-                                return redirect('http://localhost:5173/students/payment/failure?error=room_full')
-                            
-                            # Update room occupancy (increment by 1)
-                            room.current_occupancy += 1
-                            room.save()
-                            print(f"✅ Room {room.room_number} occupancy updated: {room.current_occupancy}/{room.capacity}")
-                            
-                            # Update booking status
-                            payment.booking.status = 'approved'
-                            payment.booking.save()
-                            print(f"✅ Booking {payment.booking.id} approved")
+                        # ❌ REMOVED: Auto-approval of booking
+                        # ❌ REMOVED: Auto-update of room occupancy
+                        # The booking remains 'pending' until admin approves it
                         
-                        # Update payment status
+                        # Update payment status only
                         payment.paid_status = 'paid'
                         payment.paid_at = timezone.now()
                         payment.transaction_code = transaction_code
                         payment.save()
                         
-                        print(f"✅ Payment {payment.id} updated successfully!")
+                        print(f"✅ Payment {payment.id} marked as paid!")
+                        print(f"📝 Booking #{payment.booking.id} remains '{payment.booking.status}' - awaiting admin approval")
+                        
                         return redirect(f'http://localhost:5173/students/payment/success?payment_id={payment.id}')
                         
                     except Payment.DoesNotExist:

@@ -1,16 +1,34 @@
+# apps/bookings/serializers.py
 from rest_framework import serializers
 from .models import Booking, Payment
+
 
 class BookingSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.user.full_name', read_only=True)
     room_number = serializers.CharField(source='room.room_number', read_only=True)
+    is_paid = serializers.SerializerMethodField()
+    payment_status = serializers.SerializerMethodField()
     
     class Meta:
         model = Booking
         fields = ['id', 'student', 'student_name', 'room', 'room_number', 
                   'check_in_date', 'check_out_date', 'status', 'total_amount', 
-                  'created_at', 'updated_at']
+                  'created_at', 'updated_at', 'is_paid', 'payment_status']
         read_only_fields = ['created_at', 'updated_at']
+    
+    def get_is_paid(self, obj):
+        """Check if booking has been paid for"""
+        return obj.payments.filter(paid_status='paid').exists()
+    
+    def get_payment_status(self, obj):
+        """Get payment status for the booking"""
+        paid_payment = obj.payments.filter(paid_status='paid').first()
+        if paid_payment:
+            return 'paid'
+        pending_payment = obj.payments.filter(paid_status='pending').first()
+        if pending_payment:
+            return 'pending'
+        return 'unpaid'
     
     def validate_total_amount(self, value):
         """Ensure total_amount is a valid decimal"""
@@ -58,6 +76,7 @@ class BookingSerializer(serializers.ModelSerializer):
                     )
         
         return data
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.user.full_name', read_only=True)

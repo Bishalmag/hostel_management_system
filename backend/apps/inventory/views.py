@@ -62,24 +62,46 @@ def item_detail(request, pk):
 @permission_classes([IsAdminUser])
 def run_optimization(request):
     """
-    POST { "budget": 50000 }
-    Runs 0/1 Knapsack → saves session → returns result.
+    POST { 
+        "budget": 50000,
+        "selected_item_ids": [1, 3, 5]
+    }
+    Runs 0/1 Knapsack only on selected items → saves session → returns result.
     """
     input_ser = OptimizeRequestSerializer(data=request.data)
     if not input_ser.is_valid():
         return Response(input_ser.errors, status=400)
 
     budget = float(input_ser.validated_data['budget'])
+    selected_item_ids = input_ser.validated_data.get('selected_item_ids', [])
 
+    if not selected_item_ids:
+        return Response(
+            {'error': 'Please select at least one item for procurement.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Get only the selected items
     items = list(
-        ProcurementItem.objects.filter(is_active=True)
+        ProcurementItem.objects.filter(
+            is_active=True,
+            id__in=selected_item_ids
+        )
         .values('id', 'name', 'cost', 'utility_value', 'category')
     )
+
     if not items:
         return Response(
-            {'error': 'No active items in catalog. Add items first.'},
+            {'error': 'Selected items not found or inactive.'},
             status=400
         )
+
+    # Check if selected items exceed budget
+    total_selected_cost = sum(float(item['cost']) for item in items)
+    if total_selected_cost > budget:
+        return Response({
+            'error': f'Selected items total cost ({total_selected_cost:.2f}) exceeds budget ({budget:.2f})'
+        }, status=status.HTTP_400_BAD_REQUEST)
 
     result = knapsack_optimize(items, budget)
 

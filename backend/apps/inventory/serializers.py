@@ -34,3 +34,9 @@ class OptimizeRequestSerializer(serializers.Serializer):
     budget = serializers.DecimalField(
         max_digits=12, decimal_places=2, min_value=1
     )
+    selected_item_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=True,
+        allow_empty=False,
+        help_text="List of item IDs to consider for procurement"
+    )
