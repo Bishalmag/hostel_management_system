@@ -38,7 +38,6 @@ const ComplaintRegistration = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      // Use the correct endpoint - matches your urls.py configuration
       const response = await api.post('/complaints/', {
         title: form.title,
         description: form.description,
@@ -51,10 +50,8 @@ const ComplaintRegistration = () => {
         text: 'Complaint registered successfully! You can track its status in Registered Complaints.' 
       });
       
-      // Reset form
       setForm({ title: '', description: '' });
       
-      // Redirect after 2 seconds
       setTimeout(() => {
         navigate('/students/complaints');
       }, 2000);
@@ -88,52 +85,68 @@ const ComplaintRegistration = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-red-500/20 rounded-xl">
-            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white">Register Complaint</h1>
-            <p className="text-gray-400 mt-1">Submit your complaint and we'll address it promptly</p>
-          </div>
-        </div>
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+      {/* Header - Without Icon */}
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Register Complaint</h1>
+        <p style={{
+          color: '#6b8aaa',
+          marginTop: '4px',
+        }}>Submit your complaint and we'll address it promptly</p>
       </div>
 
       {/* Message Alert */}
       {message.text && (
         <div
-          className={`px-4 py-3 rounded-lg text-sm border ${
-            message.type === 'success'
-              ? 'bg-green-500/10 text-green-400 border-green-500/30'
-              : 'bg-red-500/10 text-red-400 border-red-500/30'
-          }`}
+          style={{
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            border: '1px solid',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.1)' 
+              : 'rgba(248, 113, 113, 0.1)',
+            color: message.type === 'success' 
+              ? '#1ddba8' 
+              : '#f87171',
+            borderColor: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.3)' 
+              : 'rgba(248, 113, 113, 0.3)',
+          }}
         >
-          <div className="flex items-center gap-2">
-            {message.type === 'success' ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            )}
-            {message.text}
-          </div>
+          {message.text}
         </div>
       )}
 
       {/* Complaint Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8 space-y-6">
-          <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wide font-semibold mb-2">
-              Complaint Title <span className="text-red-400">*</span>
+      <form onSubmit={handleSubmit}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '32px',
+          marginBottom: '24px',
+        }}>
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              fontWeight: 600,
+              marginBottom: '8px',
+            }}>
+              Complaint Title <span style={{ color: '#f87171' }}>*</span>
             </label>
             <input
               type="text"
@@ -141,14 +154,41 @@ const ComplaintRegistration = () => {
               value={form.title}
               onChange={handleChange}
               placeholder="e.g., Water Supply Issue, Noisy Neighbors, Maintenance Required"
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition"
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f87171';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs text-gray-400 uppercase tracking-wide font-semibold mb-2">
-              Description <span className="text-red-400">*</span>
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              fontWeight: 600,
+              marginBottom: '8px',
+            }}>
+              Description <span style={{ color: '#f87171' }}>*</span>
             </label>
             <textarea
               name="description"
@@ -156,51 +196,131 @@ const ComplaintRegistration = () => {
               onChange={handleChange}
               rows={6}
               placeholder="Please provide detailed information about your complaint..."
-              className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500/20 transition resize-none"
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                resize: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f87171';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(248, 113, 113, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               required
             />
           </div>
 
-          <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-            <p className="text-sm text-gray-400 flex items-center gap-2">
-              <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          <div style={{
+            background: 'rgba(18, 36, 72, 0.3)',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #1a3050',
+            marginTop: '16px',
+          }}>
+            <p style={{
+              fontSize: '14px',
+              color: '#6b8aaa',
+              margin: 0,
+            }}>
               Your complaint will be reviewed within 24-48 hours. You can track its status in the "Registered Complaints" section.
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div style={{ display: 'flex', gap: '16px' }}>
           <button
             type="button"
             onClick={() => navigate('/students/complaints')}
-            className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition"
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              background: 'rgba(18, 36, 72, 0.5)',
+              color: '#c8daf0',
+              fontWeight: 500,
+              borderRadius: '8px',
+              border: '1px solid #1a3050',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+            }}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              background: loading ? '#3a5070' : '#f87171',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = '#fca5a5';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.background = '#f87171';
+              }
+            }}
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid #0a1628',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  display: 'inline-block',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
                 Submitting...
               </>
             ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                Submit Complaint
-              </>
+              'Submit Complaint'
             )}
           </button>
         </div>
       </form>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

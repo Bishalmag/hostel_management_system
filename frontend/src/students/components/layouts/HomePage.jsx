@@ -78,12 +78,11 @@ const HomePage = () => {
         try {
           const eventsRes = await api.get("/events/");
           const allEvents = eventsRes.data.results ?? eventsRes.data;
-          // Filter only upcoming and ongoing events
           const now = new Date();
           const filteredEvents = allEvents
             .filter(e => e.is_active && new Date(e.end_date) >= now)
             .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
-            .slice(0, 5); // Show only latest 5 events
+            .slice(0, 5);
           setEvents(filteredEvents);
         } catch (eventsErr) {
           console.log('No events found or events API not available');
@@ -272,82 +271,263 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading your dashboard...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '384px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading your dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-
+    <div style={{
+      minHeight: '100vh',
+      background: '#050d1a',
+      padding: '32px 0',
+    }}>
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '0 24px',
+      }}>
         {/* Welcome Header */}
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            background: 'linear-gradient(to bottom right, #f5a623, #e09515)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#0a1628',
+            boxShadow: '0 4px 20px rgba(245, 166, 35, 0.2)',
+          }}>
             {user?.full_name?.charAt(0) || 'S'}
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">
-              Welcome back, <span className="text-cyan-400">{user?.full_name?.split(' ')[0] || 'Student'}</span>
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+              margin: 0,
+            }}>
+              Welcome back, <span style={{ color: '#f5a623' }}>{user?.full_name?.split(' ')[0] || 'Student'}</span>
             </h1>
-            <p className="text-gray-500 text-sm">Here's what's happening with your hostel stay</p>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '14px',
+              margin: 0,
+            }}>Here's what's happening with your hostel stay</p>
           </div>
         </div>
 
         {/* Current Booking Card */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-            <h2 className="text-white font-semibold flex items-center gap-2">
-              <span className="text-xl">🏠</span> Your Current Stay
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            padding: '16px 24px',
+            borderBottom: '1px solid #1a3050',
+            background: 'rgba(18, 36, 72, 0.3)',
+          }}>
+            <h2 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '18px',
+              margin: 0,
+            }}>
+              <span style={{ fontSize: '20px' }}>🏠</span> Your Current Stay
             </h2>
           </div>
           
           {currentBooking ? (
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Hostel / Block</p>
-                  <p className="text-white font-semibold mt-1">{currentBooking.block_name || 'N/A'}</p>
+            <div style={{ padding: '24px' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+              }}>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #1a3050',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Hostel / Block</p>
+                  <p style={{
+                    color: '#eaf2ff',
+                    fontWeight: 600,
+                    margin: 0,
+                  }}>{currentBooking.block_name || 'N/A'}</p>
                 </div>
-                <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Room Number</p>
-                  <p className="text-white font-semibold mt-1 text-xl">Room {currentBooking.room_number}</p>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #1a3050',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Room Number</p>
+                  <p style={{
+                    color: '#eaf2ff',
+                    fontWeight: 600,
+                    fontSize: '20px',
+                    margin: 0,
+                  }}>Room {currentBooking.room_number}</p>
                 </div>
-                <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Room Type</p>
-                  <p className="text-white font-semibold mt-1 capitalize">{currentBooking.room_type || 'Standard'}</p>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #1a3050',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Room Type</p>
+                  <p style={{
+                    color: '#eaf2ff',
+                    fontWeight: 600,
+                    margin: 0,
+                    textTransform: 'capitalize',
+                  }}>{currentBooking.room_type || 'Standard'}</p>
                 </div>
-                <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Days Remaining</p>
-                  <p className="text-cyan-400 font-bold mt-1 text-xl">{getDaysRemaining(currentBooking.check_out_date)} days</p>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #1a3050',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Days Remaining</p>
+                  <p style={{
+                    color: '#f5a623',
+                    fontWeight: 700,
+                    fontSize: '20px',
+                    margin: 0,
+                  }}>{getDaysRemaining(currentBooking.check_out_date)} days</p>
                 </div>
               </div>
               
-              <div className="mt-4 flex justify-between items-center pt-4 border-t border-gray-800">
+              <div style={{
+                marginTop: '16px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingTop: '16px',
+                borderTop: '1px solid #1a3050',
+              }}>
                 <div>
-                  <p className="text-gray-500 text-xs">Check-in: {formatDate(currentBooking.check_in_date)}</p>
-                  <p className="text-gray-500 text-xs mt-1">Check-out: {formatDate(currentBooking.check_out_date)}</p>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '12px',
+                    margin: '0 0 4px 0',
+                  }}>Check-in: {formatDate(currentBooking.check_in_date)}</p>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '12px',
+                    margin: 0,
+                  }}>Check-out: {formatDate(currentBooking.check_out_date)}</p>
                 </div>
                 <button 
                   onClick={() => navigate('/students/my-bookings')}
-                  className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium transition"
+                  style={{
+                    padding: '8px 16px',
+                    background: 'rgba(245, 166, 35, 0.1)',
+                    color: '#f5a623',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(245, 166, 35, 0.2)',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(245, 166, 35, 0.1)';
+                  }}
                 >
                   View Details
                 </button>
               </div>
             </div>
           ) : (
-            <div className="p-12 text-center">
-              <div className="text-5xl mb-4">🏨</div>
-              <p className="text-gray-400 mb-2">No active booking found</p>
-              <p className="text-gray-500 text-sm mb-6">Book a hostel room to start your stay</p>
+            <div style={{
+              padding: '48px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏨</div>
+              <p style={{ color: '#c8daf0', marginBottom: '8px' }}>No active booking found</p>
+              <p style={{ color: '#6b8aaa', fontSize: '14px', marginBottom: '24px' }}>Book a hostel room to start your stay</p>
               <button
                 onClick={() => navigate('/students/book-hostels')}
-                className="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+                style={{
+                  padding: '8px 24px',
+                  background: '#f5a623',
+                  color: '#0a1628',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  fontSize: '14px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#e09515';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f5a623';
+                }}
               >
                 Browse Hostels
               </button>
@@ -357,61 +537,153 @@ const HomePage = () => {
 
         {/* Events Section */}
         {events.length > 0 && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-              <h2 className="text-white font-semibold flex items-center gap-2">
-                <span className="text-xl">📅</span> Upcoming Events
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            marginBottom: '24px',
+          }}>
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+              background: 'rgba(18, 36, 72, 0.3)',
+            }}>
+              <h2 style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '18px',
+                margin: 0,
+              }}>
+                <span style={{ fontSize: '20px' }}>📅</span> Upcoming Events
               </h2>
-              <p className="text-gray-500 text-xs mt-1">Stay updated with hostel events</p>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                margin: '4px 0 0 0',
+              }}>Stay updated with hostel events</p>
             </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div style={{ padding: '24px' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '16px',
+              }}>
                 {events.map((event) => {
                   const status = getEventStatus(event);
                   return (
-                    <div key={event.id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 hover:border-cyan-500/30 transition-all">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{getEventTypeIcon(event.event_type)}</span>
-                          <h3 className="text-white font-semibold text-sm">{event.title}</h3>
+                    <div key={event.id} style={{
+                      background: 'rgba(18, 36, 72, 0.5)',
+                      border: '1px solid #1a3050',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                        marginBottom: '8px',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '24px' }}>{getEventTypeIcon(event.event_type)}</span>
+                          <h3 style={{
+                            color: '#eaf2ff',
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            margin: 0,
+                          }}>{event.title}</h3>
                         </div>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${status.color}`}>
+                        <span style={{
+                          fontSize: '10px',
+                          padding: '2px 8px',
+                          borderRadius: '9999px',
+                          background: status.color.includes('green') ? 'rgba(29, 219, 168, 0.2)' : 
+                                     status.color.includes('blue') ? 'rgba(167, 139, 250, 0.2)' : 
+                                     'rgba(107, 114, 128, 0.2)',
+                          color: status.color.includes('green') ? '#1ddba8' : 
+                                 status.color.includes('blue') ? '#a78bfa' : 
+                                 '#6b8aaa',
+                        }}>
                           {status.label}
                         </span>
                       </div>
                       
-                      <p className="text-gray-400 text-sm line-clamp-2">{event.description}</p>
+                      <p style={{
+                        color: '#c8daf0',
+                        fontSize: '14px',
+                        margin: '0 0 12px 0',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}>{event.description}</p>
                       
-                      <div className="mt-3 pt-3 border-t border-gray-700 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">Start:</span>
-                          <span className="text-gray-300">{formatEventDate(event.start_date)}</span>
+                      <div style={{
+                        paddingTop: '12px',
+                        borderTop: '1px solid #1a3050',
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '12px',
+                          marginBottom: '4px',
+                        }}>
+                          <span style={{ color: '#6b8aaa' }}>Start:</span>
+                          <span style={{ color: '#c8daf0' }}>{formatEventDate(event.start_date)}</span>
                         </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-gray-500">End:</span>
-                          <span className="text-gray-300">{formatEventDate(event.end_date)}</span>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '12px',
+                        }}>
+                          <span style={{ color: '#6b8aaa' }}>End:</span>
+                          <span style={{ color: '#c8daf0' }}>{formatEventDate(event.end_date)}</span>
                         </div>
-                        {event.location && (
-                          <div className="flex justify-between text-xs">
-                            <span className="text-gray-500">📍</span>
-                            <span className="text-gray-300">{event.location}</span>
-                          </div>
-                        )}
                       </div>
                       
                       {event.is_featured && (
-                        <div className="mt-2">
-                          <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-0.5 rounded-full">⭐ Featured Event</span>
+                        <div style={{ marginTop: '8px' }}>
+                          <span style={{
+                            fontSize: '10px',
+                            color: '#f5a623',
+                            background: 'rgba(245, 166, 35, 0.1)',
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                          }}>⭐ Featured Event</span>
                         </div>
                       )}
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-4 text-center">
+              <div style={{ marginTop: '16px', textAlign: 'center' }}>
                 <button
                   onClick={() => navigate('/students/allevents')}
-                  className="text-cyan-400 hover:text-cyan-300 text-sm font-medium transition"
+                  style={{
+                    color: '#f5a623',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#e09515';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#f5a623';
+                  }}
                 >
                   View All Events →
                 </button>
@@ -421,33 +693,116 @@ const HomePage = () => {
         )}
 
         {/* Route Navigator */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-            <h2 className="text-white font-semibold flex items-center gap-2">
-              <span className="text-xl">🗺️</span> Route Navigator
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            padding: '16px 24px',
+            borderBottom: '1px solid #1a3050',
+            background: 'rgba(18, 36, 72, 0.3)',
+          }}>
+            <h2 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '18px',
+              margin: 0,
+            }}>
+              <span style={{ fontSize: '20px' }}>🗺️</span> Route Navigator
             </h2>
-            <p className="text-gray-500 text-xs mt-1">Find your way to the hostel</p>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              margin: '4px 0 0 0',
+            }}>Find your way to the hostel</p>
           </div>
 
-          <div className="p-6 space-y-4">
-
+          <div style={{ padding: '24px' }}>
             {/* Location Actions */}
-            <div className="flex flex-wrap gap-3">
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '16px',
+            }}>
               <button
                 onClick={detectLocation}
-                className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium transition flex items-center gap-2"
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(245, 166, 35, 0.1)',
+                  color: '#f5a623',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(245, 166, 35, 0.2)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(245, 166, 35, 0.1)';
+                }}
               >
                 📍 Auto Detect My Location
               </button>
               <button
                 onClick={() => setShowSearch(!showSearch)}
-                className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg text-sm font-medium transition flex items-center gap-2"
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(167, 139, 250, 0.1)',
+                  color: '#a78bfa',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(167, 139, 250, 0.2)',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(167, 139, 250, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(167, 139, 250, 0.1)';
+                }}
               >
                 🔍 Search Location
               </button>
               <button
                 onClick={useDefaultLocation}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm font-medium transition flex items-center gap-2"
+                style={{
+                  padding: '8px 16px',
+                  background: 'rgba(107, 114, 128, 0.1)',
+                  color: '#c8daf0',
+                  borderRadius: '8px',
+                  border: '1px solid #1a3050',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(107, 114, 128, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(107, 114, 128, 0.1)';
+                }}
               >
                 📍 Use Default Location (Subedi Gau)
               </button>
@@ -455,32 +810,93 @@ const HomePage = () => {
 
             {/* Search Bar */}
             {showSearch && (
-              <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 space-y-3">
-                <div className="flex gap-2">
+              <div style={{
+                background: 'rgba(18, 36, 72, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && searchLocation()}
                     placeholder="Search for city, area, or landmark..."
-                    className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                    style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#f5a623';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }}
                   />
                   <button
                     onClick={searchLocation}
                     disabled={isSearching}
-                    className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg text-sm font-medium transition"
+                    style={{
+                      padding: '8px 16px',
+                      background: 'rgba(245, 166, 35, 0.1)',
+                      color: '#f5a623',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(245, 166, 35, 0.2)',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      cursor: isSearching ? 'not-allowed' : 'pointer',
+                      opacity: isSearching ? 0.5 : 1,
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSearching) e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(245, 166, 35, 0.1)';
+                    }}
                   >
                     {isSearching ? "Searching..." : "Search"}
                   </button>
                 </div>
                 
                 {searchResults.length > 0 && (
-                  <div className="mt-2 max-h-48 overflow-y-auto space-y-1">
+                  <div style={{
+                    marginTop: '8px',
+                    maxHeight: '192px',
+                    overflowY: 'auto',
+                  }}>
                     {searchResults.map((result, idx) => (
                       <button
                         key={idx}
                         onClick={() => selectLocation(result)}
-                        className="w-full text-left p-2 hover:bg-gray-700 rounded-lg transition text-sm text-gray-300"
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          textAlign: 'left',
+                          padding: '8px 12px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#c8daf0',
+                          fontSize: '14px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = '#122448';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
                       >
                         {result.place || result.name.substring(0, 100)}
                       </button>
@@ -491,56 +907,144 @@ const HomePage = () => {
             )}
 
             {/* Location Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">📍 Your Location</p>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '16px',
+              marginBottom: '16px',
+            }}>
+              <div style={{
+                background: 'rgba(18, 36, 72, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                padding: '16px',
+              }}>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '10px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: '0 0 4px 0',
+                }}>📍 Your Location</p>
                 {currentLocation ? (
                   <>
-                    <p className="text-green-400 text-sm font-mono">
+                    <p style={{
+                      color: '#1ddba8',
+                      fontSize: '14px',
+                      fontFamily: 'monospace',
+                      margin: '0 0 4px 0',
+                    }}>
                       {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
                     </p>
                     {currentLocation.name && (
-                      <p className="text-gray-500 text-xs mt-1 truncate">{currentLocation.name}</p>
+                      <p style={{
+                        color: '#6b8aaa',
+                        fontSize: '12px',
+                        margin: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>{currentLocation.name}</p>
                     )}
                   </>
                 ) : (
-                  <p className="text-yellow-400 text-xs">Click "Auto Detect" or search for your location</p>
+                  <p style={{
+                    color: '#f5a623',
+                    fontSize: '12px',
+                    margin: 0,
+                  }}>Click "Auto Detect" or search for your location</p>
                 )}
-                {locationError && <p className="text-red-400 text-xs mt-1">{locationError}</p>}
+                {locationError && (
+                  <p style={{
+                    color: '#f87171',
+                    fontSize: '12px',
+                    margin: '4px 0 0 0',
+                  }}>{locationError}</p>
+                )}
               </div>
-              <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4">
-                <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">🏨 Hostel Location</p>
+              <div style={{
+                background: 'rgba(18, 36, 72, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                padding: '16px',
+              }}>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '10px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  margin: '0 0 4px 0',
+                }}>🏨 Hostel Location</p>
                 {hostelLocation ? (
                   <>
-                    <p className="text-cyan-400 text-sm font-mono">
+                    <p style={{
+                      color: '#f5a623',
+                      fontSize: '14px',
+                      fontFamily: 'monospace',
+                      margin: '0 0 4px 0',
+                    }}>
                       {hostelLocation.lat.toFixed(6)}, {hostelLocation.lng.toFixed(6)}
                     </p>
-                    <p className="text-gray-500 text-xs mt-1">{hostelLocation.name}</p>
+                    <p style={{
+                      color: '#6b8aaa',
+                      fontSize: '12px',
+                      margin: 0,
+                    }}>{hostelLocation.name}</p>
                   </>
                 ) : (
-                  <p className="text-gray-500 text-xs">No active booking or coordinates not set</p>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '12px',
+                    margin: 0,
+                  }}>No active booking or coordinates not set</p>
                 )}
               </div>
             </div>
 
             {/* Distance to Hostel */}
             {distance !== null && currentLocation && hostelLocation && (
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 flex items-center justify-between">
+              <div style={{
+                background: 'rgba(245, 166, 35, 0.05)',
+                border: '1px solid rgba(245, 166, 35, 0.2)',
+                borderRadius: '12px',
+                padding: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '16px',
+              }}>
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Distance to Hostel (Straight Line)</p>
-                  <p className="text-cyan-400 text-2xl font-bold font-mono mt-1">
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Distance to Hostel (Straight Line)</p>
+                  <p style={{
+                    color: '#f5a623',
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    fontFamily: 'monospace',
+                    margin: 0,
+                  }}>
                     {distance >= 1000
                       ? `${(distance / 1000).toFixed(2)} km`
                       : `${Math.round(distance)} m`}
                   </p>
                 </div>
-                <span className="text-4xl">📏</span>
+                <span style={{ fontSize: '32px' }}>📏</span>
               </div>
             )}
 
             {/* Map */}
             {currentLocation && hostelLocation ? (
-              <div className="rounded-xl overflow-hidden border border-gray-700">
+              <div style={{
+                borderRadius: '12px',
+                overflow: 'hidden',
+                border: '1px solid #1a3050',
+                marginBottom: '16px',
+              }}>
                 <iframe
                   title="Route Map"
                   src={`https://www.openstreetmap.org/export/embed.html?bbox=${
@@ -560,8 +1064,22 @@ const HomePage = () => {
                 />
               </div>
             ) : (
-              <div className="h-48 bg-gray-800/50 border border-gray-700 rounded-xl flex items-center justify-center">
-                <p className="text-gray-600 text-sm text-center">
+              <div style={{
+                height: '192px',
+                background: 'rgba(18, 36, 72, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px',
+              }}>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '14px',
+                  textAlign: 'center',
+                  margin: 0,
+                }}>
                   {!hostelLocation 
                     ? "Book a hostel to see map" 
                     : !currentLocation 
@@ -577,7 +1095,27 @@ const HomePage = () => {
                 href={`https://www.google.com/maps/dir/${currentLocation.lat},${currentLocation.lng}/${hostelLocation.lat},${hostelLocation.lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-400 text-sm font-medium rounded-xl transition flex items-center justify-center gap-2"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '12px',
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)',
+                  borderRadius: '12px',
+                  color: '#60a5fa',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+                }}
               >
                 🧭 Open Turn-by-Turn Directions in Google Maps
               </a>
@@ -587,23 +1125,59 @@ const HomePage = () => {
 
         {/* Complaint Updates */}
         {upcomingEvents.length > 0 && (
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl">
-            <div className="px-6 py-4 border-b border-gray-800">
-              <h2 className="text-white font-semibold flex items-center gap-2">
-                <span className="text-xl">⏰</span> Complaint Updates
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+            }}>
+              <h2 style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '18px',
+                margin: 0,
+              }}>
+                <span style={{ fontSize: '20px' }}>⏰</span> Complaint Updates
               </h2>
             </div>
-            <div className="p-6 space-y-3">
+            <div style={{ padding: '24px' }}>
               {upcomingEvents.map(event => (
-                <div key={event.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">{event.icon}</span>
+                <div key={event.id} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.3)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '20px' }}>{event.icon}</span>
                     <div>
-                      <p className="text-white text-sm">{event.title}</p>
-                      <p className="text-gray-500 text-xs">{new Date(event.date).toLocaleDateString()}</p>
+                      <p style={{
+                        color: '#eaf2ff',
+                        fontSize: '14px',
+                        margin: 0,
+                      }}>{event.title}</p>
+                      <p style={{
+                        color: '#6b8aaa',
+                        fontSize: '12px',
+                        margin: 0,
+                      }}>{new Date(event.date).toLocaleDateString()}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded-full">In Progress</span>
+                  <span style={{
+                    fontSize: '10px',
+                    color: '#f5a623',
+                    background: 'rgba(245, 166, 35, 0.1)',
+                    padding: '2px 8px',
+                    borderRadius: '9999px',
+                  }}>In Progress</span>
                 </div>
               ))}
             </div>
@@ -611,6 +1185,14 @@ const HomePage = () => {
         )}
 
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

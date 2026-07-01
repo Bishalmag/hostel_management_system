@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../components/Auth';
 import Sidebar from '../students/components/layouts/Sidebar';
-import Navbar  from '../students/components/layouts/Navbar';
-import Footer  from '../students/components/layouts/Footer';
+import Navbar from '../students/components/layouts/Navbar';
+import Footer from '../students/components/layouts/Footer';
 
 // ── Toast store ───────────────────────────────────────────────────────────────
 let _setToasts = null;
@@ -19,10 +19,10 @@ export const showToast = (message, type = 'info', duration = 3500) => {
 const StudentLayout = () => {
   const { user } = useAuth();
 
-  const [collapsed,  setCollapsed]  = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [toastList,  setToastList]  = useState([]);
-  const [visible,    setVisible]    = useState(false);
+  const [toastList, setToastList] = useState([]);
+  const [visible, setVisible] = useState(false);
 
   _setToasts = setToastList;
 
@@ -39,10 +39,24 @@ const StudentLayout = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  const getToastColors = (type) => {
+    switch (type) {
+      case 'success': return { bg: 'rgba(29, 219, 168, 0.9)', border: 'rgba(29, 219, 168, 0.4)' };
+      case 'error': return { bg: 'rgba(248, 113, 113, 0.9)', border: 'rgba(248, 113, 113, 0.4)' };
+      case 'info': return { bg: 'rgba(167, 139, 250, 0.9)', border: 'rgba(167, 139, 250, 0.4)' };
+      case 'warning': return { bg: 'rgba(245, 166, 35, 0.9)', border: 'rgba(245, 166, 35, 0.4)' };
+      default: return { bg: 'rgba(107, 114, 128, 0.9)', border: 'rgba(107, 114, 128, 0.4)' };
+    }
+  };
+
   return (
     <>
-      <div className="flex h-screen overflow-hidden" style={{ background: '#030712' }}>
-
+      <div style={{
+        display: 'flex',
+        height: '100vh',
+        overflow: 'hidden',
+        background: '#050d1a',
+      }}>
         {/* Sidebar — left column */}
         <Sidebar
           collapsed={collapsed}
@@ -52,8 +66,13 @@ const StudentLayout = () => {
         />
 
         {/* Right column — navbar + content + footer */}
-        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minWidth: 0,
+          overflow: 'hidden',
+        }}>
           {/* Navbar — top */}
           <Navbar
             user={user}
@@ -62,12 +81,17 @@ const StudentLayout = () => {
           />
 
           {/* Scrollable page content */}
-          <main
-            className={`flex-1 overflow-y-auto transition-all duration-500 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-            }`}
-          >
-            <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+          <main style={{
+            flex: 1,
+            overflowY: 'auto',
+            transition: 'all 0.5s ease',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'translateY(0)' : 'translateY(8px)',
+          }}>
+            <div style={{
+              width: '100%',
+              padding: '24px',
+            }}>
               <Outlet />
             </div>
           </main>
@@ -77,39 +101,56 @@ const StudentLayout = () => {
       </div>
 
       {/* Toast container */}
-      <div className="fixed top-5 right-5 z-[10000] flex flex-col gap-2.5 pointer-events-none">
-        {toastList.map((toast) => (
-          <div
-            key={toast.id}
-            className={`
-              pointer-events-auto flex items-center gap-3
-              px-4 py-3 rounded-xl text-sm text-white font-medium
-              shadow-2xl shadow-black/40 border animate-slideIn max-w-xs
-              ${toast.type === 'success' ? 'bg-green-600/90  border-green-500/40'  : ''}
-              ${toast.type === 'error'   ? 'bg-red-600/90    border-red-500/40'    : ''}
-              ${toast.type === 'info'    ? 'bg-indigo-600/90 border-indigo-500/40' : ''}
-              ${toast.type === 'warning' ? 'bg-yellow-600/90 border-yellow-500/40' : ''}
-            `}
-            style={{ backdropFilter: 'blur(8px)' }}
-          >
-            <span className="flex-shrink-0">
-              {toast.type === 'success' && '✅'}
-              {toast.type === 'error'   && '❌'}
-              {toast.type === 'info'    && 'ℹ️'}
-              {toast.type === 'warning' && '⚠️'}
-            </span>
-            {toast.message}
-          </div>
-        ))}
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 10000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+        pointerEvents: 'none',
+      }}>
+        {toastList.map((toast) => {
+          const colors = getToastColors(toast.type);
+          return (
+            <div
+              key={toast.id}
+              style={{
+                pointerEvents: 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                fontSize: '14px',
+                color: '#eaf2ff',
+                fontWeight: 500,
+                boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+                border: `1px solid ${colors.border}`,
+                maxWidth: '320px',
+                background: colors.bg,
+                backdropFilter: 'blur(8px)',
+                animation: 'slideIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              }}
+            >
+              <span style={{
+                flexShrink: 0,
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: colors.border,
+              }} />
+              {toast.message}
+            </div>
+          );
+        })}
       </div>
 
       <style>{`
         @keyframes slideIn {
           from { transform: translateX(110%); opacity: 0; }
-          to   { transform: translateX(0);    opacity: 1; }
-        }
-        .animate-slideIn {
-          animation: slideIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          to { transform: translateX(0); opacity: 1; }
         }
       `}</style>
     </>

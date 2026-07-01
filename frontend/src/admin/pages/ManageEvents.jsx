@@ -83,16 +83,16 @@ const ManageEvents = () => {
 
   const getEventTypeColor = (type) => {
     const colors = {
-      general: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
-      academic: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      cultural: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      sports: 'bg-green-500/20 text-green-400 border-green-500/30',
-      maintenance: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      emergency: 'bg-red-500/20 text-red-400 border-red-500/30',
-      holiday: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
-      other: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+      general: { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' },
+      academic: { bg: 'rgba(96, 165, 250, 0.2)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
+      cultural: { bg: 'rgba(167, 139, 250, 0.2)', text: '#a78bfa', border: 'rgba(167, 139, 250, 0.3)' },
+      sports: { bg: 'rgba(29, 219, 168, 0.2)', text: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' },
+      maintenance: { bg: 'rgba(245, 166, 35, 0.2)', text: '#f5a623', border: 'rgba(245, 166, 35, 0.3)' },
+      emergency: { bg: 'rgba(248, 113, 113, 0.2)', text: '#f87171', border: 'rgba(248, 113, 113, 0.3)' },
+      holiday: { bg: 'rgba(236, 72, 153, 0.2)', text: '#ec4899', border: 'rgba(236, 72, 153, 0.3)' },
+      other: { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' },
     };
-    return colors[type] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    return colors[type] || { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' };
   };
 
   const getEventTypeLabel = (type) => {
@@ -125,12 +125,37 @@ const ManageEvents = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Manage Events</h1>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Manage Events</h1>
         </div>
-        <div className="text-center text-gray-400 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+        <div style={{
+          textAlign: 'center',
+          color: '#6b8aaa',
+          padding: '48px 0',
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
           Loading events...
         </div>
       </div>
@@ -138,18 +163,54 @@ const ManageEvents = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-white">Manage Events</h1>
-          <p className="text-gray-400 text-sm mt-1">Create and manage hostel events</p>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Manage Events</h1>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>Create and manage hostel events</p>
         </div>
         <button
           onClick={() => navigate('/admin/events/add')}
-          className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition flex items-center gap-2"
+          style={{
+            padding: '8px 16px',
+            background: '#f5a623',
+            color: '#0a1628',
+            border: 'none',
+            borderRadius: '8px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#e09515';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#f5a623';
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Event
@@ -157,39 +218,135 @@ const ManageEvents = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Events</p>
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Total Events</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: '4px 0 0 0',
+          }}>{stats.total}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Upcoming</p>
-          <p className="text-2xl font-bold text-blue-400">{stats.upcoming}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Upcoming</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#60a5fa',
+            margin: '4px 0 0 0',
+          }}>{stats.upcoming}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Ongoing</p>
-          <p className="text-2xl font-bold text-green-400">{stats.ongoing}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Ongoing</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#1ddba8',
+            margin: '4px 0 0 0',
+          }}>{stats.ongoing}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Past</p>
-          <p className="text-2xl font-bold text-gray-400">{stats.past}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Past</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#6b8aaa',
+            margin: '4px 0 0 0',
+          }}>{stats.past}</p>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-800">
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        borderBottom: '1px solid #1a3050',
+      }}>
         {['all', 'upcoming', 'ongoing', 'past'].map(tab => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-sm font-medium transition capitalize ${
-              filter === tab
-                ? 'text-cyan-400 border-b-2 border-cyan-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              textTransform: 'capitalize',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              color: filter === tab ? '#f5a623' : '#6b8aaa',
+              borderBottom: filter === tab ? '2px solid #f5a623' : '2px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (filter !== tab) {
+                e.currentTarget.style.color = '#c8daf0';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (filter !== tab) {
+                e.currentTarget.style.color = '#6b8aaa';
+              }
+            }}
           >
             {tab === 'all' ? 'All Events' : tab}
-            <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-500/20 rounded-full">
+            <span style={{
+              marginLeft: '8px',
+              padding: '2px 6px',
+              fontSize: '12px',
+              background: 'rgba(107, 138, 170, 0.2)',
+              borderRadius: '20px',
+            }}>
               {tab === 'all' ? stats.total : stats[tab]}
             </span>
           </button>
@@ -198,37 +355,83 @@ const ManageEvents = () => {
 
       {/* Events Table */}
       {filteredEvents.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">📅</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Events Found</h3>
-          <p className="text-gray-400">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>◇</div>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#eaf2ff',
+            marginBottom: '8px',
+          }}>No Events Found</h3>
+          <p style={{
+            color: '#6b8aaa',
+            marginBottom: '16px',
+          }}>
             {filter === 'all' 
               ? "No events have been created yet." 
               : `No ${filter} events found.`}
           </p>
           <button
             onClick={() => navigate('/admin/events/add')}
-            className="mt-4 px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+            style={{
+              padding: '8px 24px',
+              background: '#f5a623',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e09515';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f5a623';
+            }}
           >
             Create Your First Event
           </button>
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-800/50 border-b border-gray-800">
-                <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                  <th className="px-5 py-4 text-left">Title</th>
-                  <th className="px-5 py-4 text-left">Type</th>
-                  <th className="px-5 py-4 text-left">Start Date</th>
-                  <th className="px-5 py-4 text-left">End Date</th>
-                  <th className="px-5 py-4 text-left">Location</th>
-                  <th className="px-5 py-4 text-left">Status</th>
-                  <th className="px-5 py-4 text-left">Actions</th>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              fontSize: '14px',
+              borderCollapse: 'collapse',
+            }}>
+              <thead style={{
+                background: 'rgba(15, 32, 64, 0.5)',
+                borderBottom: '1px solid #1a3050',
+              }}>
+                <tr style={{
+                  color: '#6b8aaa',
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Title</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Type</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Start Date</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>End Date</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Location</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Status</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody>
                 {filteredEvents.map((event) => {
                   const isActive = event.is_active;
                   const isFeatured = event.is_featured;
@@ -237,75 +440,184 @@ const ManageEvents = () => {
                   const isPast = new Date(event.end_date) < new Date();
                   
                   let statusLabel = 'Active';
-                  let statusColor = 'bg-green-500/20 text-green-400 border-green-500/30';
+                  let statusColor = 'rgba(29, 219, 168, 0.2)';
+                  let statusTextColor = '#1ddba8';
+                  let statusBorder = 'rgba(29, 219, 168, 0.3)';
+                  
                   if (!isActive) {
                     statusLabel = 'Inactive';
-                    statusColor = 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                    statusColor = 'rgba(107, 138, 170, 0.2)';
+                    statusTextColor = '#6b8aaa';
+                    statusBorder = 'rgba(107, 138, 170, 0.3)';
                   } else if (isPast) {
                     statusLabel = 'Past';
-                    statusColor = 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+                    statusColor = 'rgba(107, 138, 170, 0.2)';
+                    statusTextColor = '#6b8aaa';
+                    statusBorder = 'rgba(107, 138, 170, 0.3)';
                   } else if (isOngoing) {
                     statusLabel = 'Ongoing';
-                    statusColor = 'bg-green-500/20 text-green-400 border-green-500/30';
+                    statusColor = 'rgba(29, 219, 168, 0.2)';
+                    statusTextColor = '#1ddba8';
+                    statusBorder = 'rgba(29, 219, 168, 0.3)';
                   } else if (isUpcoming) {
                     statusLabel = 'Upcoming';
-                    statusColor = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+                    statusColor = 'rgba(96, 165, 250, 0.2)';
+                    statusTextColor = '#60a5fa';
+                    statusBorder = 'rgba(96, 165, 250, 0.3)';
                   }
-                  
+
+                  const eventTypeStyle = getEventTypeColor(event.event_type);
+
                   return (
-                    <tr key={event.id} className="hover:bg-gray-800/30 transition">
-                      <td className="px-5 py-4">
+                    <tr
+                      key={event.id}
+                      style={{
+                        borderBottom: '1px solid #1a3050',
+                        transition: 'background 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <td style={{ padding: '16px 20px' }}>
                         <div>
-                          <p className="text-white font-medium">{event.title}</p>
+                          <p style={{
+                            color: '#eaf2ff',
+                            fontWeight: 500,
+                            margin: 0,
+                          }}>{event.title}</p>
                           {isFeatured && (
-                            <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-0.5 rounded-full">⭐ Featured</span>
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#f5a623',
+                              background: 'rgba(245, 166, 35, 0.2)',
+                              padding: '2px 8px',
+                              borderRadius: '20px',
+                              display: 'inline-block',
+                              marginTop: '4px',
+                            }}>◆ Featured</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getEventTypeColor(event.event_type)}`}>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          border: `1px solid ${eventTypeStyle.border}`,
+                          background: eventTypeStyle.bg,
+                          color: eventTypeStyle.text,
+                        }}>
                           {getEventTypeLabel(event.event_type)}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-300 text-xs">{formatDate(event.start_date)}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{
+                          color: '#c8daf0',
+                          fontSize: '12px',
+                          margin: 0,
+                        }}>{formatDate(event.start_date)}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-300 text-xs">{formatDate(event.end_date)}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{
+                          color: '#c8daf0',
+                          fontSize: '12px',
+                          margin: 0,
+                        }}>{formatDate(event.end_date)}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-400 text-sm">{event.location || 'N/A'}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{
+                          color: '#6b8aaa',
+                          fontSize: '14px',
+                          margin: 0,
+                        }}>{event.location || 'N/A'}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusColor}`}>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          border: `1px solid ${statusBorder}`,
+                          background: statusColor,
+                          color: statusTextColor,
+                        }}>
                           {statusLabel}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex gap-2 flex-wrap">
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{
+                          display: 'flex',
+                          gap: '8px',
+                          flexWrap: 'wrap',
+                        }}>
                           <button
                             onClick={() => navigate(`/admin/events/edit/${event.id}`)}
-                            className="px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded transition"
+                            style={{
+                              padding: '4px 12px',
+                              background: 'rgba(245, 166, 35, 0.2)',
+                              color: '#f5a623',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'background 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(245, 166, 35, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                            }}
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleToggleStatus(event.id, event.is_active)}
-                            className={`px-2 py-1 text-xs font-medium rounded transition ${
-                              event.is_active 
-                                ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400'
-                                : 'bg-green-500/20 hover:bg-green-500/30 text-green-400'
-                            }`}
+                            style={{
+                              padding: '4px 12px',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              background: event.is_active ? 'rgba(245, 166, 35, 0.2)' : 'rgba(29, 219, 168, 0.2)',
+                              color: event.is_active ? '#f5a623' : '#1ddba8',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = event.is_active ? 'rgba(245, 166, 35, 0.3)' : 'rgba(29, 219, 168, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = event.is_active ? 'rgba(245, 166, 35, 0.2)' : 'rgba(29, 219, 168, 0.2)';
+                            }}
                           >
                             {event.is_active ? 'Deactivate' : 'Activate'}
                           </button>
                           <button
                             onClick={() => handleToggleFeatured(event.id, event.is_featured)}
-                            className={`px-2 py-1 text-xs font-medium rounded transition ${
-                              event.is_featured 
-                                ? 'bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400'
-                                : 'bg-gray-500/20 hover:bg-gray-500/30 text-gray-400'
-                            }`}
+                            style={{
+                              padding: '4px 12px',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
+                              background: event.is_featured ? 'rgba(245, 166, 35, 0.2)' : 'rgba(107, 138, 170, 0.2)',
+                              color: event.is_featured ? '#f5a623' : '#6b8aaa',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = event.is_featured ? 'rgba(245, 166, 35, 0.3)' : 'rgba(107, 138, 170, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = event.is_featured ? 'rgba(245, 166, 35, 0.2)' : 'rgba(107, 138, 170, 0.2)';
+                            }}
                           >
                             {event.is_featured ? 'Unfeature' : 'Feature'}
                           </button>
@@ -314,7 +626,23 @@ const ManageEvents = () => {
                               setSelectedEventId(event.id);
                               setShowDeleteModal(true);
                             }}
-                            className="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded transition"
+                            style={{
+                              padding: '4px 12px',
+                              background: 'rgba(248, 113, 113, 0.2)',
+                              color: '#f87171',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'background 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                            }}
                           >
                             Delete
                           </button>
@@ -331,22 +659,82 @@ const ManageEvents = () => {
 
       {/* Delete Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Delete Event?</h2>
-            <p className="text-gray-400 mb-6">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '448px',
+            width: '100%',
+            padding: '24px',
+          }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+              marginBottom: '16px',
+              marginTop: 0,
+            }}>Delete Event?</h2>
+            <p style={{
+              color: '#6b8aaa',
+              marginBottom: '24px',
+            }}>
               Are you sure you want to delete this event? This action cannot be undone.
             </p>
-            <div className="flex gap-3">
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+            }}>
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#0f2040',
+                  color: '#eaf2ff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'background 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#122448';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#0f2040';
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(selectedEventId)}
-                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#f87171',
+                  color: '#0a1628',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'background 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#ef4444';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f87171';
+                }}
               >
                 Delete
               </button>
@@ -354,6 +742,14 @@ const ManageEvents = () => {
           </div>
         </div>
       )}
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

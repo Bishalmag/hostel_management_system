@@ -16,6 +16,18 @@ const ViewReceipts = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
+
   useEffect(() => {
     fetchPayments();
   }, [user]);
@@ -25,7 +37,6 @@ const ViewReceipts = () => {
       setLoading(true);
       setError(null);
       
-      // Get student profile
       const studentRes = await api.get('/students/');
       const students = studentRes.data.results || studentRes.data;
       const currentStudent = students.find(s => s.user === user?.id);
@@ -36,16 +47,13 @@ const ViewReceipts = () => {
         return;
       }
 
-      // Get payments for this student
       const paymentsRes = await api.get(`/bookings/payments/`);
       const allPayments = paymentsRes.data.results || paymentsRes.data;
       
-      // Filter payments for current student and only paid ones
       const studentPayments = allPayments.filter(p => 
         p.student === currentStudent.id && p.paid_status === 'paid'
       );
       
-      // Fetch booking and room details for each payment
       const paymentsWithDetails = await Promise.all(
         studentPayments.map(async (payment) => {
           try {
@@ -63,7 +71,6 @@ const ViewReceipts = () => {
                 const room = roomRes.data;
                 roomNumber = room.room_number;
                 
-                // Get floor and block details
                 const floorRes = await api.get(`/hostel/floors/${room.floor}/`);
                 const floor = floorRes.data;
                 const blockRes = await api.get(`/hostel/blocks/${floor.block}/`);
@@ -132,26 +139,16 @@ const ViewReceipts = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const formatPrice = (price) => {
-    if (!price) return 'N/A';
-    return new Intl.NumberFormat('en-NP', {
-      style: 'currency',
-      currency: 'NPR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
   const getPaymentMethodIcon = (method) => {
     const icons = {
-      cash: '💵',
-      card: '💳',
-      bank_transfer: '🏦',
-      esewa: '📱',
-      mobile_banking: '📱',
-      online: '🌐',
+      cash: '',
+      card: '',
+      bank_transfer: '',
+      esewa: '',
+      mobile_banking: '',
+      online: '',
     };
-    return icons[method] || '💰';
+    return icons[method] || '';
   };
 
   const getPaymentMethodLabel = (method) => {
@@ -179,10 +176,23 @@ const ViewReceipts = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading receipts...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading receipts...</p>
         </div>
       </div>
     );
@@ -190,12 +200,30 @@ const ViewReceipts = () => {
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400">{error}</p>
+      <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171' }}>{error}</p>
           <button
             onClick={fetchPayments}
-            className="mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Try Again
           </button>
@@ -205,51 +233,110 @@ const ViewReceipts = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <div>
+      <div style={{ marginBottom: '24px' }}>
         <button
           onClick={() => navigate('/students/homepage')}
-          className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+          style={{
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '14px',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
         >
           ← Back to Dashboard
         </button>
-        <h1 className="text-3xl font-bold text-white">Payment Receipts</h1>
-        <p className="text-gray-400 mt-1">View all your payment receipts and history</p>
+        <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Payment Receipts</h1>
+        <p style={{ color: '#6b8aaa', marginTop: '4px' }}>View all your payment receipts and history</p>
       </div>
 
       {/* Stats Cards */}
       {payments.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Total Receipts</p>
-            <p className="text-2xl font-bold text-white">{stats.total}</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '16px',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Total Receipts</p>
+            <p style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', marginTop: '4px' }}>{stats.total}</p>
           </div>
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Total Paid</p>
-            <p className="text-2xl font-bold text-green-400">{formatPrice(stats.totalAmount)}</p>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Total Paid</p>
+            <p style={{ fontSize: '24px', fontWeight: 700, color: '#1ddba8', marginTop: '4px' }}>{formatPrice(stats.totalAmount)}</p>
           </div>
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">This Month</p>
-            <p className="text-2xl font-bold text-cyan-400">{stats.thisMonth}</p>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>This Month</p>
+            <p style={{ fontSize: '24px', fontWeight: 700, color: '#f5a623', marginTop: '4px' }}>{stats.thisMonth}</p>
           </div>
         </div>
       )}
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-800">
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        borderBottom: '1px solid #1a3050',
+        marginBottom: '24px',
+      }}>
         {['all', 'this_month', 'last_month', 'this_year'].map(tab => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-sm font-medium transition capitalize ${
-              filter === tab
-                ? 'text-cyan-400 border-b-2 border-cyan-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: filter === tab ? '#f5a623' : '#6b8aaa',
+              borderBottom: filter === tab ? '2px solid #f5a623' : '2px solid transparent',
+              transition: 'all 0.2s ease',
+              textTransform: 'capitalize',
+            }}
+            onMouseEnter={(e) => {
+              if (filter !== tab) e.currentTarget.style.color = '#c8daf0';
+            }}
+            onMouseLeave={(e) => {
+              if (filter !== tab) e.currentTarget.style.color = '#6b8aaa';
+            }}
           >
             {tab === 'all' ? 'All Receipts' : tab.replace('_', ' ')}
-            <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-500/20 rounded-full">
+            <span style={{
+              marginLeft: '8px',
+              padding: '0px 6px',
+              fontSize: '10px',
+              background: 'rgba(107, 114, 128, 0.2)',
+              borderRadius: '9999px',
+              color: '#6b8aaa',
+            }}>
               {tab === 'all' ? payments.length : getFilteredPayments().length}
             </span>
           </button>
@@ -258,10 +345,16 @@ const ViewReceipts = () => {
 
       {/* Receipts List */}
       {filteredPayments.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">🧾</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Receipts Found</h3>
-          <p className="text-gray-400">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🧾</div>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#eaf2ff', marginBottom: '8px' }}>No Receipts Found</h3>
+          <p style={{ color: '#6b8aaa' }}>
             {payments.length === 0 
               ? "You haven't made any payments yet." 
               : `No receipts found for ${filter.replace('_', ' ')}.`}
@@ -269,78 +362,138 @@ const ViewReceipts = () => {
           {payments.length === 0 && (
             <button
               onClick={() => navigate('/students/pay-rent')}
-              className="mt-4 px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+              style={{
+                marginTop: '16px',
+                padding: '8px 24px',
+                background: '#f5a623',
+                color: '#0a1628',
+                fontWeight: 600,
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
             >
               Make a Payment
             </button>
           )}
         </div>
       ) : (
-        <div className="space-y-4">
+        <div>
           {filteredPayments.map((payment) => (
             <div 
               key={payment.id} 
-              className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all"
+              style={{
+                background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+                border: '1px solid #1a3050',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                transition: 'all 0.2s ease',
+                marginBottom: '16px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }}
             >
-              <div className="p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+              <div style={{ padding: '24px' }}>
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: '16px',
+                }}>
                   {/* Left Section */}
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">🧾</span>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      marginBottom: '8px',
+                    }}>
+                      <span style={{ fontSize: '24px' }}></span>
                       <div>
-                        <h3 className="text-white font-semibold">
+                        <h3 style={{ color: '#eaf2ff', fontWeight: 600, margin: 0 }}>
                           Receipt #{payment.receipt_number || payment.id}
                         </h3>
-                        <p className="text-gray-400 text-sm">
+                        <p style={{ color: '#6b8aaa', fontSize: '14px', marginTop: '4px' }}>
                           {formatDate(payment.paid_at)}
                         </p>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                      gap: '8px',
+                      marginTop: '12px',
+                    }}>
                       <div>
-                        <p className="text-gray-500 text-xs">Amount</p>
-                        <p className="text-cyan-400 font-bold text-lg">{formatPrice(payment.amount)}</p>
+                        <p style={{ color: '#3a5070', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Amount</p>
+                        <p style={{ color: '#f5a623', fontWeight: 700, fontSize: '18px', marginTop: '4px' }}>{formatPrice(payment.amount)}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500 text-xs">Payment Method</p>
-                        <p className="text-white">
-                          <span className="mr-1">{getPaymentMethodIcon(payment.payment_method)}</span>
+                        <p style={{ color: '#3a5070', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Payment Method</p>
+                        <p style={{ color: '#eaf2ff', marginTop: '4px' }}>
+                          <span style={{ marginRight: '4px' }}>{getPaymentMethodIcon(payment.payment_method)}</span>
                           {getPaymentMethodLabel(payment.payment_method)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-500 text-xs">Room</p>
-                        <p className="text-white">Room {payment.room_number}</p>
+                        <p style={{ color: '#3a5070', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Room</p>
+                        <p style={{ color: '#eaf2ff', marginTop: '4px' }}>Room {payment.room_number}</p>
                       </div>
                       <div>
-                        <p className="text-gray-500 text-xs">Hostel</p>
-                        <p className="text-white">{payment.hostel_name}</p>
+                        <p style={{ color: '#3a5070', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Hostel</p>
+                        <p style={{ color: '#eaf2ff', marginTop: '4px' }}>{payment.hostel_name}</p>
                       </div>
                       {payment.transaction_code && (
-                        <div className="sm:col-span-2">
-                          <p className="text-gray-500 text-xs">Transaction ID</p>
-                          <p className="text-gray-300 text-sm font-mono">{payment.transaction_code}</p>
+                        <div style={{ gridColumn: '1 / -1' }}>
+                          <p style={{ color: '#3a5070', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Transaction ID</p>
+                          <p style={{ color: '#c8daf0', fontSize: '14px', fontFamily: 'monospace', marginTop: '4px' }}>{payment.transaction_code}</p>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Right Section - Actions */}
-                  <div className="flex flex-col gap-2">
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                  }}>
                     <button
                       onClick={() => {
                         setSelectedPayment(payment);
                         setShowReceiptModal(true);
                       }}
-                      className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 font-medium rounded-lg transition whitespace-nowrap"
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(245, 166, 35, 0.1)',
+                        color: '#f5a623',
+                        fontWeight: 500,
+                        borderRadius: '8px',
+                        border: '1px solid rgba(245, 166, 35, 0.2)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(245, 166, 35, 0.1)';
+                      }}
                     >
                       View Full Receipt
                     </button>
                     <button
                       onClick={() => {
-                        // Print receipt
                         const printContent = document.getElementById(`receipt-${payment.id}`);
                         if (printContent) {
                           const win = window.open('', '_blank');
@@ -349,7 +502,7 @@ const ViewReceipts = () => {
                               <head>
                                 <title>Receipt #${payment.receipt_number || payment.id}</title>
                                 <style>
-                                  body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; }
+                                  body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; background: #fff; color: #333; }
                                   .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
                                   .details { margin-bottom: 20px; }
                                   .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
@@ -385,9 +538,25 @@ const ViewReceipts = () => {
                           win.print();
                         }
                       }}
-                      className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium rounded-lg transition whitespace-nowrap"
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(18, 36, 72, 0.5)',
+                        color: '#c8daf0',
+                        fontWeight: 500,
+                        borderRadius: '8px',
+                        border: '1px solid #1a3050',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                      }}
                     >
-                      🖨️ Print
+                       Print
                     </button>
                   </div>
                 </div>
@@ -399,13 +568,40 @@ const ViewReceipts = () => {
 
       {/* Receipt Modal */}
       {showReceiptModal && selectedPayment && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '672px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}>
             {/* Header */}
-            <div className="sticky top-0 bg-gray-900/95 backdrop-blur-sm px-6 py-4 border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🧾</span>
-                <h2 className="text-xl font-bold text-white">
+            <div style={{
+              position: 'sticky',
+              top: 0,
+              background: 'rgba(10, 22, 40, 0.95)',
+              backdropFilter: 'blur(8px)',
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px' }}></span>
+                <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>
                   Receipt #{selectedPayment.receipt_number || selectedPayment.id}
                 </h2>
               </div>
@@ -414,75 +610,154 @@ const ViewReceipts = () => {
                   setShowReceiptModal(false);
                   setSelectedPayment(null);
                 }}
-                className="text-gray-400 hover:text-white transition"
+                style={{
+                  color: '#6b8aaa',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#eaf2ff'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {/* Receipt Content */}
-            <div id={`receipt-${selectedPayment.id}`} className="p-6 space-y-6">
+            <div id={`receipt-${selectedPayment.id}`} style={{ padding: '24px' }}>
               {/* Header */}
-              <div className="text-center border-b border-gray-800 pb-4">
-                <h1 className="text-2xl font-bold text-white">HOSTEL MANAGEMENT SYSTEM</h1>
-                <p className="text-gray-400 mt-1">Payment Receipt</p>
-                <p className="text-gray-500 text-sm mt-1">Receipt #{selectedPayment.receipt_number || selectedPayment.id}</p>
+              <div style={{
+                textAlign: 'center',
+                borderBottom: '1px solid #1a3050',
+                paddingBottom: '16px',
+                marginBottom: '24px',
+              }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>HOSTEL MANAGEMENT SYSTEM</h1>
+                <p style={{ color: '#6b8aaa', marginTop: '4px' }}>Payment Receipt</p>
+                <p style={{ color: '#3a5070', fontSize: '14px', marginTop: '4px' }}>Receipt #{selectedPayment.receipt_number || selectedPayment.id}</p>
               </div>
 
               {/* Details */}
-              <div className="space-y-3">
-                <div className="flex justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Date</span>
-                  <span className="text-white">{formatDate(selectedPayment.paid_at)}</span>
+              <div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Date</span>
+                  <span style={{ color: '#eaf2ff' }}>{formatDate(selectedPayment.paid_at)}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Student</span>
-                  <span className="text-white">{selectedPayment.student_name || 'N/A'}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Student</span>
+                  <span style={{ color: '#eaf2ff' }}>{selectedPayment.student_name || 'N/A'}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Room</span>
-                  <span className="text-white">Room {selectedPayment.room_number}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Room</span>
+                  <span style={{ color: '#eaf2ff' }}>Room {selectedPayment.room_number}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Hostel</span>
-                  <span className="text-white">{selectedPayment.hostel_name}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Hostel</span>
+                  <span style={{ color: '#eaf2ff' }}>{selectedPayment.hostel_name}</span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-gray-800">
-                  <span className="text-gray-400">Payment Method</span>
-                  <span className="text-white">
-                    <span className="mr-1">{getPaymentMethodIcon(selectedPayment.payment_method)}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '8px 0',
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Payment Method</span>
+                  <span style={{ color: '#eaf2ff' }}>
+                    <span style={{ marginRight: '4px' }}>{getPaymentMethodIcon(selectedPayment.payment_method)}</span>
                     {getPaymentMethodLabel(selectedPayment.payment_method)}
                   </span>
                 </div>
                 {selectedPayment.transaction_code && (
-                  <div className="flex justify-between py-2 border-b border-gray-800">
-                    <span className="text-gray-400">Transaction ID</span>
-                    <span className="text-white font-mono text-sm">{selectedPayment.transaction_code}</span>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '8px 0',
+                    borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                  }}>
+                    <span style={{ color: '#6b8aaa' }}>Transaction ID</span>
+                    <span style={{ color: '#eaf2ff', fontFamily: 'monospace', fontSize: '14px' }}>{selectedPayment.transaction_code}</span>
                   </div>
                 )}
-                <div className="flex justify-between py-3 border-t-2 border-gray-700 mt-2">
-                  <span className="text-white font-semibold text-lg">Total Amount</span>
-                  <span className="text-cyan-400 font-bold text-2xl">{formatPrice(selectedPayment.amount)}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '12px 0',
+                  marginTop: '8px',
+                  borderTop: '2px solid #1a3050',
+                }}>
+                  <span style={{ color: '#eaf2ff', fontWeight: 600, fontSize: '18px' }}>Total Amount</span>
+                  <span style={{ color: '#f5a623', fontWeight: 700, fontSize: '24px' }}>{formatPrice(selectedPayment.amount)}</span>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="text-center border-t border-gray-800 pt-4">
-                <p className="text-gray-500 text-sm">Thank you for your payment!</p>
-                <p className="text-gray-500 text-xs mt-1">This is a computer-generated receipt.</p>
+              <div style={{
+                textAlign: 'center',
+                borderTop: '1px solid #1a3050',
+                paddingTop: '16px',
+                marginTop: '24px',
+              }}>
+                <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Thank you for your payment!</p>
+                <p style={{ color: '#3a5070', fontSize: '12px', marginTop: '4px' }}>This is a computer-generated receipt.</p>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="sticky bottom-0 bg-gray-900/95 backdrop-blur-sm px-6 py-4 border-t border-gray-800 flex gap-3">
+            <div style={{
+              position: 'sticky',
+              bottom: 0,
+              background: 'rgba(10, 22, 40, 0.95)',
+              backdropFilter: 'blur(8px)',
+              padding: '16px 24px',
+              borderTop: '1px solid #1a3050',
+              display: 'flex',
+              gap: '12px',
+            }}>
               <button
                 onClick={() => {
                   setShowReceiptModal(false);
                   setSelectedPayment(null);
                 }}
-                className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  color: '#c8daf0',
+                  fontWeight: 500,
+                  borderRadius: '8px',
+                  border: '1px solid #1a3050',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                }}
               >
                 Close
               </button>
@@ -496,7 +771,7 @@ const ViewReceipts = () => {
                         <head>
                           <title>Receipt #${selectedPayment.receipt_number || selectedPayment.id}</title>
                           <style>
-                            body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; }
+                            body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; background: #fff; color: #333; }
                             .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 20px; }
                             .details { margin-bottom: 20px; }
                             .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
@@ -513,14 +788,38 @@ const ViewReceipts = () => {
                     win.print();
                   }
                 }}
-                className="flex-1 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#f5a623',
+                  color: '#0a1628',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#e09515';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f5a623';
+                }}
               >
-                🖨️ Print Receipt
+                 Print Receipt
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

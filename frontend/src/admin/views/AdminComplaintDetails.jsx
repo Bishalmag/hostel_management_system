@@ -25,7 +25,6 @@ const AdminComplaintDetails = () => {
       const response = await api.get(`/complaints/${complaintId}/`);
       const complaintData = response.data;
       
-      // Get student details
       let studentName = `Student ${complaintData.user}`;
       try {
         const studentRes = await api.get('/students/');
@@ -72,7 +71,6 @@ const AdminComplaintDetails = () => {
         'Status Updated'
       );
       
-      // Refresh to sync with server
       await fetchComplaintDetails();
       
     } catch (err) {
@@ -83,23 +81,23 @@ const AdminComplaintDetails = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusStyle = (status) => {
     const colors = {
-      registered: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      in_progress: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      resolved: 'bg-green-500/20 text-green-400 border-green-500/30',
-      rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
+      registered: { bg: 'rgba(245, 166, 35, 0.2)', text: '#f5a623', border: 'rgba(245, 166, 35, 0.3)' },
+      in_progress: { bg: 'rgba(96, 165, 250, 0.2)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
+      resolved: { bg: 'rgba(29, 219, 168, 0.2)', text: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' },
+      rejected: { bg: 'rgba(248, 113, 113, 0.2)', text: '#f87171', border: 'rgba(248, 113, 113, 0.3)' },
     };
-    return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    return colors[status] || { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' };
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'registered': return '⏳';
-      case 'in_progress': return '🔧';
-      case 'resolved': return '✅';
-      case 'rejected': return '❌';
-      default: return '📋';
+      case 'registered': return '◆';
+      case 'in_progress': return '◈';
+      case 'resolved': return '✓';
+      case 'rejected': return '✕';
+      default: return '◇';
     }
   };
 
@@ -111,10 +109,23 @@ const AdminComplaintDetails = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading complaint details...</p>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading complaint details...</p>
         </div>
       </div>
     );
@@ -122,12 +133,37 @@ const AdminComplaintDetails = () => {
 
   if (error || !complaint) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400 mb-4">{error || 'Complaint not found'}</p>
+      <div style={{
+        maxWidth: '896px',
+        margin: '0 auto',
+        padding: '24px',
+      }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171', marginBottom: '16px' }}>{error || 'Complaint not found'}</p>
           <button
             onClick={() => navigate('/admin/complaints')}
-            className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 500,
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e09515';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f5a623';
+            }}
           >
             Back to Complaints
           </button>
@@ -136,100 +172,317 @@ const AdminComplaintDetails = () => {
     );
   }
 
+  const statusStyle = getStatusStyle(complaint.status);
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div style={{
+      maxWidth: '896px',
+      margin: '0 auto',
+      padding: '24px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       {/* Back Button */}
       <button
         onClick={() => navigate('/admin/complaints')}
-        className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+        style={{
+          color: '#6b8aaa',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '14px',
+          marginBottom: '16px',
+          transition: 'color 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = '#f5a623';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = '#6b8aaa';
+        }}
       >
         ← Back to Complaints
       </button>
 
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+      }}>
         <div>
-          <h1 className="text-3xl font-bold text-white">Complaint Details</h1>
-          <p className="text-gray-400 mt-1">Complaint #{complaint.id}</p>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Complaint Details</h1>
+          <p style={{
+            color: '#6b8aaa',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>Complaint #{complaint.id}</p>
         </div>
-        <span className={`px-3 py-1.5 rounded-full text-sm font-medium border flex items-center gap-2 ${getStatusBadge(complaint.status)}`}>
+        <span style={{
+          padding: '6px 12px',
+          borderRadius: '20px',
+          fontSize: '14px',
+          fontWeight: 500,
+          border: `1px solid ${statusStyle.border}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: statusStyle.bg,
+          color: statusStyle.text,
+          textTransform: 'capitalize',
+        }}>
           {getStatusIcon(complaint.status)}
-          <span className="capitalize">{complaint.status?.replace('_', ' ')}</span>
+          {complaint.status?.replace('_', ' ')}
         </span>
       </div>
 
       {/* Student Info */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-          <h2 className="text-white font-semibold flex items-center gap-2">
-            <span className="text-xl">👤</span> Student Information
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+          background: 'rgba(15, 32, 64, 0.3)',
+        }}>
+          <h2 style={{
+            color: '#eaf2ff',
+            fontWeight: 600,
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '16px',
+          }}>
+            <span style={{ fontSize: '20px' }}>◉</span> Student Information
           </h2>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div style={{ padding: '24px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '16px',
+          }}>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Student Name</p>
-              <p className="text-white text-lg font-semibold mt-1">{complaint.student_name}</p>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                margin: 0,
+              }}>Student Name</p>
+              <p style={{
+                color: '#eaf2ff',
+                fontSize: '18px',
+                fontWeight: 600,
+                marginTop: '4px',
+                marginBottom: 0,
+              }}>{complaint.student_name}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Student ID</p>
-              <p className="text-white text-lg font-semibold mt-1">#{complaint.user}</p>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                margin: 0,
+              }}>Student ID</p>
+              <p style={{
+                color: '#eaf2ff',
+                fontSize: '18px',
+                fontWeight: 600,
+                marginTop: '4px',
+                marginBottom: 0,
+              }}>#{complaint.user}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Complaint Details */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-          <h2 className="text-white font-semibold flex items-center gap-2">
-            <span className="text-xl">📋</span> Complaint Information
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+          background: 'rgba(15, 32, 64, 0.3)',
+        }}>
+          <h2 style={{
+            color: '#eaf2ff',
+            fontWeight: 600,
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '16px',
+          }}>
+            <span style={{ fontSize: '20px' }}>◇</span> Complaint Information
           </h2>
         </div>
-        <div className="p-6 space-y-4">
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Title</p>
-            <p className="text-white text-lg font-semibold mt-1">{complaint.title}</p>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Title</p>
+            <p style={{
+              color: '#eaf2ff',
+              fontSize: '18px',
+              fontWeight: 600,
+              marginTop: '4px',
+              marginBottom: 0,
+            }}>{complaint.title}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Description</p>
-            <p className="text-gray-300 mt-1 whitespace-pre-wrap">{complaint.description}</p>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Description</p>
+            <p style={{
+              color: '#c8daf0',
+              marginTop: '4px',
+              marginBottom: 0,
+              whiteSpace: 'pre-wrap',
+            }}>{complaint.description}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '16px',
+          }}>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Submitted On</p>
-              <p className="text-white mt-1">{formatDate(complaint.created_at)}</p>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                margin: 0,
+              }}>Submitted On</p>
+              <p style={{
+                color: '#eaf2ff',
+                marginTop: '4px',
+                marginBottom: 0,
+              }}>{formatDate(complaint.created_at)}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Last Updated</p>
-              <p className="text-white mt-1">{formatDate(complaint.updated_at)}</p>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                margin: 0,
+              }}>Last Updated</p>
+              <p style={{
+                color: '#eaf2ff',
+                marginTop: '4px',
+                marginBottom: 0,
+              }}>{formatDate(complaint.updated_at)}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-          <h2 className="text-white font-semibold flex items-center gap-2">
-            <span className="text-xl">⚡</span> Actions
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+          background: 'rgba(15, 32, 64, 0.3)',
+        }}>
+          <h2 style={{
+            color: '#eaf2ff',
+            fontWeight: 600,
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '16px',
+          }}>
+            <span style={{ fontSize: '20px' }}>◆</span> Actions
           </h2>
         </div>
-        <div className="p-6">
-          <div className="flex flex-wrap gap-3">
+        <div style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
             {complaint.status === 'registered' && (
               <>
                 <button
                   onClick={() => updateStatus('in_progress')}
                   disabled={processing}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition disabled:opacity-50"
+                  style={{
+                    padding: '8px 16px',
+                    background: '#60a5fa',
+                    color: '#0a1628',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 500,
+                    cursor: processing ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.3s ease',
+                    opacity: processing ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!processing) {
+                      e.currentTarget.style.background = '#3b82f6';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!processing) {
+                      e.currentTarget.style.background = '#60a5fa';
+                    }
+                  }}
                 >
                   Start Processing
                 </button>
                 <button
                   onClick={() => updateStatus('rejected')}
                   disabled={processing}
-                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition disabled:opacity-50"
+                  style={{
+                    padding: '8px 16px',
+                    background: '#f87171',
+                    color: '#0a1628',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 500,
+                    cursor: processing ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.3s ease',
+                    opacity: processing ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!processing) {
+                      e.currentTarget.style.background = '#ef4444';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!processing) {
+                      e.currentTarget.style.background = '#f87171';
+                    }
+                  }}
                 >
                   Reject Complaint
                 </button>
@@ -240,33 +493,88 @@ const AdminComplaintDetails = () => {
               <button
                 onClick={() => updateStatus('resolved')}
                 disabled={processing}
-                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition disabled:opacity-50"
+                style={{
+                  padding: '8px 16px',
+                  background: '#1ddba8',
+                  color: '#0a1628',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  cursor: processing ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.3s ease',
+                  opacity: processing ? 0.5 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!processing) {
+                    e.currentTarget.style.background = '#16c39a';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!processing) {
+                    e.currentTarget.style.background = '#1ddba8';
+                  }
+                }}
               >
                 Mark as Resolved
               </button>
             )}
             
             {complaint.status === 'resolved' && (
-              <span className="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg">
-                ✅ This complaint has been resolved
+              <span style={{
+                padding: '8px 16px',
+                background: 'rgba(29, 219, 168, 0.2)',
+                color: '#1ddba8',
+                border: '1px solid rgba(29, 219, 168, 0.3)',
+                borderRadius: '8px',
+              }}>
+                ✓ This complaint has been resolved
               </span>
             )}
             
             {complaint.status === 'rejected' && (
-              <span className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg">
-                ❌ This complaint has been rejected
+              <span style={{
+                padding: '8px 16px',
+                background: 'rgba(248, 113, 113, 0.2)',
+                color: '#f87171',
+                border: '1px solid rgba(248, 113, 113, 0.3)',
+                borderRadius: '8px',
+              }}>
+                ✕ This complaint has been rejected
               </span>
             )}
             
             <button
               onClick={() => navigate('/admin/complaints')}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium rounded-lg transition"
+              style={{
+                padding: '8px 16px',
+                background: '#0f2040',
+                color: '#c8daf0',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'background 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#122448';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0f2040';
+              }}
             >
               Back to List
             </button>
           </div>
         </div>
       </div>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import api from '../../api/axios';
 
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get('/bookings/payments/?paid_status=paid')
@@ -14,49 +14,170 @@ const PaymentHistory = () => {
 
   const total = payments.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
 
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 0',
+        color: '#6b8aaa',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 12px',
+          }} />
+          <p style={{ fontSize: '14px', color: '#6b8aaa', margin: 0 }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Payment History</h1>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-2">
-          <p className="text-xs text-gray-500">Total Paid</p>
-          <p className="text-lg font-bold font-mono text-green-400">₹{total.toLocaleString()}</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+      }}>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Payment History</h1>
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '8px 16px',
+          minWidth: '120px',
+        }}>
+          <p style={{
+            fontSize: '10px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>Total Paid</p>
+          <p style={{
+            fontSize: '18px',
+            fontWeight: 700,
+            fontFamily: 'monospace',
+            color: '#1ddba8',
+            margin: 0,
+          }}>{formatPrice(total)}</p>
         </div>
       </div>
 
-      {loading ? <div className="text-gray-500 text-center py-10">Loading...</div> : (
-        payments.length === 0 ? (
-          <div className="text-center py-16 bg-gray-900 border border-gray-800 rounded-xl">
-            <p className="text-4xl mb-3">📜</p>
-            <p className="text-gray-500 text-sm">No payment history yet.</p>
-          </div>
-        ) : (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
-                  <th className="px-5 py-3 text-left">#</th>
-                  <th className="px-5 py-3 text-left">Amount</th>
-                  <th className="px-5 py-3 text-left">Paid At</th>
-                  <th className="px-5 py-3 text-left">Booking</th>
+      {payments.length === 0 ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '64px 0',
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+        }}>
+          <div style={{
+            fontSize: '40px',
+            marginBottom: '12px',
+            color: '#3a5070',
+          }}></div>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>No payment history yet.</p>
+        </div>
+      ) : (
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <table style={{
+            width: '100%',
+            fontSize: '14px',
+            borderCollapse: 'collapse',
+          }}>
+            <thead>
+              <tr style={{
+                borderBottom: '1px solid #1a3050',
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>#</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Amount</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Paid At</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Booking</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map(p => (
+                <tr key={p.id} style={{
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#6b8aaa',
+                    fontFamily: 'monospace',
+                  }}>#{p.id}</td>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#1ddba8',
+                    fontFamily: 'monospace',
+                    fontWeight: 700,
+                  }}>{formatPrice(p.amount)}</td>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#6b8aaa',
+                  }}>
+                    {p.paid_at ? new Date(p.paid_at).toLocaleDateString() : '—'}
+                  </td>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#6b8aaa',
+                  }}>#{p.booking ?? '—'}</td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800">
-                {payments.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-800/50">
-                    <td className="px-5 py-3 text-gray-400 font-mono">#{p.id}</td>
-                    <td className="px-5 py-3 text-green-400 font-mono font-bold">₹{p.amount}</td>
-                    <td className="px-5 py-3 text-gray-400">
-                      {p.paid_at ? new Date(p.paid_at).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="px-5 py-3 text-gray-400">#{p.booking ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

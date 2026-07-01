@@ -3,12 +3,6 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../components/Auth';
 
-const inputCls =
-  'w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20 transition';
-
-const labelCls =
-  'block text-xs text-gray-400 uppercase tracking-wide font-semibold mb-2';
-
 const RoomDetails = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -23,6 +17,18 @@ const RoomDetails = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
 
   useEffect(() => {
     if (!id) {
@@ -71,7 +77,6 @@ const RoomDetails = () => {
     fetchData();
   }, [id]);
 
-  // Handle "Book Now" - Navigate to BookHostel with the selected room
   const handleBookNow = (room) => {
     navigate(`/students/book-hostels`, {
       state: {
@@ -88,16 +93,25 @@ const RoomDetails = () => {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center text-gray-400 py-12">Loading hostel details...</div>
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          Loading hostel details...
+        </div>
       </div>
     );
   }
 
-  // Get available rooms based on filters from BookHostel
   let availableRooms = rooms.filter(r => r.current_occupancy < r.capacity);
   
-  // Apply filters from BookHostel
   if (roomType) {
     availableRooms = availableRooms.filter(r => r.room_type === roomType);
   }
@@ -109,81 +123,170 @@ const RoomDetails = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 p-4">
-      <div>
+    <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '16px' }}>
+      <div style={{ marginBottom: '32px' }}>
         <button
           onClick={() => navigate('/students/book-hostels')}
-          className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm transition"
+          style={{
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '14px',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
         >
           ← Back to Hostels
         </button>
-        <h1 className="text-3xl font-bold text-white">{hostel?.name || 'Hostel Details'}</h1>
-        <p className="text-gray-400 mt-1">
+        <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>
+          {hostel?.name || 'Hostel Details'}
+        </h1>
+        <p style={{ color: '#6b8aaa', marginTop: '4px' }}>
           {roomTypeLabel || (roomType && roomType.charAt(0).toUpperCase() + roomType.slice(1))} Room • 
           {acLabel || (acType === 'ac' ? ' AC' : ' Non-AC')} • 
           {bathroomLabel || (bathroomType === 'attached' ? ' Attached Bathroom' : ' Shared Bathroom')}
         </p>
-        <p className="text-gray-400 mt-2">{hostel?.address}</p>
-        <p className="text-gray-500 text-sm mt-2">{availableRooms.length} rooms available</p>
+        <p style={{ color: '#6b8aaa', marginTop: '8px' }}>{hostel?.address}</p>
+        <p style={{ color: '#3a5070', fontSize: '14px', marginTop: '8px' }}>{availableRooms.length} rooms available</p>
       </div>
 
       {message.text && (
         <div
-          className={`px-4 py-3 rounded-lg text-sm border ${
-            message.type === 'success'
-              ? 'bg-green-500/10 text-green-400 border-green-500/30'
-              : 'bg-red-500/10 text-red-400 border-red-500/30'
-          }`}
+          style={{
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            border: '1px solid',
+            marginBottom: '16px',
+            background: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.1)' 
+              : 'rgba(248, 113, 113, 0.1)',
+            color: message.type === 'success' 
+              ? '#1ddba8' 
+              : '#f87171',
+            borderColor: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.3)' 
+              : 'rgba(248, 113, 113, 0.3)',
+          }}
         >
           {message.text}
         </div>
       )}
 
       {/* Room Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '16px',
+      }}>
         {availableRooms.length > 0 ? (
           availableRooms.map((room) => (
             <div
               key={room.id}
-              className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 transition-all hover:border-cyan-500/50"
+              style={{
+                background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                padding: '20px',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }}
             >
-              <div className="flex justify-between items-start mb-2">
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                marginBottom: '8px',
+              }}>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Room {room.room_number}</h3>
-                  <p className="text-gray-400 text-sm">Floor {room.floor_number}</p>
+                  <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Room {room.room_number}</h3>
+                  <p style={{ color: '#6b8aaa', fontSize: '14px', marginTop: '4px' }}>Floor {room.floor_number}</p>
                 </div>
                 {room.current_occupancy >= room.capacity ? (
-                  <span className="text-xs text-red-400 bg-red-500/20 px-2 py-1 rounded-full">Full</span>
+                  <span style={{
+                    fontSize: '10px',
+                    color: '#f87171',
+                    background: 'rgba(248, 113, 113, 0.2)',
+                    padding: '2px 8px',
+                    borderRadius: '9999px',
+                  }}>Full</span>
                 ) : (
-                  <span className="text-xs text-green-400 bg-green-500/20 px-2 py-1 rounded-full">
+                  <span style={{
+                    fontSize: '10px',
+                    color: '#1ddba8',
+                    background: 'rgba(29, 219, 168, 0.2)',
+                    padding: '2px 8px',
+                    borderRadius: '9999px',
+                  }}>
                     {room.capacity - room.current_occupancy} spots
                   </span>
                 )}
               </div>
               
-              <div className="mt-3 pt-3 border-t border-gray-800">
-                <div className="flex justify-between items-center">
+              <div style={{
+                marginTop: '12px',
+                paddingTop: '12px',
+                borderTop: '1px solid #1a3050',
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
                   <div>
-                    <p className="text-cyan-400 font-bold text-xl">
-                      {new Intl.NumberFormat('en-NP', {
-                        style: 'currency',
-                        currency: 'NPR',
-                        minimumFractionDigits: 0
-                      }).format(room.price_per_month || 5000)}
-                      <span className="text-xs text-gray-400">/month</span>
+                    <p style={{
+                      color: '#f5a623',
+                      fontWeight: 700,
+                      fontSize: '20px',
+                      margin: 0,
+                    }}>
+                      {formatPrice(room.price_per_month || 5000)}
+                      <span style={{ fontSize: '12px', color: '#6b8aaa', marginLeft: '4px' }}>/month</span>
                     </p>
-                    <p className="text-gray-500 text-xs">
-                      ₹{(room.price_per_month ? room.price_per_month / 30 : 5000 / 30).toFixed(0)}/day
+                    <p style={{ color: '#3a5070', fontSize: '12px', marginTop: '4px' }}>
+                      {formatPrice((room.price_per_month ? room.price_per_month / 30 : 5000 / 30).toFixed(0))}/day
                     </p>
                   </div>
                   <button
                     onClick={() => handleBookNow(room)}
                     disabled={room.current_occupancy >= room.capacity}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${
-                      room.current_occupancy >= room.capacity
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                        : 'bg-cyan-500 hover:bg-cyan-400 text-black'
-                    }`}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      border: 'none',
+                      cursor: room.current_occupancy >= room.capacity ? 'not-allowed' : 'pointer',
+                      background: room.current_occupancy >= room.capacity 
+                        ? '#1a3050' 
+                        : '#f5a623',
+                      color: room.current_occupancy >= room.capacity 
+                        ? '#3a5070' 
+                        : '#0a1628',
+                      opacity: room.current_occupancy >= room.capacity ? 0.5 : 1,
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (room.current_occupancy < room.capacity) {
+                        e.currentTarget.style.background = '#e09515';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (room.current_occupancy < room.capacity) {
+                        e.currentTarget.style.background = '#f5a623';
+                      }
+                    }}
                   >
                     Book Now
                   </button>
@@ -191,31 +294,86 @@ const RoomDetails = () => {
               </div>
 
               {/* Room Details Tags */}
-              <div className="mt-3 pt-3 border-t border-gray-800 flex flex-wrap gap-2">
-                <span className="text-xs bg-gray-800 px-2 py-1 rounded-full text-gray-400 capitalize">
+              <div style={{
+                marginTop: '12px',
+                paddingTop: '12px',
+                borderTop: '1px solid #1a3050',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '8px',
+              }}>
+                <span style={{
+                  fontSize: '10px',
+                  background: '#0a1628',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  color: '#6b8aaa',
+                  textTransform: 'capitalize',
+                  border: '1px solid #1a3050',
+                }}>
                   {room.room_type}
                 </span>
-                <span className="text-xs bg-gray-800 px-2 py-1 rounded-full text-gray-400 capitalize">
+                <span style={{
+                  fontSize: '10px',
+                  background: '#0a1628',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  color: '#6b8aaa',
+                  textTransform: 'capitalize',
+                  border: '1px solid #1a3050',
+                }}>
                   {room.ac_type === 'ac' ? 'AC' : 'Non-AC'}
                 </span>
-                <span className="text-xs bg-gray-800 px-2 py-1 rounded-full text-gray-400 capitalize">
+                <span style={{
+                  fontSize: '10px',
+                  background: '#0a1628',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  color: '#6b8aaa',
+                  textTransform: 'capitalize',
+                  border: '1px solid #1a3050',
+                }}>
                   {room.bathroom_type}
                 </span>
               </div>
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-12 bg-gray-900 rounded-2xl">
-            <p className="text-gray-400">No rooms available for this selection.</p>
+          <div style={{
+            textAlign: 'center',
+            padding: '48px 0',
+            background: '#0a1628',
+            borderRadius: '16px',
+            gridColumn: '1 / -1',
+          }}>
+            <p style={{ color: '#6b8aaa' }}>No rooms available for this selection.</p>
             <button
               onClick={() => navigate('/students/book-hostels')}
-              className="mt-4 text-cyan-400 hover:text-cyan-300 text-sm"
+              style={{
+                marginTop: '16px',
+                color: '#f5a623',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#e09515'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#f5a623'}
             >
               Go back and try different filters
             </button>
           </div>
         )}
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

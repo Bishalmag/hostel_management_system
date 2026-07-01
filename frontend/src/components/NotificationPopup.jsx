@@ -19,32 +19,17 @@ const NotificationPopup = ({ notification, onClose, onRead }) => {
     }, 300);
   };
 
-  const getIcon = (type) => {
+  const getTypeColor = (type) => {
     switch (type) {
-      case 'booking': return '📅';
-      case 'complaint': return '⚠️';
-      case 'payment': return '💰';
-      case 'maintenance': return '🔧';
-      case 'feedback': return '💬';
-      case 'success': return '✅';
-      case 'error': return '❌';
-      case 'warning': return '⚠️';
-      case 'info': return 'ℹ️';
-      default: return '🔔';
-    }
-  };
-
-  const getBgColor = (type) => {
-    switch (type) {
-      case 'booking': return 'from-blue-500/20 to-blue-600/10 border-blue-500/30';
-      case 'complaint': return 'from-red-500/20 to-red-600/10 border-red-500/30';
-      case 'payment': return 'from-green-500/20 to-green-600/10 border-green-500/30';
-      case 'maintenance': return 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30';
-      case 'feedback': return 'from-purple-500/20 to-purple-600/10 border-purple-500/30';
-      case 'success': return 'from-green-500/20 to-green-600/10 border-green-500/30';
-      case 'error': return 'from-red-500/20 to-red-600/10 border-red-500/30';
-      case 'warning': return 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30';
-      default: return 'from-cyan-500/20 to-cyan-600/10 border-cyan-500/30';
+      case 'booking': return { bg: 'rgba(59, 130, 246, 0.05)', border: 'rgba(59, 130, 246, 0.3)', accent: '#3b82f6' };
+      case 'complaint': return { bg: 'rgba(248, 113, 113, 0.05)', border: 'rgba(248, 113, 113, 0.3)', accent: '#f87171' };
+      case 'payment': return { bg: 'rgba(29, 219, 168, 0.05)', border: 'rgba(29, 219, 168, 0.3)', accent: '#1ddba8' };
+      case 'maintenance': return { bg: 'rgba(245, 166, 35, 0.05)', border: 'rgba(245, 166, 35, 0.3)', accent: '#f5a623' };
+      case 'feedback': return { bg: 'rgba(167, 139, 250, 0.05)', border: 'rgba(167, 139, 250, 0.3)', accent: '#a78bfa' };
+      case 'success': return { bg: 'rgba(29, 219, 168, 0.05)', border: 'rgba(29, 219, 168, 0.3)', accent: '#1ddba8' };
+      case 'error': return { bg: 'rgba(248, 113, 113, 0.05)', border: 'rgba(248, 113, 113, 0.3)', accent: '#f87171' };
+      case 'warning': return { bg: 'rgba(245, 166, 35, 0.05)', border: 'rgba(245, 166, 35, 0.3)', accent: '#f5a623' };
+      default: return { bg: 'rgba(245, 166, 35, 0.05)', border: 'rgba(245, 166, 35, 0.3)', accent: '#f5a623' };
     }
   };
 
@@ -63,22 +48,82 @@ const NotificationPopup = ({ notification, onClose, onRead }) => {
     return `${diffDays}d ago`;
   };
 
+  const typeColors = getTypeColor(notification.type);
+
   return (
-    <div className={`animate-slide-in ${isExiting ? 'animate-slide-out' : ''}`}>
-      <div className={`bg-gradient-to-br ${getBgColor(notification.type)} border rounded-xl shadow-2xl overflow-hidden backdrop-blur-sm`}>
+    <div style={{
+      animation: isExiting ? 'slideOut 0.3s ease-in forwards' : 'slideIn 0.3s ease-out forwards',
+      maxWidth: '384px',
+      width: '100%',
+    }}>
+      <div style={{
+        background: `linear-gradient(to bottom right, ${typeColors.bg}, rgba(10, 22, 40, 0.95))`,
+        border: `1px solid ${typeColors.border}`,
+        borderRadius: '12px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.3)',
+        overflow: 'hidden',
+        backdropFilter: 'blur(8px)',
+      }}>
         {/* Header */}
-        <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between bg-gray-900/50">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{getIcon(notification.type)}</span>
-            <h3 className="text-white font-semibold text-sm">{notification.title}</h3>
+        <div style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid #1a3050',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: 'rgba(10, 22, 40, 0.5)',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <div style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: typeColors.accent,
+            }} />
+            <h3 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              fontSize: '14px',
+              margin: 0,
+            }}>{notification.title}</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{getTimeAgo(notification.timestamp)}</span>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <span style={{
+              fontSize: '10px',
+              color: '#3a5070',
+            }}>{getTimeAgo(notification.timestamp)}</span>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-white transition"
+              style={{
+                color: '#6b8aaa',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#eaf2ff';
+                e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#6b8aaa';
+                e.currentTarget.style.background = 'transparent';
+              }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -86,10 +131,24 @@ const NotificationPopup = ({ notification, onClose, onRead }) => {
         </div>
 
         {/* Body */}
-        <div className="px-4 py-3 bg-gray-900/30">
-          <p className="text-gray-300 text-sm">{notification.message}</p>
+        <div style={{
+          padding: '12px 16px',
+          background: 'rgba(10, 22, 40, 0.3)',
+        }}>
+          <p style={{
+            color: '#c8daf0',
+            fontSize: '14px',
+            margin: 0,
+            lineHeight: 1.5,
+          }}>{notification.message}</p>
           {notification.details && (
-            <div className="mt-2 text-xs text-gray-400 border-t border-gray-700 pt-2">
+            <div style={{
+              marginTop: '8px',
+              fontSize: '12px',
+              color: '#6b8aaa',
+              borderTop: '1px solid #1a3050',
+              paddingTop: '8px',
+            }}>
               {notification.details}
             </div>
           )}
@@ -121,14 +180,6 @@ const styles = `
     transform: translateX(100%);
     opacity: 0;
   }
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-.animate-slide-out {
-  animation: slideOut 0.3s ease-in forwards;
 }
 `;
 

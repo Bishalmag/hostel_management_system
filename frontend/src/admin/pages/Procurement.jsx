@@ -5,12 +5,12 @@ import { useNotification } from '../../context/NotificationContext';
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const CATEGORY_COLORS = {
-  furniture:   "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  electronics: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  supplies:    "bg-green-500/20 text-green-400 border-green-500/30",
-  maintenance: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  kitchen:     "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  appliances:  "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+  furniture:   { bg: 'rgba(245, 166, 35, 0.2)', text: '#f5a623', border: 'rgba(245, 166, 35, 0.3)' },
+  electronics: { bg: 'rgba(96, 165, 250, 0.2)', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' },
+  supplies:    { bg: 'rgba(29, 219, 168, 0.2)', text: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' },
+  maintenance: { bg: 'rgba(167, 139, 250, 0.2)', text: '#a78bfa', border: 'rgba(167, 139, 250, 0.3)' },
+  kitchen:     { bg: 'rgba(251, 146, 60, 0.2)', text: '#fb923c', border: 'rgba(251, 146, 60, 0.3)' },
+  appliances:  { bg: 'rgba(99, 102, 241, 0.2)', text: '#6366f1', border: 'rgba(99, 102, 241, 0.3)' },
 };
 
 const CATEGORY_OPTIONS = [
@@ -31,77 +31,193 @@ const fmt = (n) =>
   }).format(n);
 
 // ── Sub-components ────────────────────────────────────────────────────────────
-function StatCard({ label, value, sub, color = "text-white" }) {
+function StatCard({ label, value, sub, color = "#eaf2ff" }) {
   return (
-    <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-      <p className="text-gray-400 text-xs uppercase tracking-wide">{label}</p>
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+    <div style={{
+      background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+      border: '1px solid #1a3050',
+      borderRadius: '12px',
+      padding: '16px',
+    }}>
+      <p style={{
+        color: '#6b8aaa',
+        fontSize: '12px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        margin: 0,
+      }}>{label}</p>
+      <p style={{
+        fontSize: '24px',
+        fontWeight: 700,
+        color: color,
+        margin: '4px 0 0 0',
+      }}>{value}</p>
+      {sub && <p style={{
+        fontSize: '12px',
+        color: '#3a5070',
+        marginTop: '4px',
+        marginBottom: 0,
+      }}>{sub}</p>}
     </div>
   );
 }
 
 function ItemRow({ item, selected, isChecked, onToggleSelect, onDelete, disabled }) {
-  const categoryColor = CATEGORY_COLORS[item.category?.toLowerCase()] || "bg-gray-500/20 text-gray-400 border-gray-500/30";
+  const categoryColor = CATEGORY_COLORS[item.category?.toLowerCase()] || { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' };
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   return (
     <>
-      <tr className={`border-b border-gray-800 transition-colors ${selected ? "bg-emerald-500/10" : isChecked ? "bg-blue-500/10" : "hover:bg-gray-800/30"}`}>
-        <td className="px-5 py-4">
-          <div className="flex items-center gap-3">
+      <tr style={{
+        borderBottom: '1px solid #1a3050',
+        transition: 'background 0.2s ease',
+        background: selected ? 'rgba(29, 219, 168, 0.1)' : isChecked ? 'rgba(96, 165, 250, 0.1)' : 'transparent',
+      }}
+      onMouseEnter={(e) => {
+        if (!selected && !isChecked) {
+          e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!selected && !isChecked) {
+          e.currentTarget.style.background = 'transparent';
+        }
+      }}
+      >
+        <td style={{ padding: '16px 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <input
               type="checkbox"
               checked={isChecked}
               onChange={() => onToggleSelect(item.id)}
               disabled={disabled}
-              className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                width: '16px',
+                height: '16px',
+                borderRadius: '4px',
+                border: '1px solid #1a3050',
+                background: '#0f2040',
+                accentColor: '#f5a623',
+                opacity: disabled ? 0.5 : 1,
+                cursor: disabled ? 'not-allowed' : 'pointer',
+              }}
             />
-            <div className="flex items-center gap-2">
-              {selected && <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />}
-              {isChecked && !selected && <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />}
-              <span className="font-medium text-white text-sm">{item.name}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {selected && <span style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#1ddba8',
+                flexShrink: 0,
+              }} />}
+              {isChecked && !selected && <span style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: '#60a5fa',
+                flexShrink: 0,
+              }} />}
+              <span style={{
+                fontWeight: 500,
+                color: '#eaf2ff',
+                fontSize: '14px',
+              }}>{item.name}</span>
             </div>
           </div>
         </td>
-        <td className="px-5 py-4">
-          <span className={`px-2 py-1 rounded-full text-xs font-medium border ${categoryColor}`}>
+        <td style={{ padding: '16px 20px' }}>
+          <span style={{
+            padding: '4px 12px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            fontWeight: 500,
+            border: `1px solid ${categoryColor.border}`,
+            background: categoryColor.bg,
+            color: categoryColor.text,
+          }}>
             {item.category || "Uncategorized"}
           </span>
         </td>
-        <td className="px-5 py-4 text-sm text-gray-300 font-mono">{fmt(item.cost)}</td>
-        <td className="px-5 py-4">
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-700 rounded-full h-1.5 w-16">
-              <div 
-                className="bg-cyan-500 h-1.5 rounded-full transition-all" 
-                style={{ width: `${Math.min(item.utility_value, 100)}%` }} 
-              />
+        <td style={{ padding: '16px 20px', fontSize: '14px', color: '#c8daf0', fontFamily: 'monospace' }}>
+          {fmt(item.cost)}
+        </td>
+        <td style={{ padding: '16px 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              flex: 1,
+              background: '#1a3050',
+              borderRadius: '4px',
+              height: '6px',
+              width: '64px',
+            }}>
+              <div style={{
+                height: '6px',
+                borderRadius: '4px',
+                transition: 'width 0.3s ease',
+                background: '#f5a623',
+                width: `${Math.min(item.utility_value, 100)}%`,
+              }} />
             </div>
-            <span className="text-xs text-gray-400 w-6">{item.utility_value}</span>
+            <span style={{
+              fontSize: '12px',
+              color: '#6b8aaa',
+              width: '24px',
+            }}>{item.utility_value}</span>
           </div>
         </td>
-        <td className="px-5 py-4 text-center">
+        <td style={{ padding: '16px 20px', textAlign: 'center' }}>
           {selected ? (
-            <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#1ddba8',
+              background: 'rgba(29, 219, 168, 0.2)',
+              padding: '2px 8px',
+              borderRadius: '20px',
+              border: '1px solid rgba(29, 219, 168, 0.3)',
+            }}>
               Selected
             </span>
           ) : isChecked ? (
-            <span className="text-xs font-semibold text-blue-400 bg-blue-500/20 px-2 py-0.5 rounded-full border border-blue-500/30">
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#60a5fa',
+              background: 'rgba(96, 165, 250, 0.2)',
+              padding: '2px 8px',
+              borderRadius: '20px',
+              border: '1px solid rgba(96, 165, 250, 0.3)',
+            }}>
               Chosen
             </span>
           ) : (
-            <span className="text-xs text-gray-600">—</span>
+            <span style={{ fontSize: '12px', color: '#3a5070' }}>—</span>
           )}
         </td>
-        <td className="px-5 py-4 text-center">
+        <td style={{ padding: '16px 20px', textAlign: 'center' }}>
           {!disabled && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="text-red-400 hover:text-red-300 transition-colors p-1 hover:bg-red-500/10 rounded"
+              style={{
+                color: '#f87171',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+                e.currentTarget.style.color = '#fca5a5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#f87171';
+              }}
               title="Delete item"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
@@ -109,18 +225,33 @@ function ItemRow({ item, selected, isChecked, onToggleSelect, onDelete, disabled
         </td>
       </tr>
       
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Row */}
       {showDeleteConfirm && (
-        <tr className="bg-red-900/20">
-          <td colSpan="6" className="px-5 py-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">
-                Delete <span className="text-white font-semibold">"{item.name}"</span>?
+        <tr style={{ background: 'rgba(248, 113, 113, 0.1)' }}>
+          <td colSpan="6" style={{ padding: '12px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '14px', color: '#c8daf0' }}>
+                Delete <span style={{ color: '#eaf2ff', fontWeight: 600 }}>"{item.name}"</span>?
               </span>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm transition-colors"
+                  style={{
+                    padding: '4px 12px',
+                    background: '#0f2040',
+                    color: '#eaf2ff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#122448';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#0f2040';
+                  }}
                 >
                   Cancel
                 </button>
@@ -129,7 +260,22 @@ function ItemRow({ item, selected, isChecked, onToggleSelect, onDelete, disabled
                     onDelete(item.id);
                     setShowDeleteConfirm(false);
                   }}
-                  className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-sm transition-colors"
+                  style={{
+                    padding: '4px 12px',
+                    background: '#f87171',
+                    color: '#0a1628',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#ef4444';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f87171';
+                  }}
                 >
                   Delete
                 </button>
@@ -200,24 +346,72 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b border-gray-800">
-          <h2 className="text-xl font-bold text-white">Add New Item</h2>
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 50,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      background: 'rgba(0, 0, 0, 0.7)',
+      backdropFilter: 'blur(4px)',
+    }}>
+      <div style={{
+        background: '#0a1628',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        width: '100%',
+        maxWidth: '448px',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '24px',
+          borderBottom: '1px solid #1a3050',
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Add New Item</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            style={{
+              color: '#6b8aaa',
+              background: 'transparent',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'color 0.3s ease',
+              opacity: loading ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) e.currentTarget.style.color = '#eaf2ff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#6b8aaa';
+            }}
             disabled={loading}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#c8daf0',
+              marginBottom: '4px',
+            }}>
               Item Name *
             </label>
             <input
@@ -226,32 +420,81 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
               value={formData.name}
               onChange={handleChange}
               placeholder="Enter item name"
-              className={`w-full px-4 py-2 bg-gray-800/50 border ${errors.name ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-500`}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: `1px solid ${errors.name ? '#f87171' : '#1a3050'}`,
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box',
+                placeholder: { color: '#3a5070' },
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = errors.name ? '#f87171' : '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             />
-            {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
+            {errors.name && <p style={{ marginTop: '4px', fontSize: '14px', color: '#f87171' }}>{errors.name}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#c8daf0',
+              marginBottom: '4px',
+            }}>
               Category *
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className={`w-full px-4 py-2 bg-gray-800/50 border ${errors.category ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent`}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: `1px solid ${errors.category ? '#f87171' : '#1a3050'}`,
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = errors.category ? '#f87171' : '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             >
               {CATEGORY_OPTIONS.map(opt => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            {errors.category && <p className="mt-1 text-sm text-red-400">{errors.category}</p>}
+            {errors.category && <p style={{ marginTop: '4px', fontSize: '14px', color: '#f87171' }}>{errors.category}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#c8daf0',
+              marginBottom: '4px',
+            }}>
               Cost (NPR) *
             </label>
             <input
@@ -262,14 +505,39 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
               placeholder="Enter cost"
               min="0.01"
               step="0.01"
-              className={`w-full px-4 py-2 bg-gray-800/50 border ${errors.cost ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-500`}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: `1px solid ${errors.cost ? '#f87171' : '#1a3050'}`,
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box',
+                placeholder: { color: '#3a5070' },
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = errors.cost ? '#f87171' : '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             />
-            {errors.cost && <p className="mt-1 text-sm text-red-400">{errors.cost}</p>}
+            {errors.cost && <p style={{ marginTop: '4px', fontSize: '14px', color: '#f87171' }}>{errors.cost}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#c8daf0',
+              marginBottom: '4px',
+            }}>
               Utility Value (1-100) *
             </label>
             <input
@@ -280,14 +548,39 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
               placeholder="Enter utility value"
               min="1"
               max="100"
-              className={`w-full px-4 py-2 bg-gray-800/50 border ${errors.utility_value ? 'border-red-500' : 'border-gray-700'} rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-500`}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: `1px solid ${errors.utility_value ? '#f87171' : '#1a3050'}`,
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box',
+                placeholder: { color: '#3a5070' },
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = errors.utility_value ? '#f87171' : '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             />
-            {errors.utility_value && <p className="mt-1 text-sm text-red-400">{errors.utility_value}</p>}
+            {errors.utility_value && <p style={{ marginTop: '4px', fontSize: '14px', color: '#f87171' }}>{errors.utility_value}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#c8daf0',
+              marginBottom: '4px',
+            }}>
               Description
             </label>
             <textarea
@@ -296,16 +589,58 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
               onChange={handleChange}
               placeholder="Enter description (optional)"
               rows="3"
-              className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-gray-500 resize-none"
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                resize: 'none',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+                placeholder: { color: '#3a5070' },
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
               disabled={loading}
             />
           </div>
 
-          <div className="flex gap-3 pt-4 border-t border-gray-800">
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            paddingTop: '16px',
+            borderTop: '1px solid #1a3050',
+          }}>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+              style={{
+                flex: 1,
+                padding: '8px 16px',
+                background: '#0f2040',
+                color: '#eaf2ff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'background 0.3s ease',
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#122448';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0f2040';
+              }}
               disabled={loading}
             >
               Cancel
@@ -313,13 +648,38 @@ function AddItemModal({ isOpen, onClose, onAddItem, loading }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-500/50 text-black font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
+              style={{
+                flex: 1,
+                padding: '8px 16px',
+                background: loading ? 'rgba(245, 166, 35, 0.5)' : '#f5a623',
+                color: '#0a1628',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'background 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.currentTarget.style.background = '#f5a623';
+              }}
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  <svg style={{
+                    width: '16px',
+                    height: '16px',
+                    animation: 'spin 1s linear infinite',
+                  }} fill="none" viewBox="0 0 24 24">
+                    <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                   </svg>
                   Adding...
                 </>
@@ -396,7 +756,6 @@ export default function Procurement() {
       const item = items.find(i => i.id === itemId);
       await api.delete(`/inventory/items/${itemId}/`);
       setItems(prev => prev.filter(i => i.id !== itemId));
-      // Remove from selected items if it was selected
       setSelectedItems(prev => {
         const newSet = new Set(prev);
         newSet.delete(itemId);
@@ -480,34 +839,95 @@ export default function Procurement() {
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 className="text-2xl font-bold text-white">Procurement Optimizer</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Procurement Optimizer</h1>
+          <p style={{
+            fontSize: '14px',
+            color: '#6b8aaa',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>
             Manually select items, then run optimization to find the best combination within budget
           </p>
         </div>
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition flex items-center gap-2"
+            style={{
+              padding: '8px 16px',
+              background: '#1ddba8',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#16c39a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#1ddba8';
+            }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Add Item
           </button>
           <button
             onClick={selectAll}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition"
+            style={{
+              padding: '8px 16px',
+              background: '#60a5fa',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#3b82f6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#60a5fa';
+            }}
           >
             Select All
           </button>
           <button
             onClick={clearSelection}
-            className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm font-medium transition"
+            style={{
+              padding: '8px 16px',
+              background: '#0f2040',
+              color: '#eaf2ff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#122448';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#0f2040';
+            }}
           >
             Clear All
           </button>
@@ -515,7 +935,11 @@ export default function Procurement() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+      }}>
         <StatCard 
           label="Total Items" 
           value={stats.total} 
@@ -524,51 +948,111 @@ export default function Procurement() {
         <StatCard 
           label="Selected for Optimization" 
           value={stats.selected} 
-          color={stats.selected > 0 ? "text-blue-400" : "text-white"}
+          color={stats.selected > 0 ? "#60a5fa" : "#eaf2ff"}
           sub={stats.selected > 0 ? `${fmt(stats.totalSelectedCost)} total cost` : "None selected"}
         />
         <StatCard 
           label="Optimized Selection" 
           value={stats.optimized} 
-          color={stats.optimized > 0 ? "text-emerald-400" : "text-white"}
+          color={stats.optimized > 0 ? "#1ddba8" : "#eaf2ff"}
           sub={result ? `${((result.total_cost / result.budget) * 100).toFixed(1)}% of budget used` : "Run optimization"}
         />
         <StatCard 
           label="Budget" 
           value={result ? fmt(result.budget) : "—"} 
-          color="text-blue-400"
+          color="#60a5fa"
           sub={result ? `Remaining: ${fmt(result.budget_remaining)}` : "Set budget below"}
         />
       </div>
 
       {/* Budget Input */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6">
-        <h2 className="text-white font-semibold mb-4">Step 1: Set Budget & Select Items</h2>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        padding: '24px',
+      }}>
+        <h2 style={{
+          color: '#eaf2ff',
+          fontWeight: 600,
+          marginBottom: '16px',
+          fontSize: '16px',
+          marginTop: 0,
+        }}>Step 1: Set Budget & Select Items</h2>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '12px',
+        }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <input
               type="number"
               placeholder="Enter budget amount"
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runOptimization()}
-              className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white
-                         focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent 
-                         placeholder-gray-500 text-sm"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: 'rgba(15, 32, 64, 0.5)',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                outline: 'none',
+                transition: 'all 0.3s ease',
+                boxSizing: 'border-box',
+                fontSize: '14px',
+                placeholder: { color: '#3a5070' },
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(245, 166, 35, 0.2)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
           <button
             onClick={runOptimization}
             disabled={loading || !budget || selectedItems.size === 0}
-            className="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 disabled:bg-cyan-500/50
-                       text-black font-semibold rounded-lg transition-colors text-sm
-                       flex items-center gap-2 whitespace-nowrap cursor-pointer"
+            style={{
+              padding: '12px 24px',
+              background: (!budget || selectedItems.size === 0 || loading) ? 'rgba(245, 166, 35, 0.5)' : '#f5a623',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '14px',
+              cursor: (!budget || selectedItems.size === 0 || loading) ? 'not-allowed' : 'pointer',
+              transition: 'background 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              whiteSpace: 'nowrap',
+              opacity: (!budget || selectedItems.size === 0 || loading) ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (budget && selectedItems.size > 0 && !loading) {
+                e.currentTarget.style.background = '#e09515';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (budget && selectedItems.size > 0 && !loading) {
+                e.currentTarget.style.background = '#f5a623';
+              }
+            }}
           >
             {loading ? (
               <>
-                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                <svg style={{
+                  width: '16px',
+                  height: '16px',
+                  animation: 'spin 1s linear infinite',
+                }} fill="none" viewBox="0 0 24 24">
+                  <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                 </svg>
                 Optimizing...
               </>
@@ -579,85 +1063,232 @@ export default function Procurement() {
         </div>
 
         {error && (
-          <p className="mt-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+          <p style={{
+            marginTop: '12px',
+            fontSize: '14px',
+            color: '#f87171',
+            background: 'rgba(248, 113, 113, 0.1)',
+            border: '1px solid rgba(248, 113, 113, 0.2)',
+            borderRadius: '8px',
+            padding: '8px 12px',
+          }}>
             {error}
           </p>
         )}
-        <p className="text-xs text-gray-500 mt-3">
+        <p style={{
+          fontSize: '12px',
+          color: '#3a5070',
+          marginTop: '12px',
+          marginBottom: 0,
+        }}>
           {selectedItems.size === 0 
-            ? "📌 Select items from the table below using the checkboxes, then run optimization"
-            : `📌 ${selectedItems.size} item${selectedItems.size !== 1 ? 's' : ''} selected. The algorithm will find the best combination within your budget.`}
+            ? "◆ Select items from the table below using the checkboxes, then run optimization"
+            : `◆ ${selectedItems.size} item${selectedItems.size !== 1 ? 's' : ''} selected. The algorithm will find the best combination within your budget.`}
         </p>
       </div>
 
       {/* Algorithm Info */}
       {result && (
-        <div className="bg-slate-800/50 border border-gray-700 rounded-xl px-6 py-4 flex flex-wrap gap-6 text-sm">
+        <div style={{
+          background: 'rgba(15, 32, 64, 0.5)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px 24px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '24px',
+          fontSize: '14px',
+        }}>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">Algorithm</span>
-            <p className="font-mono font-semibold text-white mt-0.5">0/1 Knapsack (DP)</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>Algorithm</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#eaf2ff',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>0/1 Knapsack (DP)</p>
           </div>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">DP Table Size</span>
-            <p className="font-mono font-semibold text-white mt-0.5">{result.dp_table_size}</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>DP Table Size</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#eaf2ff',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>{result.dp_table_size}</p>
           </div>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">Complexity</span>
-            <p className="font-mono font-semibold text-white mt-0.5">O(n × W)</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>Complexity</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#eaf2ff',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>O(n × W)</p>
           </div>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">Session</span>
-            <p className="font-mono font-semibold text-white mt-0.5">#{result.session_id}</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>Session</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#eaf2ff',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>#{result.session_id}</p>
           </div>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">Budget Remaining</span>
-            <p className="font-mono font-semibold text-emerald-400 mt-0.5">{fmt(result.budget_remaining)}</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>Budget Remaining</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#1ddba8',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>{fmt(result.budget_remaining)}</p>
           </div>
           <div>
-            <span className="text-gray-400 text-xs uppercase tracking-wide">Items Considered</span>
-            <p className="font-mono font-semibold text-cyan-400 mt-0.5">{result.items_considered}</p>
+            <span style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+            }}>Items Considered</span>
+            <p style={{
+              fontFamily: 'monospace',
+              fontWeight: 600,
+              color: '#f5a623',
+              marginTop: '2px',
+              marginBottom: 0,
+            }}>{result.items_considered}</p>
           </div>
         </div>
       )}
 
       {/* Items Table */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="border-b border-gray-800 px-6 py-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-4">
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          borderBottom: '1px solid #1a3050',
+          padding: '16px 24px',
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
               onClick={() => setTab("catalog")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                tab === "catalog"
-                  ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                background: tab === "catalog" ? 'rgba(245, 166, 35, 0.2)' : 'transparent',
+                color: tab === "catalog" ? '#f5a623' : '#6b8aaa',
+                border: tab === "catalog" ? '1px solid rgba(245, 166, 35, 0.3)' : 'none',
+              }}
+              onMouseEnter={(e) => {
+                if (tab !== "catalog") e.currentTarget.style.color = '#c8daf0';
+              }}
+              onMouseLeave={(e) => {
+                if (tab !== "catalog") e.currentTarget.style.color = '#6b8aaa';
+              }}
             >
-               All Items ({items.length})
+              All Items ({items.length})
             </button>
             <button
               onClick={() => setTab("result")}
               disabled={!result}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                !result
-                  ? "text-gray-600 cursor-not-allowed"
-                  : tab === "result"
-                  ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
-                  : "text-gray-400 hover:text-gray-300"
-              }`}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 500,
+                border: 'none',
+                cursor: !result ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                background: tab === "result" ? 'rgba(245, 166, 35, 0.2)' : 'transparent',
+                color: !result ? '#3a5070' : tab === "result" ? '#f5a623' : '#6b8aaa',
+                border: tab === "result" ? '1px solid rgba(245, 166, 35, 0.3)' : 'none',
+                opacity: !result ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (result && tab !== "result") e.currentTarget.style.color = '#c8daf0';
+              }}
+              onMouseLeave={(e) => {
+                if (result && tab !== "result") e.currentTarget.style.color = '#6b8aaa';
+              }}
             >
-               Optimized ({result?.items_selected || 0})
+              Optimized ({result?.items_selected || 0})
             </button>
           </div>
-          <div className="flex items-center gap-2">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {selectedItems.size > 0 && (
-              <span className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">
-                📌 {selectedItems.size} selected
+              <span style={{
+                fontSize: '12px',
+                color: '#60a5fa',
+                background: 'rgba(96, 165, 250, 0.1)',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                border: '1px solid rgba(96, 165, 250, 0.2)',
+              }}>
+                ◆ {selectedItems.size} selected
               </span>
             )}
             {result && tab === "result" && (
               <button
                 onClick={() => setTab("catalog")}
-                className="text-sm text-cyan-400 hover:text-cyan-300 font-medium"
+                style={{
+                  fontSize: '14px',
+                  color: '#f5a623',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  transition: 'color 0.3s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#e09515';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#f5a623';
+                }}
               >
                 ← Back to selection
               </button>
@@ -666,33 +1297,68 @@ export default function Procurement() {
         </div>
 
         {fetching ? (
-          <div className="text-center text-gray-400 py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <div style={{
+            textAlign: 'center',
+            color: '#6b8aaa',
+            padding: '48px 0',
+          }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '3px solid #1a3050',
+              borderTop: '3px solid #f5a623',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px',
+            }} />
             Loading items...
           </div>
         ) : displayItems.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Items in Catalog</h3>
-            <p className="text-gray-400 text-sm">
-              Click the <span className="text-emerald-400">"Add Item"</span> button to create your first item
+          <div style={{
+            textAlign: 'center',
+            padding: '48px 0',
+          }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>◇</div>
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: 600,
+              color: '#eaf2ff',
+              marginBottom: '8px',
+            }}>No Items in Catalog</h3>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '14px',
+            }}>
+              Click the <span style={{ color: '#1ddba8' }}>"Add Item"</span> button to create your first item
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-800/50 border-b border-gray-800">
-                <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                  <th className="px-5 py-4 text-left">Select</th>
-                  <th className="px-5 py-4 text-left">Item</th>
-                  <th className="px-5 py-4 text-left">Category</th>
-                  <th className="px-5 py-4 text-left">Cost</th>
-                  <th className="px-5 py-4 text-left">Utility</th>
-                  <th className="px-5 py-4 text-center">Status</th>
-                  <th className="px-5 py-4 text-center">Action</th>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              fontSize: '14px',
+              borderCollapse: 'collapse',
+            }}>
+              <thead style={{
+                background: 'rgba(15, 32, 64, 0.5)',
+                borderBottom: '1px solid #1a3050',
+              }}>
+                <tr style={{
+                  color: '#6b8aaa',
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Select</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Item</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Category</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Cost</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Utility</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'center' }}>Status</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'center' }}>Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody>
                 {displayItems.map((item) => (
                   <ItemRow 
                     key={item.id} 
@@ -717,6 +1383,14 @@ export default function Procurement() {
         onAddItem={addItem}
         loading={addingItem}
       />
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

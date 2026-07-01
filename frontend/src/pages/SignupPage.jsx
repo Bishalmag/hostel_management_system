@@ -8,21 +8,21 @@ const Register = () => {
   const { user } = useAuth();
 
   const [formData, setFormData] = useState({
-    first_name:       '',
-    last_name:        '',
-    email:            '',
-    phone_number:     '',
-    password:         '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone_number: '',
+    password: '',
     password_confirm: '',
-    agreeTerms:       false,
+    agreeTerms: false,
   });
 
-  const [errors,              setErrors]              = useState({});
-  const [loading,             setLoading]             = useState(false);
-  const [message,             setMessage]             = useState({ type: '', text: '' });
-  const [showPassword,        setShowPassword]        = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordStrength,    setPasswordStrength]    = useState(0);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -37,16 +37,16 @@ const Register = () => {
 
   const validateForm = () => {
     const e = {};
-    if (!formData.first_name.trim())  e.first_name = 'First name is required';
-    if (!formData.last_name.trim())   e.last_name  = 'Last name is required';
-    if (!formData.email)              e.email      = 'Email is required';
+    if (!formData.first_name.trim()) e.first_name = 'First name is required';
+    if (!formData.last_name.trim()) e.last_name = 'Last name is required';
+    if (!formData.email) e.email = 'Email is required';
     else if (!isValidEmail(formData.email)) e.email = 'Invalid email address';
-    if (!formData.phone_number)       e.phone_number = 'Phone number is required';
+    if (!formData.phone_number) e.phone_number = 'Phone number is required';
     else if (!/^\d{10,15}$/.test(formData.phone_number)) e.phone_number = 'Enter valid phone (10-15 digits)';
-    if (!formData.password)           e.password   = 'Password is required';
+    if (!formData.password) e.password = 'Password is required';
     else if (formData.password.length < 8) e.password = 'Min 8 characters';
     if (formData.password !== formData.password_confirm) e.password_confirm = 'Passwords do not match';
-    if (!formData.agreeTerms)         e.agreeTerms = 'You must agree to terms';
+    if (!formData.agreeTerms) e.agreeTerms = 'You must agree to terms';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -65,13 +65,13 @@ const Register = () => {
     setLoading(true);
     try {
       await api.post('/users/auth/register/', {
-        first_name:       formData.first_name,
-        last_name:        formData.last_name,
-        email:            formData.email,
-        phone_number:     formData.phone_number,
-        password:         formData.password,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        password: formData.password,
         password_confirm: formData.password_confirm,
-        role:             'Student', // Always set to Student
+        role: 'Student',
       });
       setMessage({ type: 'success', text: 'Account created! Redirecting to login...' });
       setTimeout(() => navigate('/login'), 1500);
@@ -89,170 +89,519 @@ const Register = () => {
   };
 
   const strengthConfig = [
-    { label: '',       color: '' },
-    { label: 'Weak',   color: 'bg-red-500' },
-    { label: 'Fair',   color: 'bg-orange-400' },
-    { label: 'Good',   color: 'bg-yellow-400' },
-    { label: 'Strong', color: 'bg-green-500' },
+    { label: '', color: '' },
+    { label: 'Weak', color: '#ef4444' },
+    { label: 'Fair', color: '#fb923c' },
+    { label: 'Good', color: '#f5a623' },
+    { label: 'Strong', color: '#1ddba8' },
   ];
-
-  const inputBase  = 'w-full px-3 py-2.5 text-sm rounded-md bg-[#1a2235] border border-[#2a3a55] text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition disabled:opacity-50';
-  const inputError = 'border-red-500 focus:border-red-500 focus:ring-red-500';
 
   if (user) { navigate('/students/homepage'); return null; }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#0f1e2e] to-[#1a1a2e] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-2xl bg-[#111827]/90 border border-[#1f2d40] rounded-xl shadow-2xl overflow-hidden">
-
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #0d1117, #0f1e2e, #1a1a2e)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      paddingTop: '40px',
+      paddingBottom: '40px',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '672px',
+        background: 'rgba(17, 24, 39, 0.9)',
+        border: '1px solid #1f2d40',
+        borderRadius: '12px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        overflow: 'hidden',
+      }}>
         {/* Header */}
-        <div className="px-8 pt-8 pb-4 text-center">
-          <h1 className="text-2xl font-bold text-white">
-            Create <span className="text-yellow-400">Account</span>
+        <div style={{
+          padding: '32px 32px 16px 32px',
+          textAlign: 'center',
+        }}>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+          }}>
+            Create <span style={{ color: '#f5a623' }}>Account</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-1">Join the Smart Hostel Management System</p>
-          <div className="mt-3 inline-block bg-yellow-400/10 border border-yellow-400/30 px-4 py-1.5 rounded-full">
-            <span className="text-yellow-400 text-xs font-medium uppercase tracking-wider">
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+          }}>Join the Smart Hostel Management System</p>
+          <div style={{
+            marginTop: '12px',
+            display: 'inline-block',
+            background: 'rgba(245, 166, 35, 0.1)',
+            border: '1px solid rgba(245, 166, 35, 0.3)',
+            padding: '6px 16px',
+            borderRadius: '9999px',
+          }}>
+            <span style={{
+              color: '#f5a623',
+              fontSize: '10px',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
               Student Registration
             </span>
           </div>
         </div>
 
-        <div className="px-8 pb-8">
-
+        <div style={{ padding: '0 32px 32px 32px' }}>
           {/* Alert */}
           {message.text && (
-            <div className={`mb-5 px-4 py-3 rounded-md text-sm flex items-start gap-2 border ${
-              message.type === 'success'
-                ? 'bg-green-500/10 text-green-400 border-green-500/30'
-                : 'bg-red-500/10 text-red-400 border-red-500/30'
-            }`}>
-              <span className="font-bold">{message.type === 'success' ? '✓' : '✕'}</span>
+            <div style={{
+              marginBottom: '20px',
+              padding: '12px 16px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+              border: '1px solid',
+              background: message.type === 'success'
+                ? 'rgba(29, 219, 168, 0.1)'
+                : 'rgba(248, 113, 113, 0.1)',
+              color: message.type === 'success'
+                ? '#1ddba8'
+                : '#f87171',
+              borderColor: message.type === 'success'
+                ? 'rgba(29, 219, 168, 0.3)'
+                : 'rgba(248, 113, 113, 0.3)',
+            }}>
+              <span style={{ fontWeight: 700 }}>{message.type === 'success' ? '✓' : '✕'}</span>
               <span>{message.text}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-
+          <form onSubmit={handleSubmit}>
             {/* First + Last name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '16px',
+              marginBottom: '16px',
+            }}>
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                  First Name <span className="text-red-400">*</span>
+                <label style={{
+                  display: 'block',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  color: '#6b8aaa',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  First Name <span style={{ color: '#f87171' }}>*</span>
                 </label>
-                <input type="text" name="first_name" value={formData.first_name}
-                  onChange={handleChange} placeholder="First name" disabled={loading}
-                  className={`${inputBase} ${errors.first_name ? inputError : ''}`} />
-                {errors.first_name && <p className="mt-1 text-xs text-red-400">{errors.first_name}</p>}
+                <input
+                  type="text"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  placeholder="First name"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.first_name ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.first_name) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.first_name) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
+                />
+                {errors.first_name && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.first_name}</p>}
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                  Last Name <span className="text-red-400">*</span>
+                <label style={{
+                  display: 'block',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  color: '#6b8aaa',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Last Name <span style={{ color: '#f87171' }}>*</span>
                 </label>
-                <input type="text" name="last_name" value={formData.last_name}
-                  onChange={handleChange} placeholder="Last name" disabled={loading}
-                  className={`${inputBase} ${errors.last_name ? inputError : ''}`} />
-                {errors.last_name && <p className="mt-1 text-xs text-red-400">{errors.last_name}</p>}
+                <input
+                  type="text"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  placeholder="Last name"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.last_name ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.last_name) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.last_name) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
+                />
+                {errors.last_name && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.last_name}</p>}
               </div>
             </div>
 
             {/* Email */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Email <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Email <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <input type="email" name="email" value={formData.email}
-                onChange={handleChange} placeholder="Enter your email" disabled={loading}
-                className={`${inputBase} ${errors.email ? inputError : ''}`} />
-              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email}</p>}
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  background: '#1a2235',
+                  border: `1px solid ${errors.email ? '#f87171' : '#2a3a55'}`,
+                  color: '#c8daf0',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease',
+                  boxSizing: 'border-box',
+                  opacity: loading ? 0.5 : 1,
+                }}
+                onFocus={(e) => {
+                  if (!errors.email) e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  if (!errors.email) e.currentTarget.style.borderColor = '#2a3a55';
+                }}
+              />
+              {errors.email && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.email}</p>}
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Phone <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Phone <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <input type="tel" name="phone_number" value={formData.phone_number}
-                onChange={handleChange} placeholder="Phone number" disabled={loading}
-                className={`${inputBase} ${errors.phone_number ? inputError : ''}`} />
-              {errors.phone_number && <p className="mt-1 text-xs text-red-400">{errors.phone_number}</p>}
+              <input
+                type="tel"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleChange}
+                placeholder="Phone number"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  background: '#1a2235',
+                  border: `1px solid ${errors.phone_number ? '#f87171' : '#2a3a55'}`,
+                  color: '#c8daf0',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease',
+                  boxSizing: 'border-box',
+                  opacity: loading ? 0.5 : 1,
+                }}
+                onFocus={(e) => {
+                  if (!errors.phone_number) e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  if (!errors.phone_number) e.currentTarget.style.borderColor = '#2a3a55';
+                }}
+              />
+              {errors.phone_number && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.phone_number}</p>}
             </div>
 
             {/* Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Password <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Password <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <div className="relative">
-                <input type={showPassword ? 'text' : 'password'} name="password"
-                  value={formData.password} onChange={handleChange}
-                  placeholder="Min 8 characters" disabled={loading}
-                  className={`${inputBase} pr-10 ${errors.password ? inputError : ''}`} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400 text-sm">
-                  {showPassword ? '🙈' : '👁'}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Min 8 characters"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    paddingRight: '40px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.password ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.password) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.password) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b8aaa',
+                    fontSize: '14px',
+                  }}
+                >
+                  {showPassword ? '◉' : '○'}
                 </button>
               </div>
               {formData.password && (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className={`h-1 flex-1 rounded-full transition-all ${
-                        i <= passwordStrength ? strengthConfig[passwordStrength].color : 'bg-[#2a3a55]'
-                      }`} />
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{
+                    display: 'flex',
+                    gap: '4px',
+                    marginBottom: '4px',
+                  }}>
+                    {[1, 2, 3, 4].map(i => (
+                      <div
+                        key={i}
+                        style={{
+                          height: '4px',
+                          flex: 1,
+                          borderRadius: '9999px',
+                          transition: 'all 0.3s ease',
+                          background: i <= passwordStrength
+                            ? strengthConfig[passwordStrength].color
+                            : '#2a3a55',
+                        }}
+                      />
                     ))}
                   </div>
                   {passwordStrength > 0 && (
-                    <p className="text-xs text-gray-500">
-                      Strength: <span className="text-yellow-400 font-medium">{strengthConfig[passwordStrength].label}</span>
+                    <p style={{
+                      fontSize: '12px',
+                      color: '#6b8aaa',
+                    }}>
+                      Strength: <span style={{ color: '#f5a623', fontWeight: 500 }}>{strengthConfig[passwordStrength].label}</span>
                     </p>
                   )}
                 </div>
               )}
-              {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password}</p>}
+              {errors.password && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.password}</p>}
             </div>
 
             {/* Confirm Password */}
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Confirm Password <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Confirm Password <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <div className="relative">
-                <input type={showConfirmPassword ? 'text' : 'password'} name="password_confirm"
-                  value={formData.password_confirm} onChange={handleChange}
-                  placeholder="Confirm your password" disabled={loading}
-                  className={`${inputBase} pr-10 ${errors.password_confirm ? inputError : ''}`} />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400 text-sm">
-                  {showConfirmPassword ? '🙈' : '👁'}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="password_confirm"
+                  value={formData.password_confirm}
+                  onChange={handleChange}
+                  placeholder="Confirm your password"
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    paddingRight: '40px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.password_confirm ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.password_confirm) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.password_confirm) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b8aaa',
+                    fontSize: '14px',
+                  }}
+                >
+                  {showConfirmPassword ? '◉' : '○'}
                 </button>
               </div>
-              {errors.password_confirm && <p className="mt-1 text-xs text-red-400">{errors.password_confirm}</p>}
+              {errors.password_confirm && <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.password_confirm}</p>}
             </div>
 
             {/* Terms */}
-            <div className="flex items-start gap-3">
-              <input type="checkbox" name="agreeTerms" checked={formData.agreeTerms}
-                onChange={handleChange} disabled={loading}
-                className="mt-1 w-4 h-4 rounded border-[#2a3a55] bg-[#1a2235] text-yellow-400 focus:ring-yellow-400 focus:ring-offset-0" />
-              <label className="text-sm text-gray-400">
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              marginBottom: '16px',
+            }}>
+              <input
+                type="checkbox"
+                name="agreeTerms"
+                checked={formData.agreeTerms}
+                onChange={handleChange}
+                disabled={loading}
+                style={{
+                  marginTop: '4px',
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '4px',
+                  border: '1px solid #2a3a55',
+                  background: '#1a2235',
+                  accentColor: '#f5a623',
+                }}
+              />
+              <label style={{
+                fontSize: '14px',
+                color: '#6b8aaa',
+              }}>
                 I agree to the{' '}
-                <a href="/terms" className="text-yellow-400 hover:text-yellow-300">Terms</a>
+                <a href="/terms" style={{ color: '#f5a623', textDecoration: 'none' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#e09515'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#f5a623'}>
+                  Terms
+                </a>
                 {' '}and{' '}
-                <a href="/privacy" className="text-yellow-400 hover:text-yellow-300">Privacy Policy</a>
+                <a href="/privacy" style={{ color: '#f5a623', textDecoration: 'none' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#e09515'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#f5a623'}>
+                  Privacy Policy
+                </a>
               </label>
             </div>
-            {errors.agreeTerms && <p className="text-xs text-red-400">{errors.agreeTerms}</p>}
+            {errors.agreeTerms && <p style={{ fontSize: '12px', color: '#f87171', marginTop: '-8px', marginBottom: '8px' }}>{errors.agreeTerms}</p>}
 
             {/* Submit */}
-            <button type="submit" disabled={loading}
-              className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm rounded-md transition disabled:opacity-50 mt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: loading ? '#3a5070' : '#f5a623',
+                color: loading ? '#6b8aaa' : '#0a1628',
+                fontWeight: 700,
+                fontSize: '14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: loading ? 0.5 : 1,
+                marginTop: '8px',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.currentTarget.style.background = '#f5a623';
+              }}
+            >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #0a1628',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'spin 0.8s linear infinite',
+                  }} />
                   Creating Account...
                 </span>
               ) : 'Register'}
@@ -260,14 +609,42 @@ const Register = () => {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 pt-5 border-t border-[#1f2d40] text-center">
-            <p className="text-sm text-gray-500">
+          <div style={{
+            marginTop: '24px',
+            paddingTop: '20px',
+            borderTop: '1px solid #1f2d40',
+            textAlign: 'center',
+          }}>
+            <p style={{
+              fontSize: '14px',
+              color: '#6b8aaa',
+            }}>
               Already have an account?{' '}
-              <Link to="/loginPortal" className="text-yellow-400 hover:text-yellow-300 font-medium">Login here</Link>
+              <Link
+                to="/loginPortal"
+                style={{
+                  color: '#f5a623',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#e09515'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#f5a623'}
+              >
+                Login here
+              </Link>
             </p>
           </div>
         </div>
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

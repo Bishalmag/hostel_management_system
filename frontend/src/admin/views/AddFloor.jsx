@@ -18,7 +18,7 @@ const AddFloor = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // ✅ Fetch hostels and auto-select if only one
+  // Fetch hostels and auto-select if only one
   useEffect(() => {
     const fetchHostels = async () => {
       try {
@@ -27,7 +27,6 @@ const AddFloor = () => {
         const hostelsList = Array.isArray(hostelData) ? hostelData : [];
         setHostels(hostelsList);
         
-        // Auto-select the first hostel if only one exists and no hostel is already selected from URL params
         if (hostelsList.length === 1 && !searchParams.get('hostel')) {
           setForm(f => ({ ...f, hostel: hostelsList[0].id }));
         }
@@ -39,7 +38,7 @@ const AddFloor = () => {
     fetchHostels();
   }, [searchParams]);
 
-  // ✅ Fetch blocks when hostel changes
+  // Fetch blocks when hostel changes
   useEffect(() => {
     if (!form.hostel) {
       setBlocks([]);
@@ -88,39 +87,104 @@ const AddFloor = () => {
   };
 
   return (
-    <div className="max-w-lg space-y-6">
-
+    <div style={{
+      maxWidth: '512px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       <div>
-        <button 
+        <button
           onClick={() => navigate('/admin/floors')}
-          className="text-sm text-gray-500 hover:text-purple-400 mb-3 transition-colors"
+          style={{
+            fontSize: '14px',
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '12px',
+            transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#a78bfa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#6b8aaa';
+          }}
         >
           ← Back to Floors
         </button>
-        <h1 className="text-2xl font-bold text-white">Add Floor</h1>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Add Floor</h1>
       </div>
 
       {message.text && (
-        <div className={`px-4 py-3 rounded-lg text-sm border ${
-          message.type === 'success'
-            ? 'bg-green-500/10 text-green-400 border-green-500/30'
-            : 'bg-red-500/10 text-red-400 border-red-500/30'
-        }`}>
+        <div style={{
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          border: '1px solid',
+          backgroundColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+          color: message.type === 'success' ? '#1ddba8' : '#f87171',
+          borderColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.3)' : 'rgba(248, 113, 113, 0.3)',
+        }}>
           {message.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
-
-        {/* ✅ HOSTEL SELECT - Auto-select if only one */}
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        {/* HOSTEL SELECT */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">Hostel *</label>
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Hostel *
+          </label>
           <select
             value={form.hostel}
             onChange={(e) =>
               setForm(f => ({ ...f, hostel: e.target.value, block: '' }))
             }
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+              opacity: hostels.length === 1 && !searchParams.get('hostel') ? 0.7 : 1,
+              cursor: hostels.length === 1 && !searchParams.get('hostel') ? 'not-allowed' : 'pointer',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={hostels.length === 1 && !searchParams.get('hostel')}
           >
@@ -131,13 +195,41 @@ const AddFloor = () => {
           </select>
         </div>
 
-        {/* ✅ BLOCK SELECT */}
+        {/* BLOCK SELECT */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">Block *</label>
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Block *
+          </label>
           <select
             value={form.block}
             onChange={e => setForm(f => ({ ...f, block: e.target.value }))}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+              opacity: !form.hostel || blocks.length === 0 ? 0.7 : 1,
+              cursor: !form.hostel || blocks.length === 0 ? 'not-allowed' : 'pointer',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={!form.hostel || blocks.length === 0}
           >
@@ -147,7 +239,12 @@ const AddFloor = () => {
             ))}
           </select>
           {form.hostel && blocks.length === 0 && (
-            <p className="text-xs text-yellow-500 mt-1">
+            <p style={{
+              fontSize: '12px',
+              color: '#f5a623',
+              marginTop: '4px',
+              marginBottom: 0,
+            }}>
               No blocks available. Please add a block first.
             </p>
           )}
@@ -155,13 +252,39 @@ const AddFloor = () => {
 
         {/* FLOOR NUMBER */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">Floor Number *</label>
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Floor Number *
+          </label>
           <input
             type="number"
             value={form.floor_number}
             onChange={e => setForm(f => ({ ...f, floor_number: e.target.value }))}
             placeholder="e.g. 1"
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             min="0"
           />
@@ -170,11 +293,41 @@ const AddFloor = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50"
+          style={{
+            width: '100%',
+            padding: '10px',
+            backgroundColor: loading ? '#3a5070' : '#a78bfa',
+            color: '#0a1628',
+            fontWeight: 700,
+            fontSize: '14px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease',
+            opacity: loading ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#8b5cf6';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#a78bfa';
+            }
+          }}
         >
           {loading ? 'Adding...' : 'Add Floor'}
         </button>
       </form>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

@@ -113,10 +113,36 @@ const EditRoom = () => {
 
   if (fetching) {
     return (
-      <div className="max-w-lg space-y-6">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-gray-400">Loading room details...</div>
+      <div style={{
+        maxWidth: '512px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}>
+        <div style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '200px',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                border: '3px solid #1a3050',
+                borderTop: '3px solid #f5a623',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }} />
+              <div style={{ color: '#6b8aaa' }}>Loading room details...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -124,52 +150,188 @@ const EditRoom = () => {
   }
 
   return (
-    <div className="max-w-lg space-y-6">
+    <div style={{
+      maxWidth: '512px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       <div>
-        <button onClick={() => navigate('/admin/rooms')}
-          className="text-sm text-gray-500 hover:text-purple-400 mb-3">← Back to Rooms</button>
-        <h1 className="text-2xl font-bold text-white">Edit Room</h1>
-        <p className="text-xs text-gray-500 mt-1">Room ID: {id}</p>
+        <button
+          onClick={() => navigate('/admin/rooms')}
+          style={{
+            fontSize: '14px',
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '12px',
+            transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#a78bfa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#6b8aaa';
+          }}
+        >
+          ← Back to Rooms
+        </button>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Edit Room</h1>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b8aaa',
+          marginTop: '4px',
+          marginBottom: 0,
+        }}>Room ID: {id}</p>
       </div>
       
       {message.text && (
-        <div className={`px-4 py-3 rounded-lg text-sm border ${
-          message.type === 'success' 
-            ? 'bg-green-500/10 text-green-400 border-green-500/30'
-            : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+        <div style={{
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          border: '1px solid',
+          backgroundColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+          color: message.type === 'success' ? '#1ddba8' : '#f87171',
+          borderColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.3)' : 'rgba(248, 113, 113, 0.3)',
+        }}>
           {message.text}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
-        
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
         {/* FLOOR */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Floor *</label>
-          <select value={form.floor} onChange={set('floor')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
-            required>
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Floor *
+          </label>
+          <select
+            value={form.floor}
+            onChange={set('floor')}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
+            required
+          >
             <option value="">Select floor</option>
-            {floors.map(f => <option key={f.id} value={f.id}>Floor {f.floor_number}</option>)}
+            {floors.map(f => (
+              <option key={f.id} value={f.id}>Floor {f.floor_number}</option>
+            ))}
           </select>
         </div>
 
         {/* ROOM NUMBER */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Room Number *</label>
-          <input type="text" value={form.room_number} onChange={set('room_number')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
-            required />
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Room Number *
+          </label>
+          <input
+            type="text"
+            value={form.room_number}
+            onChange={set('room_number')}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
+            required
+          />
         </div>
 
         {/* ROOM PURPOSE */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Room Purpose *</label>
-          <select 
-            value={form.room_purpose} 
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
+            Room Purpose *
+          </label>
+          <select
+            value={form.room_purpose}
             onChange={handlePurposeChange}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
-            required>
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
+            required
+          >
             <option value="residential">Residential</option>
             <option value="reception">Reception</option>
             <option value="office">Office</option>
@@ -179,7 +341,12 @@ const EditRoom = () => {
             <option value="canteen">Canteen</option>
             <option value="hall">Hall</option>
           </select>
-          <p className={`text-xs mt-1 ${isResidential ? 'text-green-400' : 'text-yellow-400'}`}>
+          <p style={{
+            fontSize: '12px',
+            marginTop: '4px',
+            marginBottom: 0,
+            color: isResidential ? '#1ddba8' : '#f5a623',
+          }}>
             {isResidential 
               ? '✓ Residential rooms are available for student booking.' 
               : '⚠ Non-residential rooms are not available for student booking.'}
@@ -191,17 +358,77 @@ const EditRoom = () => {
           <>
             {/* CAPACITY */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Capacity *</label>
-              <input type="number" value={form.capacity} onChange={set('capacity')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
-                required min="1" />
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                Capacity *
+              </label>
+              <input
+                type="number"
+                value={form.capacity}
+                onChange={set('capacity')}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+                required
+                min="1"
+              />
             </div>
 
             {/* ROOM TYPE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Room Type *</label>
-              <select value={form.room_type} onChange={set('room_type')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                Room Type *
+              </label>
+              <select
+                value={form.room_type}
+                onChange={set('room_type')}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+              >
                 <option value="single">Single</option>
                 <option value="double">Double</option>
                 <option value="triple">Triple</option>
@@ -210,9 +437,38 @@ const EditRoom = () => {
 
             {/* AC TYPE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">AC Type *</label>
-              <select value={form.ac_type} onChange={set('ac_type')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                AC Type *
+              </label>
+              <select
+                value={form.ac_type}
+                onChange={set('ac_type')}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+              >
                 <option value="non_ac">Non-AC</option>
                 <option value="ac">AC</option>
               </select>
@@ -220,9 +476,38 @@ const EditRoom = () => {
 
             {/* BATHROOM TYPE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Bathroom Type *</label>
-              <select value={form.bathroom_type} onChange={set('bathroom_type')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                Bathroom Type *
+              </label>
+              <select
+                value={form.bathroom_type}
+                onChange={set('bathroom_type')}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+              >
                 <option value="shared">Shared Bathroom</option>
                 <option value="attached">Attached Bathroom</option>
               </select>
@@ -230,39 +515,141 @@ const EditRoom = () => {
 
             {/* PRICE PER MONTH */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Price per Month (NPR)</label>
-              <input type="number" value={form.price_per_month || ''} onChange={set('price_per_month')}
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                Price per Month (NPR)
+              </label>
+              <input
+                type="number"
+                value={form.price_per_month || ''}
+                onChange={set('price_per_month')}
                 placeholder="e.g. 5000"
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500" 
-                min="0" />
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+                min="0"
+              />
             </div>
 
             {/* CURRENT OCCUPANCY */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Current Occupancy</label>
-              <input type="number" value={form.current_occupancy} onChange={set('current_occupancy')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500" 
-                min="0" />
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                marginBottom: '4px',
+              }}>
+                Current Occupancy
+              </label>
+              <input
+                type="number"
+                value={form.current_occupancy}
+                onChange={set('current_occupancy')}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#a78bfa';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
+                min="0"
+              />
             </div>
           </>
         )}
 
         {/* ===== NON-RESIDENTIAL MESSAGE ===== */}
         {!isResidential && (
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">
-              <span className="text-yellow-400">ℹ️</span> This is a non-residential room. 
+          <div style={{
+            backgroundColor: 'rgba(15, 32, 64, 0.5)',
+            border: '1px solid #1a3050',
+            borderRadius: '8px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '14px',
+              margin: 0,
+            }}>
+              <span style={{ color: '#f5a623' }}>◆</span> This is a non-residential room. 
               It will be used for pathfinding and navigation only. 
               Students cannot book this room.
             </p>
           </div>
         )}
 
-        <button type="submit" disabled={loading}
-          className="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%',
+            padding: '10px',
+            backgroundColor: loading ? '#3a5070' : '#a78bfa',
+            color: '#0a1628',
+            fontWeight: 700,
+            fontSize: '14px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease',
+            opacity: loading ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#8b5cf6';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#a78bfa';
+            }
+          }}
+        >
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

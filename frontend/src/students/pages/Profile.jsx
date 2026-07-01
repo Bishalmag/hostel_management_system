@@ -33,9 +33,17 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <div className="text-center text-gray-400 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+      <div style={{ maxWidth: '768px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
           Loading profile...
         </div>
       </div>
@@ -44,12 +52,30 @@ const Profile = () => {
 
   if (error) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400">{error}</p>
+      <div style={{ maxWidth: '768px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171' }}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-3 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              marginTop: '12px',
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Try Again
           </button>
@@ -59,162 +85,404 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '768px', margin: '0 auto', padding: '24px' }}>
       {/* Header with Avatar */}
-      <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-cyan-500 to-indigo-600 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        marginBottom: '24px',
+      }}>
+        <div style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '12px',
+          background: 'linear-gradient(to bottom right, #f5a623, #e09515)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#0a1628',
+          boxShadow: '0 4px 20px rgba(245, 166, 35, 0.2)',
+          flexShrink: 0,
+        }}>
           {user?.full_name?.charAt(0) ?? 'S'}
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">{user?.full_name}</h1>
-          <p className="text-gray-400 text-sm">{user?.email}</p>
-          <p className="text-gray-500 text-xs mt-1">Student ID: {student?.id || 'N/A'}</p>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>{user?.full_name}</h1>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+          }}>{user?.email}</p>
+          <p style={{
+            color: '#3a5070',
+            fontSize: '12px',
+            marginTop: '4px',
+          }}>Student ID: {student?.id || 'N/A'}</p>
         </div>
       </div>
 
       {/* Personal Information */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800">
-          <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        marginBottom: '16px',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+        }}>
+          <h3 style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#f5a623',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            margin: 0,
+          }}>
             Personal Information
           </h3>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div style={{ padding: '24px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '24px',
+          }}>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">First Name</label>
-              <p className="text-white text-sm">{user?.full_name?.split(' ')[0] || 'N/A'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>First Name</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{user?.full_name?.split(' ')[0] || 'N/A'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Middle Name</label>
-              <p className="text-white text-sm">{student?.middle_name || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Middle Name</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.middle_name || 'Not provided'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Last Name</label>
-              <p className="text-white text-sm">{user?.full_name?.split(' ').slice(-1)[0] || 'N/A'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Last Name</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{user?.full_name?.split(' ').slice(-1)[0] || 'N/A'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Gender</label>
-              <p className="text-white text-sm capitalize">{student?.gender || 'Not specified'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Gender</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', textTransform: 'capitalize', margin: 0 }}>{student?.gender || 'Not specified'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Email</label>
-              <p className="text-white text-sm">{user?.email || 'N/A'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Email</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{user?.email || 'N/A'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Phone</label>
-              <p className="text-white text-sm">{student?.phone || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Phone</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.phone || 'Not provided'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Emergency Contact */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800">
-          <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        marginBottom: '16px',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+        }}>
+          <h3 style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#f5a623',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            margin: 0,
+          }}>
             Emergency Contact
           </h3>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div style={{ padding: '24px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '24px',
+          }}>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Guardian Name</label>
-              <p className="text-white text-sm">{student?.guardian_name || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Guardian Name</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.guardian_name || 'Not provided'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Relation</label>
-              <p className="text-white text-sm">{student?.guardian_relation || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Relation</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.guardian_relation || 'Not provided'}</p>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Contact Number</label>
-              <p className="text-white text-sm">{student?.guardian_contact || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Contact Number</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.guardian_contact || 'Not provided'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Temporary Address */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800">
-          <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        marginBottom: '16px',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+        }}>
+          <h3 style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#f5a623',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            margin: 0,
+          }}>
             Temporary Address
           </h3>
         </div>
-        <div className="p-6">
-          <div className="space-y-4">
+        <div style={{ padding: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '4px',
+            }}>Address</label>
+            <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.temp_address || 'Not provided'}</p>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '24px',
+          }}>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Address</label>
-              <p className="text-white text-sm">{student?.temp_address || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>City</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.temp_city || 'Not provided'}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">City</label>
-                <p className="text-white text-sm">{student?.temp_city || 'Not provided'}</p>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">State</label>
-                <p className="text-white text-sm">{student?.temp_state || 'Not provided'}</p>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Pincode</label>
-                <p className="text-white text-sm">{student?.temp_pincode || 'Not provided'}</p>
-              </div>
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>State</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.temp_state || 'Not provided'}</p>
+            </div>
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Pincode</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.temp_pincode || 'Not provided'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Permanent Address */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800">
-          <h3 className="text-xs font-semibold text-cyan-400 uppercase tracking-wider flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        marginBottom: '16px',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+        }}>
+          <h3 style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: '#f5a623',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            margin: 0,
+          }}>
             Permanent Address
           </h3>
         </div>
-        <div className="p-6">
-          <div className="space-y-4">
+        <div style={{ padding: '24px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '4px',
+            }}>Address</label>
+            <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.perm_address || 'Not provided'}</p>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '24px',
+          }}>
             <div>
-              <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Address</label>
-              <p className="text-white text-sm">{student?.perm_address || 'Not provided'}</p>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>City</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.perm_city || 'Not provided'}</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">City</label>
-                <p className="text-white text-sm">{student?.perm_city || 'Not provided'}</p>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">State</label>
-                <p className="text-white text-sm">{student?.perm_state || 'Not provided'}</p>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">Pincode</label>
-                <p className="text-white text-sm">{student?.perm_pincode || 'Not provided'}</p>
-              </div>
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>State</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.perm_state || 'Not provided'}</p>
+            </div>
+            <div>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: '4px',
+              }}>Pincode</label>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{student?.perm_pincode || 'Not provided'}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Last Updated Info */}
-      <div className="bg-gray-800/30 rounded-lg p-4 text-center">
-        <p className="text-xs text-gray-500">
+      <div style={{
+        background: 'rgba(18, 36, 72, 0.3)',
+        borderRadius: '8px',
+        padding: '16px',
+        textAlign: 'center',
+      }}>
+        <p style={{
+          fontSize: '12px',
+          color: '#3a5070',
+          margin: 0,
+        }}>
           Profile last updated: {student?.updated_at ? new Date(student.updated_at).toLocaleDateString() : 'Never'}
         </p>
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

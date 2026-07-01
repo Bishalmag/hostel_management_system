@@ -22,7 +22,11 @@ const FOOTER_LINKS = {
 // ─── Logo mark ───────────────────────────────────────────────────────────────
 function FooterLogo() {
   return (
-    <div className="flex items-center gap-3">
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+    }}>
       <svg width="32" height="36" viewBox="0 0 32 36" fill="none" aria-hidden="true">
         <path
           d="M16 1L30 9V27L16 35L2 27V9L16 1Z"
@@ -40,10 +44,23 @@ function FooterLogo() {
         >HMS</text>
       </svg>
       <div>
-        <div className="text-white font-mono font-bold text-sm tracking-wide leading-tight">
+        <div style={{
+          color: '#eaf2ff',
+          fontFamily: "'Space Mono', monospace",
+          fontWeight: 700,
+          fontSize: '14px',
+          letterSpacing: '0.05em',
+          lineHeight: 1.2,
+        }}>
           SMART HOSTEL
         </div>
-        <div className="text-textDim font-mono text-[10px] tracking-wider uppercase">
+        <div style={{
+          color: '#6b8aaa',
+          fontFamily: "'Space Mono', monospace",
+          fontSize: '10px',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+        }}>
           Management System
         </div>
       </div>
@@ -55,15 +72,39 @@ function FooterLogo() {
 function FooterColumn({ heading, links }) {
   return (
     <div>
-      <h3 className="text-amber-500 font-mono text-[11px] font-bold tracking-wider uppercase mb-3">
+      <h3 style={{
+        color: '#f5a623',
+        fontFamily: "'Space Mono', monospace",
+        fontSize: '11px',
+        fontWeight: 700,
+        letterSpacing: '0.05em',
+        textTransform: 'uppercase',
+        marginBottom: '12px',
+      }}>
         {heading}
       </h3>
-      <ul className="list-none space-y-2">
+      <ul style={{
+        listStyle: 'none',
+        margin: 0,
+        padding: 0,
+      }}>
         {links.map(({ label, href }) => (
-          <li key={label}>
+          <li key={label} style={{ marginBottom: '8px' }}>
             <a
               href={href}
-              className="font-display text-sm text-textDim hover:text-white transition-colors duration-200"
+              style={{
+                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontSize: '14px',
+                color: '#6b8aaa',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#eaf2ff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#6b8aaa';
+              }}
             >
               {label}
             </a>
@@ -82,16 +123,34 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="bg-bgMid border-t border-border"
+      style={{
+        background: '#0a1628',
+        borderTop: '1px solid #1a3050',
+      }}
     >
       {/* ── Main footer body ── */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div style={{
+        maxWidth: '1280px',
+        margin: '0 auto',
+        padding: '48px 24px',
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '32px',
+        }}>
           {/* Brand column */}
-          <div className="col-span-1">
+          <div>
             <FooterLogo />
-            <p className="font-display text-sm text-textDim leading-relaxed mt-4 max-w-[280px]">
-               Your hostel operations with our all-in-one management solution.
+            <p style={{
+              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontSize: '14px',
+              color: '#6b8aaa',
+              lineHeight: 1.8,
+              marginTop: '16px',
+              maxWidth: '280px',
+            }}>
+              Manage your hostel operations with our all-in-one management solution.
             </p>
           </div>
 
@@ -102,14 +161,144 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ── */}
-        <div className="border-t border-border mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-mono text-xs text-textFaint">
+        <div style={{
+          borderTop: '1px solid #1a3050',
+          marginTop: '32px',
+          paddingTop: '24px',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          flexWrap: 'wrap',
+        }}>
+          <p style={{
+            fontFamily: "'Space Mono', monospace",
+            fontSize: '10px',
+            color: '#3a5070',
+            margin: 0,
+          }}>
             &copy; {year} SHOSTEL MANAGEMENT SYSTEM
           </p>
 
-          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+          }}>
+            <a
+              href="#privacy"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '10px',
+                color: '#3a5070',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#3a5070';
+              }}
+            >
+              Privacy Policy
+            </a>
+            <span style={{
+              width: '1px',
+              height: '12px',
+              background: '#1a3050',
+            }} />
+            <a
+              href="#terms"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '10px',
+                color: '#3a5070',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#3a5070';
+              }}
+            >
+              Terms
+            </a>
+            <span style={{
+              width: '1px',
+              height: '12px',
+              background: '#1a3050',
+            }} />
+            <a
+              href="#support"
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '10px',
+                color: '#3a5070',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#3a5070';
+              }}
+            >
+              Support
+            </a>
+            <span style={{
+              width: '1px',
+              height: '12px',
+              background: '#1a3050',
+            }} />
+            <span style={{
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '10px',
+              color: '#3a5070',
+            }}>
+              v1.0.0
+            </span>
+            <span style={{
+              width: '1px',
+              height: '12px',
+              background: '#1a3050',
+            }} />
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}>
+              <span style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#1ddba8',
+                display: 'inline-block',
+                animation: 'pulse 2s ease-in-out infinite',
+              }} />
+              <span style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: '10px',
+                color: '#3a5070',
+              }}>
+                Online
+              </span>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Pulse animation */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+      `}</style>
     </footer>
   );
 }

@@ -4,7 +4,7 @@ import api from '../api/axios';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1: email, 2: otp, 3: new password
+  const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [newPassword, setNewPassword] = useState('');
@@ -39,14 +39,12 @@ const ForgotPassword = () => {
       const response = await api.post('/users/auth/forgot-password/', { email });
       console.log('Forgot password response:', response.data);
       
-      // Store the token and email for later use
       setResetToken(response.data.reset_token);
       setEmailForResend(email);
       
-      // Store OTP for display (development only)
       if (response.data.otp) {
         setOtpFromBackend(response.data.otp);
-        console.log(`📧 OTP for ${email}: ${response.data.otp}`);
+        console.log(`OTP for ${email}: ${response.data.otp}`);
       }
       
       setOtpTimer(300);
@@ -58,7 +56,6 @@ const ForgotPassword = () => {
     } catch (error) {
       console.error('Forgot password error:', error.response || error);
       
-      // Handle specific error cases
       let errorMessage = 'Failed to send OTP. Please try again.';
       
       if (error.response) {
@@ -71,12 +68,9 @@ const ForgotPassword = () => {
           errorMessage = data.error;
         }
         
-        // Handle 404 Not Found
         if (error.response.status === 404) {
           errorMessage = 'Email not found. Please check your email address.';
-        }
-        // Handle 400 Bad Request
-        else if (error.response.status === 400) {
+        } else if (error.response.status === 400) {
           errorMessage = data.message || 'Invalid request. Please check your email.';
         }
       } else if (error.request) {
@@ -130,7 +124,6 @@ const ForgotPassword = () => {
       });
       console.log('Verify OTP response:', response.data);
       
-      // Store the verified token
       setResetToken(response.data.verified_token);
       setStep(3);
       setMessage({ type: 'success', text: 'OTP verified successfully' });
@@ -147,7 +140,6 @@ const ForgotPassword = () => {
           errorMessage = data.detail;
         }
         
-        // Handle specific status codes
         if (error.response.status === 400) {
           if (data.message?.includes('expired')) {
             errorMessage = 'OTP has expired. Please request a new one.';
@@ -173,10 +165,9 @@ const ForgotPassword = () => {
       const response = await api.post('/users/auth/resend-otp/', payload);
       console.log('Resend OTP response:', response.data);
       
-      // Store new OTP if returned
       if (response.data.otp) {
         setOtpFromBackend(response.data.otp);
-        console.log(`📧 New OTP sent: ${response.data.otp}`);
+        console.log(`New OTP sent: ${response.data.otp}`);
       }
       
       setOtp(['', '', '', '', '', '']);
@@ -239,7 +230,6 @@ const ForgotPassword = () => {
         text: 'Password reset successful! Redirecting to login...',
       });
       
-      // Clear the token after successful reset
       setResetToken(null);
       
       setTimeout(() => {
@@ -258,7 +248,6 @@ const ForgotPassword = () => {
           errorMessage = data.detail;
         }
         
-        // Handle specific error cases
         if (error.response.status === 400) {
           if (data.message?.includes('verified')) {
             errorMessage = 'OTP not verified. Please verify your OTP first.';
@@ -293,7 +282,6 @@ const ForgotPassword = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // Auto-fill OTP if it's available from backend response
   useEffect(() => {
     if (otpFromBackend && otpFromBackend.length === 6) {
       const otpArray = otpFromBackend.split('');
@@ -302,43 +290,104 @@ const ForgotPassword = () => {
   }, [otpFromBackend]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#0f1e2e] to-[#1a1a2e] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md bg-[#111827]/90 border border-[#1f2d40] rounded-xl shadow-2xl p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">
-            Reset <span className="text-yellow-400">Password</span>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(to bottom right, #0d1117, #0f1e2e, #1a1a2e)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      paddingTop: '40px',
+      paddingBottom: '40px',
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '448px',
+        background: 'rgba(17, 24, 39, 0.9)',
+        border: '1px solid #1f2d40',
+        borderRadius: '12px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        padding: '32px',
+      }}>
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '32px',
+        }}>
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+          }}>
+            Reset <span style={{ color: '#f5a623' }}>Password</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-2">
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '8px',
+          }}>
             {step === 1 && "Enter your email to receive OTP"}
             {step === 2 && "Enter the 6-digit OTP sent to your email"}
             {step === 3 && "Create your new password"}
           </p>
           {otpFromBackend && step === 2 && (
-            <div className="mt-2 inline-block bg-yellow-400/10 border border-yellow-400/30 rounded-md px-3 py-1">
-              <span className="text-xs text-yellow-400">
-                📧 OTP: <span className="font-bold">{otpFromBackend}</span>
+            <div style={{
+              marginTop: '8px',
+              display: 'inline-block',
+              background: 'rgba(245, 166, 35, 0.1)',
+              border: '1px solid rgba(245, 166, 35, 0.3)',
+              borderRadius: '6px',
+              padding: '4px 12px',
+            }}>
+              <span style={{
+                fontSize: '12px',
+                color: '#f5a623',
+              }}>
+                OTP: <span style={{ fontWeight: 700 }}>{otpFromBackend}</span>
               </span>
             </div>
           )}
         </div>
 
         {message.text && (
-          <div className={`mb-4 px-4 py-3 rounded-md text-sm ${
-            message.type === 'success'
-              ? 'bg-green-500/10 text-green-400 border border-green-500/30'
-              : 'bg-red-500/10 text-red-400 border border-red-500/30'
-          }`}>
+          <div style={{
+            marginBottom: '16px',
+            padding: '12px 16px',
+            borderRadius: '6px',
+            fontSize: '14px',
+            border: '1px solid',
+            background: message.type === 'success'
+              ? 'rgba(29, 219, 168, 0.1)'
+              : 'rgba(248, 113, 113, 0.1)',
+            color: message.type === 'success'
+              ? '#1ddba8'
+              : '#f87171',
+            borderColor: message.type === 'success'
+              ? 'rgba(29, 219, 168, 0.3)'
+              : 'rgba(248, 113, 113, 0.3)',
+          }}>
             {message.text}
           </div>
         )}
 
         {step === 1 && (
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
-            <div className="text-xs text-gray-500 mb-2">Step 1 of 3</div>
+          <form onSubmit={handleEmailSubmit}>
+            <div style={{
+              fontSize: '12px',
+              color: '#3a5070',
+              marginBottom: '8px',
+            }}>Step 1 of 3</div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Email Address <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Email Address <span style={{ color: '#f87171' }}>*</span>
               </label>
               <input
                 type="email"
@@ -346,26 +395,70 @@ const ForgotPassword = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your registered email"
                 disabled={loading}
-                className={`w-full px-3 py-2.5 text-sm rounded-md bg-[#1a2235] border ${
-                  errors.email ? 'border-red-500' : 'border-[#2a3a55]'
-                } text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition disabled:opacity-50`}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: '14px',
+                  borderRadius: '6px',
+                  background: '#1a2235',
+                  border: `1px solid ${errors.email ? '#f87171' : '#2a3a55'}`,
+                  color: '#c8daf0',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease',
+                  boxSizing: 'border-box',
+                  opacity: loading ? 0.5 : 1,
+                }}
+                onFocus={(e) => {
+                  if (!errors.email) e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  if (!errors.email) e.currentTarget.style.borderColor = '#2a3a55';
+                }}
               />
               {errors.email && (
-                <p className="mt-1 text-xs text-red-400">{errors.email}</p>
+                <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.email}</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm rounded-md transition disabled:opacity-50"
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: loading ? '#3a5070' : '#f5a623',
+                color: loading ? '#6b8aaa' : '#0a1628',
+                fontWeight: 700,
+                fontSize: '14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.currentTarget.style.background = '#f5a623';
+              }}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #0a1628',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'spin 0.8s linear infinite',
+                  }} />
                   Sending OTP...
                 </span>
               ) : 'Continue'}
@@ -374,16 +467,36 @@ const ForgotPassword = () => {
         )}
 
         {step === 2 && (
-          <form onSubmit={handleOtpSubmit} className="space-y-4">
-            <div className="text-xs text-gray-500 mb-2">Step 2 of 3</div>
+          <form onSubmit={handleOtpSubmit}>
+            <div style={{
+              fontSize: '12px',
+              color: '#3a5070',
+              marginBottom: '8px',
+            }}>Step 2 of 3</div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
                 Enter OTP Code
               </label>
-              <p className="text-xs text-gray-500 mb-3">OTP sent to {email}</p>
+              <p style={{
+                fontSize: '12px',
+                color: '#6b8aaa',
+                marginBottom: '12px',
+              }}>OTP sent to {email}</p>
 
-              <div className="flex gap-2 justify-center">
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                justifyContent: 'center',
+              }}>
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -395,22 +508,61 @@ const ForgotPassword = () => {
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}
                     placeholder="0"
                     disabled={loading}
-                    className="w-12 h-12 text-center text-lg font-bold rounded-md bg-[#1a2235] border border-[#2a3a55] text-gray-200 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition disabled:opacity-50"
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      textAlign: 'center',
+                      fontSize: '18px',
+                      fontWeight: 700,
+                      borderRadius: '6px',
+                      background: '#1a2235',
+                      border: errors.otp ? '1px solid #f87171' : '1px solid #2a3a55',
+                      color: '#c8daf0',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                      boxSizing: 'border-box',
+                      opacity: loading ? 0.5 : 1,
+                    }}
+                    onFocus={(e) => {
+                      if (!errors.otp) e.currentTarget.style.borderColor = '#f5a623';
+                    }}
+                    onBlur={(e) => {
+                      if (!errors.otp) e.currentTarget.style.borderColor = '#2a3a55';
+                    }}
                   />
                 ))}
               </div>
 
               {errors.otp && (
-                <p className="mt-2 text-xs text-red-400 text-center">{errors.otp}</p>
+                <p style={{
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#f87171',
+                  textAlign: 'center',
+                }}>{errors.otp}</p>
               )}
             </div>
 
-            <div className="text-center">
+            <div style={{ textAlign: 'center' }}>
               <button
                 type="button"
                 onClick={handleResendOtp}
                 disabled={loading || otpTimer > 0}
-                className="text-sm text-yellow-400 hover:text-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  fontSize: '14px',
+                  color: '#f5a623',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: (loading || otpTimer > 0) ? 'not-allowed' : 'pointer',
+                  opacity: (loading || otpTimer > 0) ? 0.5 : 1,
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading && otpTimer <= 0) e.currentTarget.style.color = '#e09515';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#f5a623';
+                }}
               >
                 Resend OTP {otpTimer > 0 && `(${formatTimer()})`}
               </button>
@@ -419,14 +571,43 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm rounded-md transition disabled:opacity-50"
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: loading ? '#3a5070' : '#f5a623',
+                color: loading ? '#6b8aaa' : '#0a1628',
+                fontWeight: 700,
+                fontSize: '14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: loading ? 0.5 : 1,
+                marginTop: '8px',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.currentTarget.style.background = '#f5a623';
+              }}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #0a1628',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'spin 0.8s linear infinite',
+                  }} />
                   Verifying...
                 </span>
               ) : 'Verify OTP'}
@@ -435,72 +616,157 @@ const ForgotPassword = () => {
         )}
 
         {step === 3 && (
-          <form onSubmit={handlePasswordReset} className="space-y-4">
-            <div className="text-xs text-gray-500 mb-2">Step 3 of 3</div>
+          <form onSubmit={handlePasswordReset}>
+            <div style={{
+              fontSize: '12px',
+              color: '#3a5070',
+              marginBottom: '8px',
+            }}>Step 3 of 3</div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                New Password <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                New Password <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Min 8 characters"
                   disabled={loading}
-                  className={`w-full px-3 py-2.5 text-sm rounded-md bg-[#1a2235] border ${
-                    errors.newPassword ? 'border-red-500' : 'border-[#2a3a55]'
-                  } text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition disabled:opacity-50 pr-10`}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    paddingRight: '40px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.newPassword ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.newPassword) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.newPassword) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400"
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b8aaa',
+                    transition: 'color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? '◉' : '○'}
                 </button>
               </div>
               {errors.newPassword && (
-                <p className="mt-1 text-xs text-red-400">{errors.newPassword}</p>
+                <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.newPassword}</p>
               )}
               {newPassword && newPassword.length > 0 && (
-                <div className="mt-1">
-                  <p className={`text-xs ${newPassword.length >= 8 ? 'text-green-400' : 'text-yellow-400'}`}>
+                <div style={{ marginTop: '4px' }}>
+                  <p style={{
+                    fontSize: '12px',
+                    color: newPassword.length >= 8 ? '#1ddba8' : '#f5a623',
+                  }}>
                     {newPassword.length >= 8 ? '✓ Strong password' : `${newPassword.length}/8 characters`}
                   </p>
                 </div>
               )}
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
-                Confirm Password <span className="text-red-400">*</span>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{
+                display: 'block',
+                fontSize: '10px',
+                fontWeight: 500,
+                color: '#6b8aaa',
+                marginBottom: '6px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                Confirm Password <span style={{ color: '#f87171' }}>*</span>
               </label>
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
                   disabled={loading}
-                  className={`w-full px-3 py-2.5 text-sm rounded-md bg-[#1a2235] border ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-[#2a3a55]'
-                  } text-gray-200 placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition disabled:opacity-50 pr-10`}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    paddingRight: '40px',
+                    fontSize: '14px',
+                    borderRadius: '6px',
+                    background: '#1a2235',
+                    border: `1px solid ${errors.confirmPassword ? '#f87171' : '#2a3a55'}`,
+                    color: '#c8daf0',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    boxSizing: 'border-box',
+                    opacity: loading ? 0.5 : 1,
+                  }}
+                  onFocus={(e) => {
+                    if (!errors.confirmPassword) e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    if (!errors.confirmPassword) e.currentTarget.style.borderColor = '#2a3a55';
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-yellow-400"
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b8aaa',
+                    transition: 'color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
                 >
-                  {showConfirmPassword ? '🙈' : '👁️'}
+                  {showConfirmPassword ? '◉' : '○'}
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-400">{errors.confirmPassword}</p>
+                <p style={{ marginTop: '4px', fontSize: '12px', color: '#f87171' }}>{errors.confirmPassword}</p>
               )}
               {confirmPassword && newPassword && (
-                <p className={`mt-1 text-xs ${confirmPassword === newPassword ? 'text-green-400' : 'text-red-400'}`}>
+                <p style={{
+                  marginTop: '4px',
+                  fontSize: '12px',
+                  color: confirmPassword === newPassword ? '#1ddba8' : '#f87171',
+                }}>
                   {confirmPassword === newPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
                 </p>
               )}
@@ -509,14 +775,42 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-sm rounded-md transition disabled:opacity-50"
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: loading ? '#3a5070' : '#f5a623',
+                color: loading ? '#6b8aaa' : '#0a1628',
+                fontWeight: 700,
+                fontSize: '14px',
+                borderRadius: '6px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) e.currentTarget.style.background = '#f5a623';
+              }}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #0a1628',
+                    borderTop: '2px solid transparent',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    animation: 'spin 0.8s linear infinite',
+                  }} />
                   Resetting...
                 </span>
               ) : 'Reset Password'}
@@ -524,12 +818,35 @@ const ForgotPassword = () => {
           </form>
         )}
 
-        <div className="mt-6 pt-5 border-t border-[#1f2d40] text-center">
-          <Link to="/login" className="text-sm text-gray-500 hover:text-yellow-400 transition">
+        <div style={{
+          marginTop: '24px',
+          paddingTop: '20px',
+          borderTop: '1px solid #1f2d40',
+          textAlign: 'center',
+        }}>
+          <Link
+            to="/login"
+            style={{
+              fontSize: '14px',
+              color: '#6b8aaa',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
+          >
             ← Back to Login
           </Link>
         </div>
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

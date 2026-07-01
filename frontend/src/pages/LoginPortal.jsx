@@ -13,80 +13,153 @@ const LoginPortal = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2))`
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '50px',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #050d1a, #0a1628)',
       }}
     >
-
       {/* Glow Effects */}
       <div
-        className="absolute w-[600px] h-[600px] blur-[140px] rounded-full top-[-150px] left-[-150px]"
-        style={{ background: "var(--glow-admin)" }}
+        style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          filter: 'blur(140px)',
+          borderRadius: '50%',
+          top: '-150px',
+          left: '-150px',
+          background: 'rgba(220, 38, 38, 0.15)',
+        }}
       />
       <div
-        className="absolute w-[600px] h-[600px] blur-[140px] rounded-full bottom-[-150px] right-[-150px]"
-        style={{ background: "var(--glow-user)" }}
+        style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          filter: 'blur(140px)',
+          borderRadius: '50%',
+          bottom: '-150px',
+          right: '-150px',
+          background: 'rgba(245, 166, 35, 0.15)',
+        }}
       />
 
-      <div className="w-full max-w-4xl relative z-10">
-
+      <div style={{
+        width: '100%',
+        maxWidth: '896px',
+        position: 'relative',
+        zIndex: 10,
+      }}>
         {/* Header */}
-        <div className="text-center mb-12">
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '48px',
+        }}>
           <h1
-            className="text-5xl font-bold mb-2"
-            style={{ color: "var(--text-primary)" }}
+            style={{
+              fontSize: '48px',
+              fontWeight: 700,
+              marginBottom: '8px',
+              color: '#eaf2ff',
+            }}
           >
-            🔐 Login Portal
+            Login Portal
           </h1>
-
           <p
-            className="text-xl"
-            style={{ color: "var(--text-secondary)" }}
+            style={{
+              fontSize: '20px',
+              color: '#6b8aaa',
+            }}
           >
             Select your account type to continue
           </p>
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '24px',
+          marginBottom: '32px',
+        }}>
           {/* ADMIN CARD */}
           <div
             onClick={() => handleRoleSelect('admin')}
-            className={`rounded-2xl p-8 cursor-pointer transition-all duration-300 transform hover:scale-105 border-2 backdrop-blur-xl ${
-              selectedRole === 'admin' ? 'scale-105' : ''
-            }`}
             style={{
-              background: "var(--card-bg)",
-              borderColor: selectedRole === 'admin'
-                ? "var(--accent-admin)"
-                : "var(--card-border)"
+              borderRadius: '16px',
+              padding: '32px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              transform: selectedRole === 'admin' ? 'scale(1.05)' : 'scale(1)',
+              background: 'rgba(10, 22, 40, 0.8)',
+              backdropFilter: 'blur(12px)',
+              border: `2px solid ${selectedRole === 'admin' ? '#dc2626' : '#1a3050'}`,
+            }}
+            onMouseEnter={(e) => {
+              if (selectedRole !== 'admin') {
+                e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.5)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedRole !== 'admin') {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }
             }}
           >
-            <div className="text-center">
-
-              <div className="text-6xl mb-6">👨‍💼</div>
-
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '48px',
+                marginBottom: '24px',
+                color: '#eaf2ff',
+              }}>◆</div>
               <h2
-                className="text-3xl font-bold mb-3"
-                style={{ color: "var(--text-primary)" }}
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  marginBottom: '12px',
+                  color: '#eaf2ff',
+                }}
               >
                 Admin Portal
               </h2>
-
               <p
-                className="text-lg mb-8"
-                style={{ color: "var(--text-secondary)" }}
+                style={{
+                  fontSize: '18px',
+                  marginBottom: '32px',
+                  color: '#6b8aaa',
+                }}
               >
                 Access admin dashboard and manage system
               </p>
-
               <button
-                className="w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95"
                 style={{
-                  background: `linear-gradient(90deg, var(--accent-admin), #b91c1c)`,
-                  color: "white"
+                  width: '100%',
+                  fontWeight: 700,
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  background: 'linear-gradient(90deg, #dc2626, #991b1b)',
+                  color: '#ffffff',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
               >
                 Admin Login →
@@ -97,62 +170,107 @@ const LoginPortal = () => {
           {/* USER CARD */}
           <div
             onClick={() => handleRoleSelect('user')}
-            className={`rounded-2xl p-8 cursor-pointer transition-all duration-300 transform hover:scale-105 border-2 backdrop-blur-xl ${
-              selectedRole === 'user' ? 'scale-105' : ''
-            }`}
             style={{
-              background: "var(--card-bg)",
-              borderColor: selectedRole === 'user'
-                ? "var(--accent-user)"
-                : "var(--card-border)"
+              borderRadius: '16px',
+              padding: '32px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              transform: selectedRole === 'user' ? 'scale(1.05)' : 'scale(1)',
+              background: 'rgba(10, 22, 40, 0.8)',
+              backdropFilter: 'blur(12px)',
+              border: `2px solid ${selectedRole === 'user' ? '#f5a623' : '#1a3050'}`,
+            }}
+            onMouseEnter={(e) => {
+              if (selectedRole !== 'user') {
+                e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (selectedRole !== 'user') {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }
             }}
           >
-            <div className="text-center">
-
-              <div className="text-6xl mb-6">👤</div>
-
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '48px',
+                marginBottom: '24px',
+                color: '#eaf2ff',
+              }}>●</div>
               <h2
-                className="text-3xl font-bold mb-3"
-                style={{ color: "var(--text-primary)" }}
+                style={{
+                  fontSize: '28px',
+                  fontWeight: 700,
+                  marginBottom: '12px',
+                  color: '#eaf2ff',
+                }}
               >
                 User Portal
               </h2>
-
               <p
-                className="text-lg mb-8"
-                style={{ color: "var(--text-secondary)" }}
+                style={{
+                  fontSize: '18px',
+                  marginBottom: '32px',
+                  color: '#6b8aaa',
+                }}
               >
                 Access your personal user dashboard
               </p>
-
               <button
-                className="w-full font-bold py-3 px-6 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95"
                 style={{
-                  background: `linear-gradient(90deg, var(--accent-user), #15803d)`,
-                  color: "white"
+                  width: '100%',
+                  fontWeight: 700,
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  background: 'linear-gradient(90deg, #f5a623, #c47d0e)',
+                  color: '#0a1628',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
                 }}
               >
                 User Login →
               </button>
             </div>
           </div>
-
         </div>
 
         {/* Footer */}
-        <div className="text-center">
-          <p style={{ color: "var(--text-primary)" }} className="text-lg">
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ color: '#eaf2ff', fontSize: '18px' }}>
             Don't have an account?
             <a
               href="/signup"
-              className="ml-2 font-bold transition-colors"
-              style={{ color: "var(--accent-warning)" }}
+              style={{
+                marginLeft: '8px',
+                fontWeight: 700,
+                color: '#f5a623',
+                textDecoration: 'none',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
             >
               Create one here
             </a>
           </p>
         </div>
-
       </div>
     </div>
   );

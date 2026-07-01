@@ -21,7 +21,6 @@ const EditFloor = () => {
         const blocksList = Array.isArray(data) ? data : [];
         setBlocks(blocksList);
         
-        // If only one block exists, auto-select it
         if (blocksList.length === 1 && form.block === '') {
           setForm(f => ({ ...f, block: blocksList[0].id }));
         }
@@ -42,9 +41,7 @@ const EditFloor = () => {
       }
 
       try {
-        console.log(`Fetching floor ${id}...`);
         const response = await api.get(`/hostel/floors/${id}/`);
-        console.log('Floor data:', response.data);
         
         setForm({
           block: response.data.block || '',
@@ -78,7 +75,6 @@ const EditFloor = () => {
     setMessage({ type: '', text: '' });
     
     try {
-      console.log('Updating floor:', form);
       await api.put(`/hostel/floors/${id}/`, {
         block: form.block,
         floor_number: form.floor_number,
@@ -114,10 +110,36 @@ const EditFloor = () => {
 
   if (fetching) {
     return (
-      <div className="max-w-lg space-y-6">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-gray-400">Loading floor details...</div>
+      <div style={{
+        maxWidth: '512px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}>
+        <div style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '200px',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                border: '3px solid #1a3050',
+                borderTop: '3px solid #f5a623',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }} />
+              <div style={{ color: '#6b8aaa' }}>Loading floor details...</div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,37 +147,107 @@ const EditFloor = () => {
   }
 
   return (
-    <div className="max-w-lg space-y-6">
+    <div style={{
+      maxWidth: '512px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       <div>
-        <button 
+        <button
           onClick={() => navigate('/admin/floors')}
-          className="text-sm text-gray-500 hover:text-purple-400 mb-3 transition-colors"
+          style={{
+            fontSize: '14px',
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '12px',
+            transition: 'color 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#a78bfa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#6b8aaa';
+          }}
         >
           ← Back to Floors
         </button>
-        <h1 className="text-2xl font-bold text-white">Edit Floor</h1>
-        <p className="text-xs text-gray-500 mt-1">Floor ID: {id}</p>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Edit Floor</h1>
+        <p style={{
+          fontSize: '12px',
+          color: '#6b8aaa',
+          marginTop: '4px',
+          marginBottom: 0,
+        }}>Floor ID: {id}</p>
       </div>
 
       {message.text && (
-        <div className={`px-4 py-3 rounded-lg text-sm border ${
-          message.type === 'success' 
-            ? 'bg-green-500/10 text-green-400 border-green-500/30'
-            : 'bg-red-500/10 text-red-400 border-red-500/30'
-        }`}>
+        <div style={{
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          border: '1px solid',
+          backgroundColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+          color: message.type === 'success' ? '#1ddba8' : '#f87171',
+          borderColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.3)' : 'rgba(248, 113, 113, 0.3)',
+        }}>
           {message.text}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
             Block *
           </label>
-          <select 
-            value={form.block} 
+          <select
+            value={form.block}
             onChange={e => setForm(f => ({...f, block: e.target.value}))}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+              opacity: blocks.length === 1 ? 0.7 : 1,
+              cursor: blocks.length === 1 ? 'not-allowed' : 'pointer',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={blocks.length === 1}
           >
@@ -165,68 +257,192 @@ const EditFloor = () => {
             ))}
           </select>
           {blocks.length === 1 && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p style={{
+              fontSize: '12px',
+              color: '#6b8aaa',
+              marginTop: '4px',
+              marginBottom: 0,
+            }}>
               Auto-selected: {blocks[0]?.name}
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
             Floor Number *
           </label>
-          <input 
-            type="number" 
-            value={form.floor_number} 
+          <input
+            type="number"
+            value={form.floor_number}
             onChange={e => setForm(f => ({...f, floor_number: e.target.value}))}
             placeholder="e.g. 1, 2, 3"
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
-            required 
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
+            required
             min="0"
           />
         </div>
 
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            marginBottom: '4px',
+          }}>
             Description (Optional)
           </label>
-          <input 
-            type="text" 
-            value={form.description || ''} 
+          <input
+            type="text"
+            value={form.description || ''}
             onChange={e => setForm(f => ({...f, description: e.target.value}))}
             placeholder="e.g. Ground Floor, First Floor"
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#a78bfa';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
           />
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button 
-            type="submit" 
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          paddingTop: '8px',
+        }}>
+          <button
+            type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50"
+            style={{
+              flex: 1,
+              padding: '10px',
+              backgroundColor: loading ? '#3a5070' : '#a78bfa',
+              color: '#0a1628',
+              fontWeight: 700,
+              fontSize: '14px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              opacity: loading ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = '#8b5cf6';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.currentTarget.style.backgroundColor = '#a78bfa';
+              }
+            }}
           >
             {loading ? 'Updating...' : 'Update Floor'}
           </button>
           
-          <button 
+          <button
             type="button"
             onClick={() => navigate('/admin/floors')}
-            className="py-2.5 px-6 bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm rounded-lg transition"
+            style={{
+              padding: '10px 24px',
+              backgroundColor: '#0f2040',
+              color: '#eaf2ff',
+              fontWeight: 700,
+              fontSize: '14px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#122448';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#0f2040';
+            }}
           >
             Cancel
           </button>
         </div>
 
-        <div className="pt-2 border-t border-gray-800">
+        <div style={{
+          paddingTop: '8px',
+          borderTop: '1px solid #1a3050',
+        }}>
           <button
             type="button"
             onClick={handleDelete}
-            className="w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition"
+            style={{
+              width: '100%',
+              padding: '8px',
+              fontSize: '14px',
+              color: '#f87171',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#fca5a5';
+              e.currentTarget.style.backgroundColor = 'rgba(248, 113, 113, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#f87171';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
             Delete Floor
           </button>
         </div>
       </form>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

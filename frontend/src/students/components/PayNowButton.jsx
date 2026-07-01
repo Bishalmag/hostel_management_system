@@ -32,16 +32,54 @@ const PayNowButton = ({ bookingId, amount, className }) => {
     <button
       onClick={handlePayment}
       disabled={loading}
-      className={`px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${className}`}
+      style={{
+        padding: '8px 20px',
+        background: loading ? '#3a5070' : 'linear-gradient(to right, #f5a623, #e09515)',
+        color: '#0a1628',
+        fontWeight: 600,
+        borderRadius: '8px',
+        border: 'none',
+        cursor: loading ? 'not-allowed' : 'pointer',
+        transition: 'all 0.2s ease',
+        boxShadow: loading ? 'none' : '0 4px 20px rgba(245, 166, 35, 0.3)',
+        opacity: loading ? 0.5 : 1,
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontSize: '14px',
+        ...(className ? {} : {}),
+      }}
+      onMouseEnter={(e) => {
+        if (!loading) {
+          e.currentTarget.style.background = 'linear-gradient(to right, #e09515, #c47d0e)';
+          e.currentTarget.style.boxShadow = '0 4px 30px rgba(245, 166, 35, 0.4)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!loading) {
+          e.currentTarget.style.background = 'linear-gradient(to right, #f5a623, #e09515)';
+          e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.3)';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }
+      }}
     >
       {loading ? (
         <>
-          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+          <span style={{
+            width: '16px',
+            height: '16px',
+            border: '2px solid #0a1628',
+            borderTop: '2px solid transparent',
+            borderRadius: '50%',
+            display: 'inline-block',
+            animation: 'spin 0.8s linear infinite',
+          }} />
           Processing...
         </>
       ) : (
         <>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: '16px', height: '16px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Pay Now

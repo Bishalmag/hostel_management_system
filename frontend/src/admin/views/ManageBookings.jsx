@@ -4,18 +4,18 @@ import api from '../../api/axios';
 import { useNotification } from '../../context/NotificationContext';
 
 const statusColors = {
-  pending:   'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  approved:  'bg-green-500/20  text-green-400  border-green-500/30',
-  rejected:  'bg-red-500/20    text-red-400    border-red-500/30',
-  cancelled: 'bg-gray-500/20   text-gray-400   border-gray-500/30',
+  pending: { bg: 'rgba(245, 166, 35, 0.2)', text: '#f5a623', border: 'rgba(245, 166, 35, 0.3)' },
+  approved: { bg: 'rgba(29, 219, 168, 0.2)', text: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' },
+  rejected: { bg: 'rgba(248, 113, 113, 0.2)', text: '#f87171', border: 'rgba(248, 113, 113, 0.3)' },
+  cancelled: { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' },
 };
 
 const ManageBookings = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
   const [bookings, setBookings] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [filter,   setFilter]   = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
   const [processing, setProcessing] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -25,7 +25,6 @@ const ManageBookings = () => {
       const response = await api.get('/bookings/bookings/');
       const allBookings = response.data.results ?? response.data;
       
-      // Fetch room details for each booking
       const bookingsWithDetails = await Promise.all(
         allBookings.map(async (booking) => {
           try {
@@ -72,17 +71,15 @@ const ManageBookings = () => {
     }
   }, [showError]);
 
-  useEffect(() => { 
-    fetchBookings(); 
+  useEffect(() => {
+    fetchBookings();
   }, [fetchBookings, refreshKey]);
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     if (processing === bookingId) return;
     
     setProcessing(bookingId);
-    console.log(`🔄 Updating booking ${bookingId} to status: ${newStatus}`);
     
-    // Find the booking
     const originalBooking = bookings.find(b => b.id === bookingId);
     if (!originalBooking) {
       showError('Booking not found', 'Error');
@@ -90,22 +87,19 @@ const ManageBookings = () => {
       return;
     }
 
-    // ✅ UPDATE UI IMMEDIATELY - Remove the booking from current list and re-add with new status
-    setBookings(prevBookings => 
-      prevBookings.map(b => 
-        b.id === bookingId 
+    setBookings(prevBookings =>
+      prevBookings.map(b =>
+        b.id === bookingId
           ? { ...b, status: newStatus }
           : b
       )
     );
 
     try {
-      // Update booking status
       await api.patch(`/bookings/bookings/${bookingId}/`, {
         status: newStatus
       });
 
-      // Update room occupancy if needed
       if (newStatus === 'approved' && originalBooking.status === 'pending') {
         try {
           const roomRes = await api.get(`/hostel/rooms/${originalBooking.room}/`);
@@ -113,10 +107,9 @@ const ManageBookings = () => {
           
           if (room.current_occupancy >= room.capacity) {
             showError(`Room ${room.room_number} is fully occupied!`, 'Cannot Approve');
-            // Revert
-            setBookings(prevBookings => 
-              prevBookings.map(b => 
-                b.id === bookingId 
+            setBookings(prevBookings =>
+              prevBookings.map(b =>
+                b.id === bookingId
                   ? { ...b, status: originalBooking.status }
                   : b
               )
@@ -131,8 +124,7 @@ const ManageBookings = () => {
         } catch (roomErr) {
           console.error('Error updating room occupancy:', roomErr);
         }
-      } 
-      else if (newStatus === 'rejected' && originalBooking.status === 'approved') {
+      } else if (newStatus === 'rejected' && originalBooking.status === 'approved') {
         try {
           const roomRes = await api.get(`/hostel/rooms/${originalBooking.room}/`);
           const room = roomRes.data;
@@ -144,23 +136,20 @@ const ManageBookings = () => {
         }
       }
 
-      // Show success message
       if (newStatus === 'approved') {
         showSuccess(`Booking #${bookingId} has been approved`, 'Approved');
       } else if (newStatus === 'rejected') {
         showSuccess(`Booking #${bookingId} has been rejected`, 'Rejected');
       }
 
-      // ✅ FORCE REFRESH - Trigger a complete re-fetch
       setRefreshKey(prev => prev + 1);
 
     } catch (err) {
-      console.error('❌ Error updating booking status:', err);
+      console.error('Error updating booking status:', err);
       
-      // Revert on error
-      setBookings(prevBookings => 
-        prevBookings.map(b => 
-          b.id === bookingId 
+      setBookings(prevBookings =>
+        prevBookings.map(b =>
+          b.id === bookingId
             ? { ...b, status: originalBooking.status }
             : b
         )
@@ -199,12 +188,20 @@ const ManageBookings = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Manage Bookings</h1>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Manage Bookings</h1>
         </div>
-        <div className="text-center text-gray-400 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+        <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
           Loading bookings...
         </div>
       </div>
@@ -212,119 +209,279 @@ const ManageBookings = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Manage Bookings</h1>
-        <div className="flex items-center gap-1 bg-gray-800 border border-gray-700 rounded-lg p-1">
-          {['all','pending','approved','rejected'].map(tab => (
-            <button key={tab} onClick={() => setFilter(tab)}
-              className={`px-4 py-1.5 text-xs rounded-md font-medium capitalize transition-all ${
-                filter === tab ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'
-              }`}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Manage Bookings</h1>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: '#0f2040',
+          border: '1px solid #1a3050',
+          borderRadius: '8px',
+          padding: '4px',
+        }}>
+          {['all', 'pending', 'approved', 'rejected'].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setFilter(tab)}
+              style={{
+                padding: '6px 16px',
+                fontSize: '12px',
+                borderRadius: '6px',
+                fontWeight: 500,
+                textTransform: 'capitalize',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                background: filter === tab ? '#122448' : 'transparent',
+                color: filter === tab ? '#eaf2ff' : '#6b8aaa',
+              }}
+              onMouseEnter={(e) => {
+                if (filter !== tab) {
+                  e.currentTarget.style.color = '#c8daf0';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (filter !== tab) {
+                  e.currentTarget.style.color = '#6b8aaa';
+                }
+              }}
+            >
               {tab} ({getCount(tab)})
             </button>
           ))}
         </div>
       </div>
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-800/50 border-b border-gray-800">
-              <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                <th className="px-5 py-4 text-left">ID</th>
-                <th className="px-5 py-4 text-left">Student</th>
-                <th className="px-5 py-4 text-left">Block</th>
-                <th className="px-5 py-4 text-left">Room No.</th>
-                <th className="px-5 py-4 text-left">Room Type</th>
-                <th className="px-5 py-4 text-left">Check-in</th>
-                <th className="px-5 py-4 text-left">Check-out</th>
-                <th className="px-5 py-4 text-left">Status</th>
-                <th className="px-5 py-4 text-left">Actions</th>
+      <div style={{
+        background: '#0a1628',
+        border: '1px solid #1a3050',
+        borderRadius: '12px',
+        overflow: 'hidden',
+      }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{
+            width: '100%',
+            fontSize: '14px',
+            borderCollapse: 'collapse',
+          }}>
+            <thead style={{
+              background: 'rgba(15, 32, 64, 0.5)',
+              borderBottom: '1px solid #1a3050',
+            }}>
+              <tr style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>ID</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Student</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Block</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Room No.</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Room Type</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Check-in</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Check-out</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Status</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left' }}>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
-              {filtered.map(booking => (
-                <tr key={booking.id} className="hover:bg-gray-800/30 transition">
-                  <td className="px-5 py-4 text-gray-400 font-mono text-xs">#{booking.id}</td>
-                  <td className="px-5 py-4">
-                    <p className="text-white text-sm">{booking.student_name || `Student ${booking.student}`}</p>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-gray-300 text-sm">{booking.block_name || 'N/A'}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-white font-medium">{booking.room_number || booking.room}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-gray-300 text-sm capitalize">{booking.room_type || 'Standard'}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-gray-300 text-sm">{formatDate(booking.check_in_date)}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className="text-gray-300 text-sm">{formatDate(booking.check_out_date)}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`text-xs px-2 py-1 rounded-full border capitalize ${statusColors[booking.status]}`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex gap-2">
-                      {booking.status === 'pending' && (
-                        <>
-                          <button
-                            onClick={() => handleStatusUpdate(booking.id, 'approved')}
-                            disabled={processing === booking.id}
-                            className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs font-medium rounded-lg transition disabled:opacity-50 flex items-center gap-1"
-                          >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <tbody style={{ divideY: '1px solid #1a3050' }}>
+              {filtered.map(booking => {
+                const statusStyle = statusColors[booking.status] || statusColors.pending;
+                return (
+                  <tr
+                    key={booking.id}
+                    style={{
+                      borderBottom: '1px solid #1a3050',
+                      transition: 'background 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <td style={{ padding: '16px 20px', color: '#6b8aaa', fontFamily: 'monospace', fontSize: '12px' }}>
+                      #{booking.id}
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>
+                        {booking.student_name || `Student ${booking.student}`}
+                      </p>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ color: '#c8daf0', fontSize: '14px' }}>
+                        {booking.block_name || 'N/A'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ color: '#eaf2ff', fontWeight: 500 }}>
+                        {booking.room_number || booking.room}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ color: '#c8daf0', fontSize: '14px', textTransform: 'capitalize' }}>
+                        {booking.room_type || 'Standard'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ color: '#c8daf0', fontSize: '14px' }}>
+                        {formatDate(booking.check_in_date)}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ color: '#c8daf0', fontSize: '14px' }}>
+                        {formatDate(booking.check_out_date)}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{
+                        fontSize: '12px',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        border: `1px solid ${statusStyle.border}`,
+                        textTransform: 'capitalize',
+                        background: statusStyle.bg,
+                        color: statusStyle.text,
+                      }}>
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {booking.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleStatusUpdate(booking.id, 'approved')}
+                              disabled={processing === booking.id}
+                              style={{
+                                padding: '6px 12px',
+                                background: 'rgba(29, 219, 168, 0.2)',
+                                color: '#1ddba8',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                cursor: processing === booking.id ? 'not-allowed' : 'pointer',
+                                transition: 'background 0.3s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                opacity: processing === booking.id ? 0.5 : 1,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (processing !== booking.id) {
+                                  e.currentTarget.style.background = 'rgba(29, 219, 168, 0.3)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(29, 219, 168, 0.2)';
+                              }}
+                            >
+                              <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleStatusUpdate(booking.id, 'rejected')}
+                              disabled={processing === booking.id}
+                              style={{
+                                padding: '6px 12px',
+                                background: 'rgba(248, 113, 113, 0.2)',
+                                color: '#f87171',
+                                border: 'none',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                cursor: processing === booking.id ? 'not-allowed' : 'pointer',
+                                transition: 'background 0.3s ease',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                opacity: processing === booking.id ? 0.5 : 1,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (processing !== booking.id) {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                              }}
+                            >
+                              <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {booking.status === 'approved' && (
+                          <span style={{
+                            fontSize: '12px',
+                            color: '#1ddba8',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}>
+                            <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            Approve
-                          </button>
-                          <button
-                            onClick={() => handleStatusUpdate(booking.id, 'rejected')}
-                            disabled={processing === booking.id}
-                            className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded-lg transition disabled:opacity-50 flex items-center gap-1"
-                          >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            Approved
+                          </span>
+                        )}
+                        {booking.status === 'rejected' && (
+                          <span style={{
+                            fontSize: '12px',
+                            color: '#f87171',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}>
+                            <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            Reject
-                          </button>
-                        </>
-                      )}
-                      {booking.status === 'approved' && (
-                        <span className="text-xs text-green-400 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Approved
-                        </span>
-                      )}
-                      {booking.status === 'rejected' && (
-                        <span className="text-xs text-red-400 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          Rejected
-                        </span>
-                      )}
-                      <button
-                        onClick={() => navigate(`/admin/bookings/${booking.id}`)}
-                        className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs font-medium rounded-lg transition"
-                      >
-                        View
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                            Rejected
+                          </span>
+                        )}
+                        <button
+                          onClick={() => navigate(`/admin/bookings/${booking.id}`)}
+                          style={{
+                            padding: '6px 12px',
+                            background: '#0f2040',
+                            color: '#c8daf0',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            transition: 'background 0.3s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#122448';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#0f2040';
+                          }}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-5 py-12 text-center text-gray-500">
+                  <td colSpan={9} style={{
+                    padding: '48px 20px',
+                    textAlign: 'center',
+                    color: '#6b8aaa',
+                  }}>
                     No bookings found.
                   </td>
                 </tr>
@@ -336,31 +493,107 @@ const ManageBookings = () => {
 
       {/* Summary Cards */}
       {!loading && bookings.length > 0 && (
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Total</p>
-            <p className="text-2xl font-bold text-white">{bookings.length}</p>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '16px',
+        }}>
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Total</p>
+            <p style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+              margin: '4px 0 0 0',
+            }}>{bookings.length}</p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Pending</p>
-            <p className="text-2xl font-bold text-yellow-400">
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Pending</p>
+            <p style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#f5a623',
+              margin: '4px 0 0 0',
+            }}>
               {bookings.filter(b => b.status === 'pending').length}
             </p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Approved</p>
-            <p className="text-2xl font-bold text-green-400">
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Approved</p>
+            <p style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#1ddba8',
+              margin: '4px 0 0 0',
+            }}>
               {bookings.filter(b => b.status === 'approved').length}
             </p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Rejected</p>
-            <p className="text-2xl font-bold text-red-400">
+          <div style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              margin: 0,
+            }}>Rejected</p>
+            <p style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#f87171',
+              margin: '4px 0 0 0',
+            }}>
               {bookings.filter(b => b.status === 'rejected').length}
             </p>
           </div>
         </div>
       )}
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

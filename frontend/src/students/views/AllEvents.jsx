@@ -23,9 +23,7 @@ const AllEvents = () => {
       setLoading(true);
       const response = await api.get('/events/');
       const allEvents = response.data.results || response.data;
-      // Filter only active events
       const activeEvents = allEvents.filter(e => e.is_active);
-      // Sort by start date (upcoming first)
       const sortedEvents = activeEvents.sort((a, b) => 
         new Date(a.start_date) - new Date(b.start_date)
       );
@@ -56,23 +54,9 @@ const AllEvents = () => {
     const start = new Date(event.start_date);
     const end = new Date(event.end_date);
     
-    if (end < now) return { label: 'Past', color: 'text-gray-400 bg-gray-500/20 border-gray-500/30' };
-    if (start <= now && end >= now) return { label: 'Ongoing', color: 'text-green-400 bg-green-500/20 border-green-500/30' };
-    return { label: 'Upcoming', color: 'text-blue-400 bg-blue-500/20 border-blue-500/30' };
-  };
-
-  const getEventTypeIcon = (type) => {
-    const icons = {
-      general: '📋',
-      academic: '📚',
-      cultural: '🎭',
-      sports: '⚽',
-      maintenance: '🔧',
-      emergency: '🚨',
-      holiday: '🎉',
-      other: '📌',
-    };
-    return icons[type] || '📅';
+    if (end < now) return { label: 'Past', color: { bg: 'rgba(107, 114, 128, 0.1)', color: '#6b8aaa', border: 'rgba(107, 114, 128, 0.3)' } };
+    if (start <= now && end >= now) return { label: 'Ongoing', color: { bg: 'rgba(29, 219, 168, 0.1)', color: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' } };
+    return { label: 'Upcoming', color: { bg: 'rgba(96, 165, 250, 0.1)', color: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)' } };
   };
 
   const getEventTypeLabel = (type) => {
@@ -130,10 +114,23 @@ const AllEvents = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading events...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading events...</p>
         </div>
       </div>
     );
@@ -141,12 +138,30 @@ const AllEvents = () => {
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400">{error}</p>
+      <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171' }}>{error}</p>
           <button
             onClick={fetchEvents}
-            className="mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Try Again
           </button>
@@ -156,53 +171,169 @@ const AllEvents = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <div>
+      <div style={{ marginBottom: '24px' }}>
         <button
           onClick={() => navigate('/students/homepage')}
-          className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+          style={{
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '14px',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
         >
           ← Back to Dashboard
         </button>
-        <h1 className="text-3xl font-bold text-white">All Events</h1>
-        <p className="text-gray-400 mt-1">Stay updated with all hostel events and activities</p>
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>All Events</h1>
+        <p style={{
+          color: '#6b8aaa',
+          marginTop: '4px',
+        }}>Stay updated with all hostel events and activities</p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Events</p>
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '16px',
+        marginBottom: '24px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>Total Events</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginTop: '4px',
+          }}>{stats.total}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Upcoming</p>
-          <p className="text-2xl font-bold text-blue-400">{stats.upcoming}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>Upcoming</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#60a5fa',
+            marginTop: '4px',
+          }}>{stats.upcoming}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Ongoing</p>
-          <p className="text-2xl font-bold text-green-400">{stats.ongoing}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>Ongoing</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#1ddba8',
+            marginTop: '4px',
+          }}>{stats.ongoing}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Past</p>
-          <p className="text-2xl font-bold text-gray-400">{stats.past}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>Past</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#6b8aaa',
+            marginTop: '4px',
+          }}>{stats.past}</p>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-gray-800">
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        borderBottom: '1px solid #1a3050',
+        marginBottom: '24px',
+      }}>
         {['all', 'upcoming', 'ongoing', 'past'].map(tab => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-sm font-medium transition capitalize ${
-              filter === tab
-                ? 'text-cyan-400 border-b-2 border-cyan-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: filter === tab ? '#f5a623' : '#6b8aaa',
+              borderBottom: filter === tab ? '2px solid #f5a623' : '2px solid transparent',
+              transition: 'all 0.2s ease',
+              textTransform: 'capitalize',
+            }}
+            onMouseEnter={(e) => {
+              if (filter !== tab) e.currentTarget.style.color = '#c8daf0';
+            }}
+            onMouseLeave={(e) => {
+              if (filter !== tab) e.currentTarget.style.color = '#6b8aaa';
+            }}
           >
             {tab === 'all' ? 'All Events' : tab}
-            <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-500/20 rounded-full">
+            <span style={{
+              marginLeft: '8px',
+              padding: '0px 6px',
+              fontSize: '10px',
+              background: 'rgba(107, 114, 128, 0.2)',
+              borderRadius: '9999px',
+              color: '#6b8aaa',
+            }}>
               {tab === 'all' ? stats.total : stats[tab]}
             </span>
           </button>
@@ -211,23 +342,49 @@ const AllEvents = () => {
 
       {/* Events Grid */}
       {filteredEvents.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">📅</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Events Found</h3>
-          <p className="text-gray-400">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '16px',
+            color: '#3a5070',
+          }}>📅</div>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#eaf2ff', marginBottom: '8px' }}>No Events Found</h3>
+          <p style={{ color: '#6b8aaa' }}>
             {filter === 'all' 
               ? "There are no events scheduled at the moment." 
               : `No ${filter} events found.`}
           </p>
           <button
             onClick={() => navigate('/students/homepage')}
-            className="mt-4 px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+            style={{
+              marginTop: '16px',
+              padding: '8px 24px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Back to Dashboard
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '24px',
+        }}>
           {filteredEvents.map((event) => {
             const status = getEventStatus(event);
             const daysRemaining = getDaysRemaining(event.start_date);
@@ -236,67 +393,156 @@ const AllEvents = () => {
             return (
               <div 
                 key={event.id} 
-                className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all cursor-pointer group"
+                style={{
+                  background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+                  border: '1px solid #1a3050',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
                 onClick={() => {
                   setSelectedEvent(event);
                   setShowEventModal(true);
                 }}
               >
                 {/* Header with status */}
-                <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{getEventTypeIcon(event.event_type)}</span>
-                      <h3 className="text-white font-semibold group-hover:text-cyan-400 transition-colors">
+                <div style={{
+                  padding: '16px 24px',
+                  borderBottom: '1px solid #1a3050',
+                  background: 'rgba(18, 36, 72, 0.3)',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'space-between',
+                  }}>
+                    <div>
+                      <h3 style={{
+                        color: '#eaf2ff',
+                        fontWeight: 600,
+                        margin: 0,
+                        transition: 'color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+                      onMouseLeave={(e) => e.currentTarget.style.color = '#eaf2ff'}>
                         {event.title}
                       </h3>
+                      <p style={{
+                        color: '#6b8aaa',
+                        fontSize: '12px',
+                        marginTop: '4px',
+                      }}>{getEventTypeLabel(event.event_type)}</p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full border ${status.color}`}>
+                    <span style={{
+                      fontSize: '10px',
+                      padding: '2px 8px',
+                      borderRadius: '9999px',
+                      border: '1px solid',
+                      background: status.color.bg,
+                      color: status.color.color,
+                      borderColor: status.color.border,
+                    }}>
                       {status.label}
                     </span>
                   </div>
                   {isUpcoming && daysRemaining > 0 && (
-                    <p className="text-yellow-400 text-xs mt-2">
-                      ⏰ {daysRemaining} days remaining
+                    <p style={{
+                      color: '#f5a623',
+                      fontSize: '12px',
+                      marginTop: '8px',
+                    }}>
+                      {daysRemaining} days remaining
                     </p>
                   )}
                 </div>
                 
                 {/* Body */}
-                <div className="p-6 space-y-3">
-                  <p className="text-gray-300 text-sm line-clamp-2">{event.description}</p>
+                <div style={{ padding: '24px' }}>
+                  <p style={{
+                    color: '#c8daf0',
+                    fontSize: '14px',
+                    margin: '0 0 16px 0',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>{event.description}</p>
                   
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">📅 Start:</span>
-                      <span className="text-gray-300">{formatDateShort(event.start_date)}</span>
+                  <div>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '14px',
+                      padding: '4px 0',
+                    }}>
+                      <span style={{ color: '#6b8aaa' }}>Start:</span>
+                      <span style={{ color: '#c8daf0' }}>{formatDateShort(event.start_date)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">📅 End:</span>
-                      <span className="text-gray-300">{formatDateShort(event.end_date)}</span>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '14px',
+                      padding: '4px 0',
+                    }}>
+                      <span style={{ color: '#6b8aaa' }}>End:</span>
+                      <span style={{ color: '#c8daf0' }}>{formatDateShort(event.end_date)}</span>
                     </div>
                     {event.location && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">📍 Location:</span>
-                        <span className="text-gray-300">{event.location}</span>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '14px',
+                        padding: '4px 0',
+                      }}>
+                        <span style={{ color: '#6b8aaa' }}>Location:</span>
+                        <span style={{ color: '#c8daf0' }}>{event.location}</span>
                       </div>
                     )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Type:</span>
-                      <span className="text-gray-300 capitalize">{getEventTypeLabel(event.event_type)}</span>
-                    </div>
                   </div>
                   
                   {event.is_featured && (
-                    <div className="mt-2">
-                      <span className="text-xs text-yellow-400 bg-yellow-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        ⭐ Featured Event
+                    <div style={{ marginTop: '8px' }}>
+                      <span style={{
+                        fontSize: '10px',
+                        color: '#f5a623',
+                        background: 'rgba(245, 166, 35, 0.1)',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                      }}>
+                        Featured Event
                       </span>
                     </div>
                   )}
                   
                   <button 
-                    className="w-full mt-3 py-2 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/10 rounded-lg text-sm font-medium transition group-hover:bg-cyan-500/10"
+                    style={{
+                      width: '100%',
+                      marginTop: '12px',
+                      padding: '8px',
+                      color: '#f5a623',
+                      border: '1px solid rgba(245, 166, 35, 0.3)',
+                      background: 'transparent',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(245, 166, 35, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedEvent(event);
@@ -314,91 +560,221 @@ const AllEvents = () => {
 
       {/* Event Details Modal */}
       {showEventModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gray-900/95 backdrop-blur-sm px-6 py-4 border-b border-gray-800 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">{getEventTypeIcon(selectedEvent.event_type)}</span>
-                <h2 className="text-xl font-bold text-white">{selectedEvent.title}</h2>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '672px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+          }}>
+            <div style={{
+              position: 'sticky',
+              top: 0,
+              background: 'rgba(10, 22, 40, 0.95)',
+              backdropFilter: 'blur(8px)',
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <div>
+                <h2 style={{
+                  fontSize: '20px',
+                  fontWeight: 700,
+                  color: '#eaf2ff',
+                  margin: 0,
+                }}>{selectedEvent.title}</h2>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '14px',
+                  marginTop: '4px',
+                }}>{getEventTypeLabel(selectedEvent.event_type)}</p>
               </div>
               <button
                 onClick={() => {
                   setShowEventModal(false);
                   setSelectedEvent(null);
                 }}
-                className="text-gray-400 hover:text-white transition"
+                style={{
+                  color: '#6b8aaa',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#eaf2ff'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div style={{ padding: '24px' }}>
               {/* Status Badge */}
-              <div className="flex items-center gap-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getEventStatus(selectedEvent).color}`}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                marginBottom: '16px',
+              }}>
+                <span style={{
+                  padding: '4px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  border: '1px solid',
+                  background: getEventStatus(selectedEvent).color.bg,
+                  color: getEventStatus(selectedEvent).color.color,
+                  borderColor: getEventStatus(selectedEvent).color.border,
+                }}>
                   {getEventStatus(selectedEvent).label}
                 </span>
                 {selectedEvent.is_featured && (
-                  <span className="text-sm text-yellow-400 bg-yellow-500/20 px-3 py-1 rounded-full flex items-center gap-1">
-                    ⭐ Featured
+                  <span style={{
+                    fontSize: '14px',
+                    color: '#f5a623',
+                    background: 'rgba(245, 166, 35, 0.1)',
+                    padding: '4px 12px',
+                    borderRadius: '9999px',
+                  }}>
+                    Featured
                   </span>
                 )}
-                <span className="text-sm text-gray-400">
-                  {getEventTypeLabel(selectedEvent.event_type)}
-                </span>
               </div>
 
               {/* Description */}
-              <div className="bg-gray-800/30 rounded-xl p-4">
-                <p className="text-gray-300">{selectedEvent.description}</p>
+              <div style={{
+                background: 'rgba(18, 36, 72, 0.3)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <p style={{ color: '#c8daf0', margin: 0 }}>{selectedEvent.description}</p>
               </div>
 
               {/* Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-800/30 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Start Date</p>
-                  <p className="text-white font-medium">{formatDate(selectedEvent.start_date)}</p>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+              }}>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>Start Date</p>
+                  <p style={{ color: '#eaf2ff', fontWeight: 500, margin: 0 }}>{formatDate(selectedEvent.start_date)}</p>
                 </div>
-                <div className="bg-gray-800/30 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">End Date</p>
-                  <p className="text-white font-medium">{formatDate(selectedEvent.end_date)}</p>
+                <div style={{
+                  background: 'rgba(18, 36, 72, 0.3)',
+                  borderRadius: '12px',
+                  padding: '16px',
+                }}>
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    margin: '0 0 4px 0',
+                  }}>End Date</p>
+                  <p style={{ color: '#eaf2ff', fontWeight: 500, margin: 0 }}>{formatDate(selectedEvent.end_date)}</p>
                 </div>
                 {selectedEvent.location && (
-                  <div className="bg-gray-800/30 rounded-xl p-4 md:col-span-2">
-                    <p className="text-gray-500 text-xs uppercase tracking-wide">📍 Location</p>
-                    <p className="text-white font-medium">{selectedEvent.location}</p>
+                  <div style={{
+                    background: 'rgba(18, 36, 72, 0.3)',
+                    borderRadius: '12px',
+                    padding: '16px',
+                    gridColumn: '1 / -1',
+                  }}>
+                    <p style={{
+                      color: '#6b8aaa',
+                      fontSize: '10px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                      margin: '0 0 4px 0',
+                    }}>Location</p>
+                    <p style={{ color: '#eaf2ff', fontWeight: 500, margin: 0 }}>{selectedEvent.location}</p>
                   </div>
                 )}
-                <div className="bg-gray-800/30 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Type</p>
-                  <p className="text-white font-medium capitalize">{getEventTypeLabel(selectedEvent.event_type)}</p>
-                </div>
-                <div className="bg-gray-800/30 rounded-xl p-4">
-                  <p className="text-gray-500 text-xs uppercase tracking-wide">Status</p>
-                  <p className="text-white font-medium">{getEventStatus(selectedEvent).label}</p>
-                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-gray-800">
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                paddingTop: '16px',
+                marginTop: '16px',
+                borderTop: '1px solid #1a3050',
+              }}>
                 <button
                   onClick={() => {
                     setShowEventModal(false);
                     setSelectedEvent(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition"
+                  style={{
+                    flex: 1,
+                    padding: '8px 16px',
+                    background: 'rgba(18, 36, 72, 0.5)',
+                    color: '#c8daf0',
+                    fontWeight: 500,
+                    borderRadius: '8px',
+                    border: '1px solid #1a3050',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                  }}
                 >
                   Close
                 </button>
                 {getEventStatus(selectedEvent).label !== 'Past' && (
                   <button
                     onClick={() => {
-                      // You can add "Add to Calendar" functionality here
-                      alert(`📅 Event: ${selectedEvent.title}\n📅 Date: ${formatDate(selectedEvent.start_date)}\n📍 Location: ${selectedEvent.location || 'TBD'}`);
+                      alert(`Event: ${selectedEvent.title}\nDate: ${formatDate(selectedEvent.start_date)}\nLocation: ${selectedEvent.location || 'TBD'}`);
                     }}
-                    className="flex-1 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+                    style={{
+                      flex: 1,
+                      padding: '8px 16px',
+                      background: '#f5a623',
+                      color: '#0a1628',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#e09515';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#f5a623';
+                    }}
                   >
                     Add to Calendar +
                   </button>
@@ -408,6 +784,14 @@ const AllEvents = () => {
           </div>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

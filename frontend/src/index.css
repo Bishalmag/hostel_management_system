@@ -1,1 +1,446 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #050d1a;
+  color: #c8daf0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a1628;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f5a623;
+  border-radius: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: #f5a623;
+  color: #050d1a;
+}
+
+.text-heading {
+  color: #eaf2ff;
+}
+
+.text-body {
+  color: #c8daf0;
+}
+
+.text-dim {
+  color: #6b8aaa;
+}
+
+.text-faint {
+  color: #3a5070;
+}
+
+.bg-primary {
+  background: #050d1a;
+}
+
+.bg-mid {
+  background: #0a1628;
+}
+
+.bg-light {
+  background: #0f2040;
+}
+
+.bg-hover {
+  background: #122448;
+}
+
+.border-default {
+  border-color: #1a3050;
+}
+
+.border-highlight {
+  border-color: #2a4870;
+}
+
+.text-amber {
+  color: #f5a623;
+}
+
+.text-amber-dim {
+  color: #c47d0e;
+}
+
+.bg-amber {
+  background: #f5a623;
+}
+
+.bg-amber-dim {
+  background: #c47d0e;
+}
+
+.bg-amber-glow {
+  background: #f5a62322;
+}
+
+.text-teal {
+  color: #1ddba8;
+}
+
+.bg-teal {
+  background: #1ddba8;
+}
+
+.bg-teal-glow {
+  background: #1ddba820;
+}
+
+.text-violet {
+  color: #a78bfa;
+}
+
+.bg-violet {
+  background: #a78bfa;
+}
+
+.bg-violet-glow {
+  background: #a78bfa18;
+}
+
+.text-success {
+  color: #1ddba8;
+}
+
+.text-warning {
+  color: #f5a623;
+}
+
+.text-danger {
+  color: #f87171;
+}
+
+.rounded-sm {
+  border-radius: 2px;
+}
+
+.rounded-md {
+  border-radius: 4px;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+.transition-fast {
+  transition: all 0.15s ease;
+}
+
+.transition-normal {
+  transition: all 0.25s ease;
+}
+
+.transition-slow {
+  transition: all 0.4s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-40px);
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes gridFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.06;
+  }
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 #f5a62300;
+  }
+  50% {
+    box-shadow: 0 0 16px 2px #f5a62322;
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% auto;
+}
+
+.animate-border-glow {
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+.animate-count-up {
+  animation: countUp 0.6s ease forwards;
+}
+
+.card {
+  background: #0a1628;
+  border: 1px solid #1a3050;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  border-color: #2a4870;
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.05);
+}
+
+.btn-amber {
+  background: #f5a623;
+  color: #050d1a;
+  font-weight: 600;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-amber:hover {
+  background: #c47d0e;
+  transform: translateY(-1px);
+}
+
+.btn-amber:active {
+  transform: translateY(0);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #c8daf0;
+  font-weight: 500;
+  padding: 0.5rem 1.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  border: 1px solid #1a3050;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  border-color: #f5a623;
+  color: #f5a623;
+}
+
+.input-dark {
+  background: #0a1628;
+  border: 1px solid #1a3050;
+  color: #eaf2ff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.input-dark:focus {
+  outline: none;
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+}
+
+.input-dark::placeholder {
+  color: #3a5070;
+}
+
+.badge-amber {
+  background: #f5a62322;
+  color: #f5a623;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-teal {
+  background: #1ddba820;
+  color: #1ddba8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge-violet {
+  background: #a78bfa18;
+  color: #a78bfa;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.glass {
+  background: rgba(10, 22, 40, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(26, 48, 80, 0.5);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #f5a623, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-amber {
+  box-shadow: 0 0 30px rgba(245, 166, 35, 0.15);
+}
+
+.glow-teal {
+  box-shadow: 0 0 30px rgba(29, 219, 168, 0.15);
+}
+
+@media (max-width: 640px) {
+  .hide-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hide-table {
+    display: none;
+  }
+}
+
+@media (min-width: 1025px) {
+  .hide-desktop {
+    display: none;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

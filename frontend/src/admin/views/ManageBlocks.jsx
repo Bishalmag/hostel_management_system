@@ -7,7 +7,7 @@ const ManageBlocks = () => {
   const [searchParams] = useSearchParams();
   const hostelId = searchParams.get('hostel');
 
-  const [blocks,  setBlocks]  = useState([]);
+  const [blocks, setBlocks] = useState([]);
   const [hostels, setHostels] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,51 +37,187 @@ const ManageBlocks = () => {
   };
 
   const handleEdit = (id) => {
-    console.log('Navigating to edit block:', id);
     navigate(`/admin/blocks/edit/${id}`);
   };
 
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading blocks...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Blocks & Floors</h1>
-        <button onClick={() => navigate('/admin/blocks/add')}
-          className="px-4 py-2 text-sm bg-purple-500 hover:bg-purple-400 text-white rounded-lg transition">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Blocks & Floors</h1>
+        <button
+          onClick={() => navigate('/admin/blocks/add')}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            background: '#a78bfa',
+            color: '#0a1628',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+            fontWeight: 500,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#8b5cf6';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#a78bfa';
+          }}
+        >
           + Add Block
         </button>
       </div>
 
-      {loading ? <div className="text-gray-500 text-center py-10">Loading...</div> : (
-        <div className="space-y-3">
-          {filtered.map(block => (
-            <div key={block.id} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-              <div className="flex items-center justify-between">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+      }}>
+        {filtered.map(block => {
+          const hostelName = hostels.find(h => h.id === block.hostel)?.name ?? block.hostel;
+          return (
+            <div
+              key={block.id}
+              style={{
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '12px',
+                padding: '20px',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#2a4870';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
                 <div>
-                  <h3 className="font-semibold text-white">{block.name}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Hostel: {hostels.find(h => h.id === block.hostel)?.name ?? block.hostel}
+                  <h3 style={{
+                    fontWeight: 600,
+                    color: '#eaf2ff',
+                    margin: 0,
+                    fontSize: '16px',
+                  }}>{block.name}</h3>
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    marginTop: '2px',
+                    marginBottom: 0,
+                  }}>
+                    Hostel: {hostelName}
                   </p>
                 </div>
-                <div className="flex gap-2">
-                  <button 
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                }}>
+                  <button
                     onClick={() => handleEdit(block.id)}
-                    className="px-3 py-1.5 text-xs bg-blue-500/20 text-blue-400 rounded-lg border border-blue-500/30 hover:bg-blue-500/30 transition"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      background: 'rgba(96, 165, 250, 0.2)',
+                      color: '#60a5fa',
+                      border: '1px solid rgba(96, 165, 250, 0.3)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(96, 165, 250, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)';
+                    }}
                   >
                     Edit
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(block.id)}
-                    className="px-3 py-1.5 text-xs bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      background: 'rgba(248, 113, 113, 0.2)',
+                      color: '#f87171',
+                      border: '1px solid rgba(248, 113, 113, 0.3)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                    }}
                   >
                     Delete
                   </button>
                 </div>
               </div>
             </div>
-          ))}
-          {filtered.length === 0 && <p className="text-gray-600 text-center py-10">No blocks found.</p>}
-        </div>
-      )}
+          );
+        })}
+        {filtered.length === 0 && (
+          <p style={{
+            color: '#3a5070',
+            textAlign: 'center',
+            padding: '40px 0',
+            margin: 0,
+          }}>No blocks found.</p>
+        )}
+      </div>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

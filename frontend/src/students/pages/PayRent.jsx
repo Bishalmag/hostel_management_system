@@ -16,6 +16,18 @@ const PayRent = () => {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
+
   useEffect(() => {
     fetchPaymentData();
   }, [user]);
@@ -25,7 +37,6 @@ const PayRent = () => {
       setLoading(true);
       setError(null);
 
-      // Get student profile
       const studentRes = await api.get('/students/');
       const students = studentRes.data.results || studentRes.data;
       const currentStudent = students.find(s => s.user === user?.id);
@@ -36,18 +47,14 @@ const PayRent = () => {
         return;
       }
 
-      // Get payments for this student
       const paymentsRes = await api.get(`/bookings/payments/`);
       const allPayments = paymentsRes.data.results || paymentsRes.data;
       
-      // Filter payments for current student
       const studentPayments = allPayments.filter(p => p.student === currentStudent.id);
       
-      // Separate paid and unpaid
       const unpaid = studentPayments.filter(p => p.paid_status === 'pending' || p.paid_status === 'overdue');
       const paid = studentPayments.filter(p => p.paid_status === 'paid');
 
-      // Fetch booking and room details for each paid payment
       const paidWithDetails = await Promise.all(
         paid.map(async (payment) => {
           try {
@@ -63,7 +70,6 @@ const PayRent = () => {
                 const room = roomRes.data;
                 roomNumber = room.room_number;
                 
-                // Get floor and block details for hostel name
                 const floorRes = await api.get(`/hostel/floors/${room.floor}/`);
                 const floor = floorRes.data;
                 const blockRes = await api.get(`/hostel/blocks/${floor.block}/`);
@@ -117,131 +123,252 @@ const PayRent = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  const formatPrice = (price) => {
-    if (!price) return 'N/A';
-    return new Intl.NumberFormat('en-NP', {
-      style: 'currency',
-      currency: 'NPR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
   const getStatusBadge = (status) => {
     const colors = {
-      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      paid: 'bg-green-500/20 text-green-400 border-green-500/30',
-      overdue: 'bg-red-500/20 text-red-400 border-red-500/30',
-      failed: 'bg-red-500/20 text-red-400 border-red-500/30',
+      pending: 'rgba(245, 166, 35, 0.1)',
+      paid: 'rgba(29, 219, 168, 0.1)',
+      overdue: 'rgba(248, 113, 113, 0.1)',
+      failed: 'rgba(248, 113, 113, 0.1)',
     };
-    return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    return colors[status] || 'rgba(107, 114, 128, 0.1)';
+  };
+
+  const getStatusTextColor = (status) => {
+    const colors = {
+      pending: '#f5a623',
+      paid: '#1ddba8',
+      overdue: '#f87171',
+      failed: '#f87171',
+    };
+    return colors[status] || '#6b8aaa';
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'paid': return '✅';
-      case 'pending': return '⏳';
-      case 'overdue': return '⚠️';
-      case 'failed': return '❌';
+      case 'paid': return '';
+      case 'pending': return '';
+      case 'overdue': return '';
+      case 'failed': return '';
       default: return '📋';
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading payment information...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading payment information...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Pay Rent</h1>
-        <p className="text-gray-400 mt-1">View and pay your hostel rent</p>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Pay Rent</h1>
+        <p style={{ color: '#6b8aaa', marginTop: '4px' }}>View and pay your hostel rent</p>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-red-400">
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '16px',
+          color: '#f87171',
+          marginBottom: '16px',
+        }}>
           {error}
         </div>
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-sm">Total Payments</p>
-          <p className="text-2xl font-bold text-white mt-1">{payments.length}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '16px',
+        marginBottom: '24px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Total Payments</p>
+          <p style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', marginTop: '4px' }}>{payments.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-sm">Pending Payments</p>
-          <p className="text-2xl font-bold text-yellow-400 mt-1">{unpaidPayments.length}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Pending Payments</p>
+          <p style={{ fontSize: '24px', fontWeight: 700, color: '#f5a623', marginTop: '4px' }}>{unpaidPayments.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-sm">Paid Payments</p>
-          <p className="text-2xl font-bold text-green-400 mt-1">{paidPayments.length}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Paid Payments</p>
+          <p style={{ fontSize: '24px', fontWeight: 700, color: '#1ddba8', marginTop: '4px' }}>{paidPayments.length}</p>
         </div>
       </div>
 
       {/* Unpaid Payments Section */}
       {unpaidPayments.length > 0 && (
-        <div>
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-red-400">⚠️</span> Pending Payments
-            <span className="text-sm text-gray-400 font-normal ml-2">
+        <div style={{ marginBottom: '32px' }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <span style={{ color: '#f87171' }}></span> Pending Payments
+            <span style={{ fontSize: '14px', color: '#6b8aaa', fontWeight: 400, marginLeft: '8px' }}>
               ({unpaidPayments.length} pending)
             </span>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '16px',
+          }}>
             {unpaidPayments.map((payment) => (
               <div
                 key={payment.id}
-                className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-500/30 transition-all"
+                style={{
+                  background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+                  border: '1px solid #1a3050',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+                <div style={{ padding: '24px' }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '16px',
+                  }}>
                     <div>
-                      <h3 className="text-white font-semibold">
+                      <h3 style={{ color: '#eaf2ff', fontWeight: 600, margin: 0 }}>
                         Payment #{payment.id}
                       </h3>
-                      <p className="text-gray-400 text-sm">
+                      <p style={{ color: '#6b8aaa', fontSize: '14px', marginTop: '4px' }}>
                         Due: {formatDate(payment.due_date)}
                       </p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium border flex items-center gap-1 ${getStatusBadge(payment.paid_status)}`}>
+                    <span style={{
+                      padding: '2px 12px',
+                      borderRadius: '9999px',
+                      fontSize: '10px',
+                      fontWeight: 500,
+                      border: '1px solid',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: getStatusBadge(payment.paid_status),
+                      color: getStatusTextColor(payment.paid_status),
+                      borderColor: getStatusBadge(payment.paid_status),
+                      textTransform: 'capitalize',
+                    }}>
                       {getStatusIcon(payment.paid_status)}
-                      <span className="capitalize">{payment.paid_status}</span>
+                      {payment.paid_status}
                     </span>
                   </div>
 
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Amount</span>
-                      <span className="text-white font-bold text-lg">{formatPrice(payment.amount)}</span>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '14px',
+                      padding: '4px 0',
+                    }}>
+                      <span style={{ color: '#6b8aaa' }}>Amount</span>
+                      <span style={{ color: '#eaf2ff', fontWeight: 700, fontSize: '18px' }}>{formatPrice(payment.amount)}</span>
                     </div>
                     {payment.booking_room && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Room</span>
-                        <span className="text-white">Room {payment.booking_room}</span>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        fontSize: '14px',
+                        padding: '4px 0',
+                      }}>
+                        <span style={{ color: '#6b8aaa' }}>Room</span>
+                        <span style={{ color: '#eaf2ff' }}>Room {payment.booking_room}</span>
                       </div>
                     )}
                     {payment.paid_status === 'overdue' && (
-                      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2 mt-2">
-                        <p className="text-red-400 text-xs">⚠️ This payment is overdue</p>
+                      <div style={{
+                        background: 'rgba(248, 113, 113, 0.1)',
+                        border: '1px solid rgba(248, 113, 113, 0.3)',
+                        borderRadius: '8px',
+                        padding: '8px',
+                        marginTop: '8px',
+                      }}>
+                        <p style={{ color: '#f87171', fontSize: '12px', margin: 0 }}> This payment is overdue</p>
                       </div>
                     )}
                   </div>
 
                   <button
                     onClick={() => handlePayNow(payment)}
-                    className="w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 flex items-center justify-center gap-2"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      background: 'linear-gradient(to right, #f5a623, #e09515)',
+                      color: '#0a1628',
+                      fontWeight: 600,
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 20px rgba(245, 166, 35, 0.3)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #e09515, #c47d0e)';
+                      e.currentTarget.style.boxShadow = '0 4px 30px rgba(245, 166, 35, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'linear-gradient(to right, #f5a623, #e09515)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.3)';
+                    }}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Pay Now
@@ -255,53 +382,115 @@ const PayRent = () => {
 
       {/* Paid Payments Section */}
       {paidPayments.length > 0 && (
-        <div className="mt-8">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <span className="text-green-400">✅</span> Payment History
-            <span className="text-sm text-gray-400 font-normal ml-2">
+        <div style={{ marginTop: '32px' }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            <span style={{ color: '#1ddba8' }}></span> Payment History
+            <span style={{ fontSize: '14px', color: '#6b8aaa', fontWeight: 400, marginLeft: '8px' }}>
               ({paidPayments.length} payments)
             </span>
           </h2>
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-800/50 border-b border-gray-800">
-                  <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                    <th className="px-5 py-4 text-left">Payment ID</th>
-                    <th className="px-5 py-4 text-left">Amount</th>
-                    <th className="px-5 py-4 text-left">Room</th>
-                    <th className="px-5 py-4 text-left">Paid On</th>
-                    <th className="px-5 py-4 text-left">Status</th>
-                    <th className="px-5 py-4 text-left">Receipt</th>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            overflow: 'hidden',
+          }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', fontSize: '14px', borderCollapse: 'collapse' }}>
+                <thead style={{
+                  background: 'rgba(18, 36, 72, 0.3)',
+                  borderBottom: '1px solid #1a3050',
+                }}>
+                  <tr style={{
+                    color: '#6b8aaa',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Payment ID</th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Amount</th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Room</th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Paid On</th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
+                    <th style={{ padding: '16px 20px', textAlign: 'left', fontWeight: 500 }}>Receipt</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody style={{ divideY: '1px solid #1a3050' }}>
                   {paidPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-800/30 transition">
-                      <td className="px-5 py-4">
-                        <p className="text-gray-400 text-xs font-mono">#{payment.id}</p>
+                    <tr key={payment.id} style={{
+                      borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                      transition: 'background 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{ color: '#6b8aaa', fontSize: '12px', fontFamily: 'monospace', margin: 0 }}>#{payment.id}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-white font-semibold">{formatPrice(payment.amount)}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{ color: '#eaf2ff', fontWeight: 600, margin: 0 }}>{formatPrice(payment.amount)}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-300">Room {payment.room_number || 'N/A'}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{ color: '#c8daf0', margin: 0 }}>Room {payment.room_number || 'N/A'}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-300 text-sm">{formatDate(payment.paid_at)}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{ color: '#c8daf0', fontSize: '14px', margin: 0 }}>{formatDate(payment.paid_at)}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border inline-flex items-center gap-1 ${getStatusBadge(payment.paid_status)}`}>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{
+                          padding: '2px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '10px',
+                          fontWeight: 500,
+                          border: '1px solid',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          background: getStatusBadge(payment.paid_status),
+                          color: getStatusTextColor(payment.paid_status),
+                          borderColor: getStatusBadge(payment.paid_status),
+                          textTransform: 'capitalize',
+                        }}>
                           {getStatusIcon(payment.paid_status)}
-                          <span className="capitalize">{payment.paid_status}</span>
+                          {payment.paid_status}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
+                      <td style={{ padding: '16px 20px' }}>
                         <button
                           onClick={() => handleViewReceipt(payment)}
-                          className="px-3 py-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 text-xs font-medium rounded-lg transition flex items-center gap-1"
+                          style={{
+                            padding: '6px 12px',
+                            background: 'rgba(245, 166, 35, 0.1)',
+                            color: '#f5a623',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            borderRadius: '8px',
+                            border: '1px solid rgba(245, 166, 35, 0.2)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 166, 35, 0.2)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(245, 166, 35, 0.1)';
+                          }}
                         >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg style={{ width: '12px', height: '12px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>
@@ -319,49 +508,109 @@ const PayRent = () => {
 
       {/* No Payments */}
       {payments.length === 0 && (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">💰</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Payment Records</h3>
-          <p className="text-gray-400">You don't have any payment records yet.</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}></div>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#eaf2ff', marginBottom: '8px' }}>No Payment Records</h3>
+          <p style={{ color: '#6b8aaa' }}>You don't have any payment records yet.</p>
         </div>
       )}
 
       {/* Payment Modal */}
       {showPaymentModal && selectedPayment && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">Confirm Payment</h2>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '448px',
+            width: '100%',
+            padding: '24px',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '16px',
+            }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Confirm Payment</h2>
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="text-gray-400 hover:text-white transition"
+                style={{
+                  color: '#6b8aaa',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'color 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#eaf2ff'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-gray-800/50 rounded-xl p-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-400">Payment Amount</span>
-                  <span className="text-2xl font-bold text-cyan-400">{formatPrice(selectedPayment.amount)}</span>
+            <div>
+              <div style={{
+                background: 'rgba(18, 36, 72, 0.5)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '8px',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Payment Amount</span>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: '#f5a623' }}>{formatPrice(selectedPayment.amount)}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Due Date</span>
-                  <span className="text-white">{formatDate(selectedPayment.due_date)}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontSize: '14px',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Due Date</span>
+                  <span style={{ color: '#eaf2ff' }}>{formatDate(selectedPayment.due_date)}</span>
                 </div>
                 {selectedPayment.booking_room && (
-                  <div className="flex justify-between text-sm mt-1">
-                    <span className="text-gray-400">Room</span>
-                    <span className="text-white">Room {selectedPayment.booking_room}</span>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: '14px',
+                    marginTop: '4px',
+                  }}>
+                    <span style={{ color: '#6b8aaa' }}>Room</span>
+                    <span style={{ color: '#eaf2ff' }}>Room {selectedPayment.booking_room}</span>
                   </div>
                 )}
               </div>
 
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-                <p className="text-sm text-gray-400 text-center">
+              <div style={{
+                background: 'rgba(245, 166, 35, 0.05)',
+                border: '1px solid rgba(245, 166, 35, 0.2)',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '16px',
+              }}>
+                <p style={{ fontSize: '14px', color: '#6b8aaa', textAlign: 'center', margin: 0 }}>
                   You will be redirected to eSewa to complete the payment
                 </p>
               </div>
@@ -374,7 +623,24 @@ const PayRent = () => {
 
               <button
                 onClick={() => setShowPaymentModal(false)}
-                className="w-full py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  background: 'rgba(18, 36, 72, 0.5)',
+                  color: '#c8daf0',
+                  fontWeight: 500,
+                  borderRadius: '8px',
+                  border: '1px solid #1a3050',
+                  cursor: 'pointer',
+                  marginTop: '8px',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                }}
               >
                 Cancel
               </button>
@@ -382,6 +648,14 @@ const PayRent = () => {
           </div>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

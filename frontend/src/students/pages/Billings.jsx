@@ -3,7 +3,7 @@ import api from '../../api/axios';
 
 const Billings = () => {
   const [payments, setPayments] = useState([]);
-  const [loading,  setLoading]  = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api.get('/bookings/payments/')
@@ -12,54 +12,172 @@ const Billings = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const total   = payments.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
-  const paid    = payments.filter(p => p.paid_status === 'paid').reduce((s, p) => s + parseFloat(p.amount || 0), 0);
+  const total = payments.reduce((s, p) => s + parseFloat(p.amount || 0), 0);
+  const paid = payments.filter(p => p.paid_status === 'paid').reduce((s, p) => s + parseFloat(p.amount || 0), 0);
   const pending = payments.filter(p => p.paid_status === 'pending').reduce((s, p) => s + parseFloat(p.amount || 0), 0);
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-white">Billings</h1>
+  // Helper function to format Nepali Rupees
+  const formatNPR = (amount) => {
+    if (!amount && amount !== 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',  // Must be 'NPR', not 'Rs.'
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+    return formatted.replace('NPR', 'Rs.');
+  };
 
-      {/* Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <h1 style={{
+        fontSize: '24px',
+        fontWeight: 700,
+        color: '#eaf2ff',
+        margin: 0,
+      }}>Billings</h1>
+
+      {/* Summary Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: '16px',
+      }}>
         {[
-          { label: 'Total Billed',   value: `₹${total.toLocaleString()}`,   color: 'text-white' },
-          { label: 'Paid',           value: `₹${paid.toLocaleString()}`,    color: 'text-green-400' },
-          { label: 'Pending',        value: `₹${pending.toLocaleString()}`, color: 'text-yellow-400' },
+          { label: 'Total Billed', value: formatNPR(total), color: '#eaf2ff' },
+          { label: 'Paid', value: formatNPR(paid), color: '#1ddba8' },
+          { label: 'Pending', value: formatNPR(pending), color: '#f5a623' },
         ].map(s => (
-          <div key={s.label} className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">{s.label}</p>
-            <p className={`text-2xl font-bold font-mono ${s.color}`}>{s.value}</p>
+          <div key={s.label} style={{
+            background: '#0a1628',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '20px',
+          }}>
+            <p style={{
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              margin: '0 0 4px 0',
+            }}>{s.label}</p>
+            <p style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              color: s.color,
+              margin: 0,
+            }}>{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      {loading ? <div className="text-gray-500 text-center py-10">Loading...</div> : (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+      {loading ? (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 0',
+          color: '#6b8aaa',
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              border: '3px solid #1a3050',
+              borderTop: '3px solid #f5a623',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 12px',
+            }} />
+            <p style={{ fontSize: '14px', color: '#6b8aaa', margin: 0 }}>Loading...</p>
+          </div>
+        </div>
+      ) : (
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <table style={{
+            width: '100%',
+            fontSize: '14px',
+            borderCollapse: 'collapse',
+          }}>
             <thead>
-              <tr className="border-b border-gray-800 text-gray-500 text-xs uppercase tracking-wide">
-                <th className="px-5 py-3 text-left">#</th>
-                <th className="px-5 py-3 text-left">Amount</th>
-                <th className="px-5 py-3 text-left">Due Date</th>
-                <th className="px-5 py-3 text-left">Status</th>
+              <tr style={{
+                borderBottom: '1px solid #1a3050',
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>#</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Amount</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Due Date</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500 }}>Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody>
               {payments.length === 0 ? (
-                <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-600">No billing records.</td></tr>
+                <tr>
+                  <td colSpan={4} style={{
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    color: '#3a5070',
+                  }}>No billing records.</td>
+                </tr>
               ) : payments.map(p => (
-                <tr key={p.id} className="hover:bg-gray-800/50">
-                  <td className="px-5 py-3 text-gray-400 font-mono">#{p.id}</td>
-                  <td className="px-5 py-3 text-white font-mono">₹{p.amount}</td>
-                  <td className="px-5 py-3 text-gray-400">{p.due_date}</td>
-                  <td className="px-5 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full border ${
-                      p.paid_status === 'paid'    ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                      p.paid_status === 'overdue' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
-                                                    'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
-                    }`}>{p.paid_status}</span>
+                <tr key={p.id} style={{
+                  borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#6b8aaa',
+                    fontFamily: 'monospace',
+                  }}>#{p.id}</td>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#eaf2ff',
+                    fontFamily: 'monospace',
+                  }}>{formatNPR(p.amount)}</td>
+                  <td style={{
+                    padding: '12px 20px',
+                    color: '#6b8aaa',
+                  }}>{p.due_date}</td>
+                  <td style={{ padding: '12px 20px' }}>
+                    <span style={{
+                      fontSize: '10px',
+                      padding: '2px 12px',
+                      borderRadius: '9999px',
+                      border: '1px solid',
+                      background: p.paid_status === 'paid' 
+                        ? 'rgba(29, 219, 168, 0.1)' 
+                        : p.paid_status === 'overdue' 
+                        ? 'rgba(248, 113, 113, 0.1)' 
+                        : 'rgba(245, 166, 35, 0.1)',
+                      color: p.paid_status === 'paid' 
+                        ? '#1ddba8' 
+                        : p.paid_status === 'overdue' 
+                        ? '#f87171' 
+                        : '#f5a623',
+                      borderColor: p.paid_status === 'paid' 
+                        ? 'rgba(29, 219, 168, 0.3)' 
+                        : p.paid_status === 'overdue' 
+                        ? 'rgba(248, 113, 113, 0.3)' 
+                        : 'rgba(245, 166, 35, 0.3)',
+                    }}>
+                      {p.paid_status}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -67,6 +185,14 @@ const Billings = () => {
           </table>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

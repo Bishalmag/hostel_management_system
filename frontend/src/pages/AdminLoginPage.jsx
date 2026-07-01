@@ -7,9 +7,9 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [formData,     setFormData]     = useState({ email: '', password: '' });
-  const [loading,      setLoading]      = useState(false);
-  const [error,        setError]        = useState('');
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -29,7 +29,6 @@ const AdminLogin = () => {
       const { data } = await loginUser(formData.email, formData.password);
       const role = data.user?.role?.name ?? '';
 
-      // Only allow admin roles
       if (!['Super Admin', 'Hostel Admin'].includes(role)) {
         setError('Access denied. Admin accounts only.');
         return;
@@ -46,54 +45,104 @@ const AdminLogin = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
-        background: `linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2))`
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(135deg, #050d1a, #0a1628)',
       }}
     >
-
       {/* Glow Effects */}
       <div
-        className="absolute w-[600px] h-[600px] blur-[140px] rounded-full top-[-150px] left-[-150px]"
-        style={{ background: "var(--glow-yellow)" }}
+        style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          filter: 'blur(140px)',
+          borderRadius: '50%',
+          top: '-150px',
+          left: '-150px',
+          background: 'rgba(245, 166, 35, 0.15)',
+        }}
       />
       <div
-        className="absolute w-[600px] h-[600px] blur-[140px] rounded-full bottom-[-150px] right-[-150px]"
-        style={{ background: "var(--glow-blue)" }}
+        style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          filter: 'blur(140px)',
+          borderRadius: '50%',
+          bottom: '-150px',
+          right: '-150px',
+          background: 'rgba(59, 130, 246, 0.15)',
+        }}
       />
 
-      <div className="relative z-10 w-full max-w-md">
-
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        width: '100%',
+        maxWidth: '448px',
+      }}>
         {/* Back Button */}
         <Link
           to="/"
-          className="inline-flex items-center mb-6 transition-colors"
-          style={{ color: "var(--text-primary)" }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            marginBottom: '24px',
+            color: '#eaf2ff',
+            textDecoration: 'none',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#f5a623';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#eaf2ff';
+          }}
         >
           ← Back to Portal
         </Link>
 
         {/* Card */}
         <div
-          className="backdrop-blur-xl rounded-2xl shadow-2xl p-8"
           style={{
-            background: "var(--card-bg)",
-            border: "1px solid var(--card-border)"
+            backdropFilter: 'blur(12px)',
+            borderRadius: '16px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+            padding: '32px',
+            background: 'rgba(10, 22, 40, 0.8)',
+            border: '1px solid #1a3050',
           }}
         >
-
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="text-5xl mb-4">🏢</div>
-
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '32px',
+          }}>
+            <div style={{
+              fontSize: '48px',
+              marginBottom: '16px',
+              color: '#eaf2ff',
+            }}>◆</div>
             <h1
-              className="text-4xl font-bold mb-2"
-              style={{ color: "var(--text-primary)" }}
+              style={{
+                fontSize: '36px',
+                fontWeight: 700,
+                marginBottom: '8px',
+                color: '#eaf2ff',
+              }}
             >
               Admin Login
             </h1>
-
-            <p style={{ color: "var(--text-secondary)" }}>
+            <p style={{
+              color: '#6b8aaa',
+            }}>
               Hostel Management System
             </p>
           </div>
@@ -101,11 +150,13 @@ const AdminLogin = () => {
           {/* Error */}
           {error && (
             <div
-              className="px-4 py-3 rounded-lg mb-6 border"
               style={{
-                background: "rgba(239, 68, 68, 0.15)",
-                borderColor: "var(--accent-danger)",
-                color: "#fecaca"
+                padding: '12px 16px',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                border: '1px solid #dc2626',
+                background: 'rgba(220, 38, 38, 0.15)',
+                color: '#fca5a5',
               }}
             >
               {error}
@@ -113,71 +164,119 @@ const AdminLogin = () => {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-
+          <form onSubmit={handleSubmit}>
             {/* Email */}
-            <div>
+            <div style={{ marginBottom: '24px' }}>
               <label
-                className="block text-sm mb-2"
-                style={{ color: "var(--text-secondary)" }}
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  marginBottom: '8px',
+                  color: '#6b8aaa',
+                }}
               >
                 Email Address
               </label>
-
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="admin@hostel.com"
-                className="w-full px-4 py-3 rounded-lg outline-none transition"
                 style={{
-                  background: "rgba(255,255,255,0.08)",
-                  border: "1px solid var(--card-border)",
-                  color: "white"
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid #1a3050',
+                  color: '#eaf2ff',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
                 }}
               />
             </div>
 
             {/* Password */}
-            <div>
+            <div style={{ marginBottom: '24px' }}>
               <label
-                className="block text-sm mb-2"
-                style={{ color: "var(--text-secondary)" }}
+                style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  marginBottom: '8px',
+                  color: '#6b8aaa',
+                }}
               >
                 Password
               </label>
-
-              <div className="relative">
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-lg outline-none pr-12"
                   style={{
-                    background: "rgba(255,255,255,0.08)",
-                    border: "1px solid var(--card-border)",
-                    color: "white"
+                    width: '100%',
+                    padding: '12px 16px',
+                    paddingRight: '48px',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid #1a3050',
+                    color: '#eaf2ff',
+                    boxSizing: 'border-box',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#1a3050';
                   }}
                 />
-
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3"
-                  style={{ color: "var(--text-muted)" }}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#3a5070',
+                    fontSize: '18px',
+                  }}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? '◉' : '○'}
                 </button>
               </div>
             </div>
 
             {/* Remember */}
-            <div className="flex items-center gap-2">
-              <input type="checkbox" />
-              <span style={{ color: "var(--text-secondary)" }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '24px',
+            }}>
+              <input
+                type="checkbox"
+                style={{
+                  accentColor: '#f5a623',
+                  width: '16px',
+                  height: '16px',
+                }}
+              />
+              <span style={{ color: '#6b8aaa' }}>
                 Remember me
               </span>
             </div>
@@ -186,10 +285,27 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-lg font-bold transition active:scale-95"
               style={{
-                background: `linear-gradient(90deg, var(--accent-primary), #eab308)`,
-                color: "#000"
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                fontWeight: 700,
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                background: loading ? '#3a5070' : 'linear-gradient(90deg, #f5a623, #c47d0e)',
+                color: loading ? '#6b8aaa' : '#0a1628',
+                opacity: loading ? 0.5 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(90deg, #e09515, #b06d0a)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.background = 'linear-gradient(90deg, #f5a623, #c47d0e)';
+                }
               }}
             >
               {loading ? "Logging in..." : "Login as Admin"}
@@ -197,16 +313,27 @@ const AdminLogin = () => {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
+          <div style={{
+            marginTop: '24px',
+            textAlign: 'center',
+          }}>
             <Link
               to="/login"
-              style={{ color: "var(--accent-primary)" }}
-              className="hover:opacity-80"
+              style={{
+                color: '#f5a623',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.8';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
             >
               User Login Instead
             </Link>
           </div>
-
         </div>
       </div>
     </div>

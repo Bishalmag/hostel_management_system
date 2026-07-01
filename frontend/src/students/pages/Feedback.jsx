@@ -65,14 +65,12 @@ const Feedback = () => {
     
     try {
       if (existingFeedback) {
-        // Update existing feedback
         await api.put(`/feedback/${existingFeedback.id}/`, {
           rating: form.rating,
           comment: form.comment,
         });
         setMessage({ type: 'success', text: 'Feedback updated successfully! Thank you for your input.' });
       } else {
-        // Create new feedback
         await api.post('/feedback/', {
           rating: form.rating,
           comment: form.comment,
@@ -92,46 +90,63 @@ const Feedback = () => {
     }
   };
 
-  const renderStars = () => {
-    const stars = [];
-    const currentRating = hoverRating || form.rating;
-    
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <button
-          key={i}
-          type="button"
-          onClick={() => handleRatingClick(i)}
-          onMouseEnter={() => setHoverRating(i)}
-          onMouseLeave={() => setHoverRating(0)}
-          className="focus:outline-none transition-transform hover:scale-110"
+ const renderStars = () => {
+  const stars = [];
+  const currentRating = hoverRating || form.rating;
+  
+  for (let i = 1; i <= 5; i++) {
+    stars.push(
+      <button
+        key={i}
+        type="button"
+        onClick={() => handleRatingClick(i)}
+        onMouseEnter={() => setHoverRating(i)}
+        onMouseLeave={() => setHoverRating(0)}
+        style={{
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'transform 0.2s ease',
+          padding: 0,
+          transform: 'scale(1)',
+        }}
+      >
+        <svg
+          style={{
+            width: '40px',
+            height: '40px',
+            color: i <= currentRating ? '#f5a623' : '#1a3050',
+            fill: 'currentColor',
+            transition: 'color 0.2s ease',
+          }}
+          viewBox="0 0 24 24"
         >
-          <svg
-            className={`w-10 h-10 md:w-12 md:h-12 ${
-              i <= currentRating ? 'text-yellow-400' : 'text-gray-600'
-            } fill-current transition-colors`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-            />
-          </svg>
-        </button>
-      );
-    }
-    return stars;
-  };
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+          />
+        </svg>
+      </button>
+    );
+  }
+  return stars;
+};
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center text-gray-400 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
           Loading...
         </div>
       </div>
@@ -139,62 +154,85 @@ const Feedback = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-cyan-500/20 rounded-xl">
-          <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-          </svg>
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold text-white">
-            {existingFeedback ? 'Update Your Feedback' : 'Share Your Feedback'}
-          </h1>
-          <p className="text-gray-400 mt-1">
-            {existingFeedback 
-              ? 'Thank you for updating your feedback. We value your opinion!' 
-              : 'Your feedback helps us improve our services. Please share your experience.'}
-          </p>
-        </div>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>
+          {existingFeedback ? 'Update Your Feedback' : 'Share Your Feedback'}
+        </h1>
+        <p style={{
+          color: '#6b8aaa',
+          marginTop: '4px',
+        }}>
+          {existingFeedback 
+            ? 'Thank you for updating your feedback. We value your opinion!' 
+            : 'Your feedback helps us improve our services. Please share your experience.'}
+        </p>
       </div>
 
       {/* Message Alert */}
       {message.text && (
         <div
-          className={`px-4 py-3 rounded-lg text-sm border ${
-            message.type === 'success'
-              ? 'bg-green-500/10 text-green-400 border-green-500/30'
-              : 'bg-red-500/10 text-red-400 border-red-500/30'
-          }`}
+          style={{
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '14px',
+            border: '1px solid',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.1)' 
+              : 'rgba(248, 113, 113, 0.1)',
+            color: message.type === 'success' 
+              ? '#1ddba8' 
+              : '#f87171',
+            borderColor: message.type === 'success' 
+              ? 'rgba(29, 219, 168, 0.3)' 
+              : 'rgba(248, 113, 113, 0.3)',
+          }}
         >
-          <div className="flex items-center gap-2">
-            {message.type === 'success' ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            )}
-            {message.text}
-          </div>
+          {message.text}
         </div>
       )}
 
       {/* Feedback Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8 space-y-8">
+      <form onSubmit={handleSubmit}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '32px',
+          marginBottom: '24px',
+        }}>
           {/* Rating Section */}
-          <div className="text-center">
-            <label className="block text-sm text-gray-400 mb-4">
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              color: '#6b8aaa',
+              marginBottom: '16px',
+            }}>
               How would you rate your experience?
             </label>
-            <div className="flex justify-center gap-2 md:gap-3">
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '8px',
+            }}>
               {renderStars()}
             </div>
-            <p className="text-xs text-gray-500 mt-3">
+            <p style={{
+              fontSize: '12px',
+              color: '#3a5070',
+              marginTop: '12px',
+            }}>
               {form.rating === 1 && 'Very Poor - Needs significant improvement'}
               {form.rating === 2 && 'Poor - Below expectations'}
               {form.rating === 3 && 'Average - Met basic expectations'}
@@ -205,7 +243,12 @@ const Feedback = () => {
 
           {/* Comment Section */}
           <div>
-            <label className="block text-sm text-gray-400 mb-2">
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              color: '#6b8aaa',
+              marginBottom: '8px',
+            }}>
               Your Comments (Optional)
             </label>
             <textarea
@@ -214,50 +257,130 @@ const Feedback = () => {
               onChange={handleChange}
               rows={5}
               placeholder="Please share your thoughts, suggestions, or any issues you encountered..."
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/20 transition resize-none"
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                resize: 'none',
+                fontFamily: 'inherit',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(245, 166, 35, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
-          <div className="bg-gray-800/30 rounded-lg p-4 border border-gray-700">
-            <p className="text-sm text-gray-400 flex items-center gap-2">
-              <svg className="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          <div style={{
+            background: 'rgba(18, 36, 72, 0.3)',
+            borderRadius: '8px',
+            padding: '16px',
+            border: '1px solid #1a3050',
+            marginTop: '16px',
+          }}>
+            <p style={{
+              fontSize: '14px',
+              color: '#6b8aaa',
+              margin: 0,
+            }}>
               Your feedback is anonymous to other users and helps us improve our services.
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div style={{ display: 'flex', gap: '16px' }}>
           <button
             type="button"
             onClick={() => navigate('/students/homepage')}
-            className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium rounded-lg transition"
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              background: 'rgba(18, 36, 72, 0.5)',
+              color: '#c8daf0',
+              fontWeight: 500,
+              borderRadius: '8px',
+              border: '1px solid #1a3050',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+            }}
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting || form.rating === 0}
-            className="flex-1 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-700 disabled:cursor-not-allowed text-black font-medium rounded-lg transition flex items-center justify-center gap-2"
+            style={{
+              flex: 1,
+              padding: '10px 16px',
+              background: (submitting || form.rating === 0) ? '#1a3050' : '#f5a623',
+              color: (submitting || form.rating === 0) ? '#3a5070' : '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: (submitting || form.rating === 0) ? 'not-allowed' : 'pointer',
+              opacity: (submitting || form.rating === 0) ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+            }}
+            onMouseEnter={(e) => {
+              if (!submitting && form.rating !== 0) {
+                e.currentTarget.style.background = '#e09515';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!submitting && form.rating !== 0) {
+                e.currentTarget.style.background = '#f5a623';
+              }
+            }}
           >
             {submitting ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
+                <span style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid #0a1628',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  display: 'inline-block',
+                  animation: 'spin 0.8s linear infinite',
+                }} />
                 Submitting...
               </>
             ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                {existingFeedback ? 'Update Feedback' : 'Submit Feedback'}
-              </>
+              existingFeedback ? 'Update Feedback' : 'Submit Feedback'
             )}
           </button>
         </div>
       </form>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

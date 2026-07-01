@@ -14,6 +14,18 @@ const MyBookings = () => {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [processingPayment, setProcessingPayment] = useState(null);
 
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
+
   useEffect(() => {
     fetchUserBookings();
   }, [user]);
@@ -100,7 +112,6 @@ const MyBookings = () => {
         booking_id: booking.id
       });
       
-      // Create a temporary div and submit the form to eSewa
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = response.data.form;
       document.body.appendChild(tempDiv);
@@ -156,9 +167,17 @@ const MyBookings = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="text-center text-gray-400 py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
           Loading your bookings...
         </div>
       </div>
@@ -167,12 +186,29 @@ const MyBookings = () => {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400 mb-4">{error}</p>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171', marginBottom: '16px' }}>{error}</p>
           <button
             onClick={fetchUserBookings}
-            className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+            style={{
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Try Again
           </button>
@@ -184,41 +220,84 @@ const MyBookings = () => {
   const filteredBookings = getFilteredBookings();
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '24px' }}>
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">My Bookings</h1>
-        <p className="text-gray-400 mt-1">View and manage your hostel bookings</p>
+      <div style={{ marginBottom: '24px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>My Bookings</h1>
+        <p style={{ color: '#6b8aaa', marginTop: '4px' }}>View and manage your hostel bookings</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-gray-800">
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        borderBottom: '1px solid #1a3050',
+        marginBottom: '24px',
+      }}>
         <button
           onClick={() => setActiveTab('upcoming')}
-          className={`px-4 py-2 text-sm font-medium transition ${
-            activeTab === 'upcoming'
-              ? 'text-cyan-400 border-b-2 border-cyan-400'
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: activeTab === 'upcoming' ? '#f5a623' : '#6b8aaa',
+            borderBottom: activeTab === 'upcoming' ? '2px solid #f5a623' : '2px solid transparent',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'upcoming') e.currentTarget.style.color = '#c8daf0';
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'upcoming') e.currentTarget.style.color = '#6b8aaa';
+          }}
         >
           Active & Upcoming
           {bookings.filter(b => new Date(b.check_out_date) >= new Date()).length > 0 && (
-            <span className="ml-2 px-1.5 py-0.5 text-xs bg-cyan-500/20 rounded-full">
+            <span style={{
+              marginLeft: '8px',
+              padding: '0px 6px',
+              fontSize: '10px',
+              background: 'rgba(245, 166, 35, 0.2)',
+              borderRadius: '9999px',
+              color: '#f5a623',
+            }}>
               {bookings.filter(b => new Date(b.check_out_date) >= new Date()).length}
             </span>
           )}
         </button>
         <button
           onClick={() => setActiveTab('past')}
-          className={`px-4 py-2 text-sm font-medium transition ${
-            activeTab === 'past'
-              ? 'text-cyan-400 border-b-2 border-cyan-400'
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            fontWeight: 500,
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: activeTab === 'past' ? '#f5a623' : '#6b8aaa',
+            borderBottom: activeTab === 'past' ? '2px solid #f5a623' : '2px solid transparent',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'past') e.currentTarget.style.color = '#c8daf0';
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'past') e.currentTarget.style.color = '#6b8aaa';
+          }}
         >
           Past Bookings
           {bookings.filter(b => new Date(b.check_out_date) < new Date()).length > 0 && (
-            <span className="ml-2 px-1.5 py-0.5 text-xs bg-gray-500/20 rounded-full">
+            <span style={{
+              marginLeft: '8px',
+              padding: '0px 6px',
+              fontSize: '10px',
+              background: 'rgba(107, 114, 128, 0.2)',
+              borderRadius: '9999px',
+              color: '#6b8aaa',
+            }}>
               {bookings.filter(b => new Date(b.check_out_date) < new Date()).length}
             </span>
           )}
@@ -227,10 +306,16 @@ const MyBookings = () => {
 
       {/* Bookings Table */}
       {filteredBookings.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">🏠</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Bookings Found</h3>
-          <p className="text-gray-400 mb-6">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: '#eaf2ff', marginBottom: '8px' }}>No Bookings Found</h3>
+          <p style={{ color: '#6b8aaa', marginBottom: '24px' }}>
             {activeTab === 'upcoming' 
               ? "You don't have any active or upcoming bookings." 
               : activeTab === 'past' 
@@ -240,74 +325,145 @@ const MyBookings = () => {
           {(activeTab === 'upcoming' || activeTab === 'all') && (
             <button
               onClick={() => navigate('/students/book-hostels')}
-              className="px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg transition"
+              style={{
+                padding: '8px 24px',
+                background: '#f5a623',
+                color: '#0a1628',
+                fontWeight: 600,
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
             >
               Browse Hostels
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-800/50 border-b border-gray-800">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{
+                background: 'rgba(18, 36, 72, 0.3)',
+                borderBottom: '1px solid #1a3050',
+              }}>
                 <tr>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Hostel</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Room Details</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Check-in</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Check-out</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
-                  <th className="text-left px-6 py-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Actions</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Hostel</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Room Details</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-out</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                  <th style={{ textAlign: 'left', padding: '16px 24px', fontSize: '10px', fontWeight: 500, color: '#6b8aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody style={{ divideY: '1px solid #1a3050' }}>
                 {filteredBookings.map((booking) => {
                   const isPast = new Date(booking.check_out_date) < new Date();
                   const isPending = booking.status === 'pending';
                   
                   return (
-                    <tr key={booking.id} className="hover:bg-gray-800/30 transition">
-                      <td className="px-6 py-4">
+                    <tr key={booking.id} style={{
+                      borderBottom: '1px solid rgba(26, 48, 80, 0.5)',
+                      transition: 'background 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                      <td style={{ padding: '16px 24px' }}>
                         <div>
-                          <p className="text-white font-medium">{booking.hostel_name}</p>
-                          <p className="text-gray-500 text-sm mt-1">{booking.hostel_address}</p>
+                          <p style={{ color: '#eaf2ff', fontWeight: 500, margin: 0 }}>{booking.hostel_name}</p>
+                          <p style={{ color: '#6b8aaa', fontSize: '14px', marginTop: '4px' }}>{booking.hostel_address}</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
-                          <p className="text-gray-300 text-sm">
-                            <span className="text-gray-500">Block:</span> {booking.block_name}
+                      <td style={{ padding: '16px 24px' }}>
+                        <div>
+                          <p style={{ color: '#c8daf0', fontSize: '14px', margin: '2px 0' }}>
+                            <span style={{ color: '#6b8aaa' }}>Block:</span> {booking.block_name}
                           </p>
-                          <p className="text-gray-300 text-sm">
-                            <span className="text-gray-500">Floor:</span> {booking.floor_number}
+                          <p style={{ color: '#c8daf0', fontSize: '14px', margin: '2px 0' }}>
+                            <span style={{ color: '#6b8aaa' }}>Floor:</span> {booking.floor_number}
                           </p>
-                          <p className="text-gray-300 text-sm">
-                            <span className="text-gray-500">Room:</span> {booking.room_number} ({booking.room_type})
+                          <p style={{ color: '#c8daf0', fontSize: '14px', margin: '2px 0' }}>
+                            <span style={{ color: '#6b8aaa' }}>Room:</span> {booking.room_number} ({booking.room_type})
                           </p>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <p className="text-white">{formatDate(booking.check_in_date)}</p>
+                      <td style={{ padding: '16px 24px' }}>
+                        <p style={{ color: '#eaf2ff' }}>{formatDate(booking.check_in_date)}</p>
                       </td>
-                      <td className="px-6 py-4">
-                        <p className="text-white">{formatDate(booking.check_out_date)}</p>
+                      <td style={{ padding: '16px 24px' }}>
+                        <p style={{ color: '#eaf2ff' }}>{formatDate(booking.check_out_date)}</p>
                         {!isPast && (
-                          <p className="text-yellow-400 text-xs mt-1">
+                          <p style={{ color: '#f5a623', fontSize: '12px', marginTop: '4px' }}>
                             {getDaysRemaining(booking.check_out_date)} days left
                           </p>
                         )}
                       </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border inline-block ${getStatusColor(booking.status, isPast)}`}>
+                      <td style={{ padding: '16px 24px' }}>
+                        <span style={{
+                          padding: '2px 12px',
+                          borderRadius: '9999px',
+                          fontSize: '10px',
+                          fontWeight: 500,
+                          border: '1px solid',
+                          display: 'inline-block',
+                          background: isPast 
+                            ? 'rgba(107, 114, 128, 0.1)' 
+                            : booking.status?.toLowerCase() === 'approved'
+                            ? 'rgba(29, 219, 168, 0.1)'
+                            : booking.status?.toLowerCase() === 'pending'
+                            ? 'rgba(245, 166, 35, 0.1)'
+                            : 'rgba(107, 114, 128, 0.1)',
+                          color: isPast 
+                            ? '#6b8aaa' 
+                            : booking.status?.toLowerCase() === 'approved'
+                            ? '#1ddba8'
+                            : booking.status?.toLowerCase() === 'pending'
+                            ? '#f5a623'
+                            : '#6b8aaa',
+                          borderColor: isPast 
+                            ? 'rgba(107, 114, 128, 0.3)' 
+                            : booking.status?.toLowerCase() === 'approved'
+                            ? 'rgba(29, 219, 168, 0.3)'
+                            : booking.status?.toLowerCase() === 'pending'
+                            ? 'rgba(245, 166, 35, 0.3)'
+                            : 'rgba(107, 114, 128, 0.3)',
+                        }}>
                           {isPast ? 'Completed' : (booking.status || 'Confirmed')}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          {/* ✅ Updated View button */}
+                      <td style={{ padding: '16px 24px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
                           <button
                             onClick={() => navigate(`/students/booking/${booking.id}`)}
-                            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-cyan-400 text-sm font-medium rounded-lg transition"
+                            style={{
+                              padding: '6px 12px',
+                              background: 'rgba(18, 36, 72, 0.5)',
+                              color: '#f5a623',
+                              fontSize: '14px',
+                              fontWeight: 500,
+                              borderRadius: '8px',
+                              border: '1px solid rgba(245, 166, 35, 0.2)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+                            }}
                           >
                             View Details
                           </button>
@@ -316,11 +472,41 @@ const MyBookings = () => {
                               <button
                                 onClick={() => handlePayment(booking)}
                                 disabled={processingPayment === booking.id}
-                                className="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-sm font-medium rounded-lg transition disabled:opacity-50 flex items-center gap-1"
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(29, 219, 168, 0.1)',
+                                  color: '#1ddba8',
+                                  fontSize: '14px',
+                                  fontWeight: 500,
+                                  borderRadius: '8px',
+                                  border: '1px solid rgba(29, 219, 168, 0.2)',
+                                  cursor: processingPayment === booking.id ? 'not-allowed' : 'pointer',
+                                  opacity: processingPayment === booking.id ? 0.5 : 1,
+                                  transition: 'all 0.2s ease',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (processingPayment !== booking.id) {
+                                    e.currentTarget.style.background = 'rgba(29, 219, 168, 0.2)';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(29, 219, 168, 0.1)';
+                                }}
                               >
                                 {processingPayment === booking.id ? (
                                   <>
-                                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-green-400"></div>
+                                    <span style={{
+                                      width: '12px',
+                                      height: '12px',
+                                      border: '2px solid #1ddba8',
+                                      borderTop: '2px solid transparent',
+                                      borderRadius: '50%',
+                                      display: 'inline-block',
+                                      animation: 'spin 0.8s linear infinite',
+                                    }} />
                                     Processing...
                                   </>
                                 ) : (
@@ -330,7 +516,26 @@ const MyBookings = () => {
                               <button
                                 onClick={() => setSelectedBooking(booking)}
                                 disabled={cancelling}
-                                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm font-medium rounded-lg transition disabled:opacity-50"
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(248, 113, 113, 0.1)',
+                                  color: '#f87171',
+                                  fontSize: '14px',
+                                  fontWeight: 500,
+                                  borderRadius: '8px',
+                                  border: '1px solid rgba(248, 113, 113, 0.2)',
+                                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                                  opacity: cancelling ? 0.5 : 1,
+                                  transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!cancelling) {
+                                    e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+                                }}
                               >
                                 Cancel
                               </button>
@@ -349,24 +554,69 @@ const MyBookings = () => {
 
       {/* Cancellation Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Cancel Booking?</h2>
-            <p className="text-gray-400 mb-6">
-              Are you sure you want to cancel your booking at <span className="text-white">{selectedBooking.hostel_name}</span>?
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '448px',
+            width: '100%',
+            padding: '24px',
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#eaf2ff', marginBottom: '16px' }}>Cancel Booking?</h2>
+            <p style={{ color: '#6b8aaa', marginBottom: '24px' }}>
+              Are you sure you want to cancel your booking at <span style={{ color: '#eaf2ff' }}>{selectedBooking.hostel_name}</span>?
               This action cannot be undone.
             </p>
-            <div className="flex gap-3">
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={() => setSelectedBooking(null)}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#1a3050',
+                  color: '#eaf2ff',
+                  fontWeight: 500,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#2a4870'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#1a3050'}
               >
                 Keep Booking
               </button>
               <button
                 onClick={() => handleCancelBooking(selectedBooking.id)}
                 disabled={cancelling}
-                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition disabled:opacity-50"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#f87171',
+                  color: '#0a1628',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                  opacity: cancelling ? 0.5 : 1,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!cancelling) e.currentTarget.style.background = '#fca5a5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f87171';
+                }}
               >
                 {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
               </button>
@@ -374,6 +624,14 @@ const MyBookings = () => {
           </div>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

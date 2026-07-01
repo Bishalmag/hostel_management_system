@@ -3,10 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 // ─── Navigation links config for Hostel Management ──────────────────────────
 const NAV_LINKS = [
-  { label: "Home",         href: "#home" },
-  { label: "Features",     href: "#features" },
-  { label: "Reviews",      href: "#reviews" },
-  { label: "Contact",      href: "#contact" },
+  { label: "Home", href: "#home" },
+  { label: "Features", href: "#features" },
+  { label: "Reviews", href: "#reviews" },
+  { label: "Contact", href: "#contact" },
 ];
 
 // ─── Logo mark (hexagon SVG) with Hostel branding ─────────────────────────────
@@ -62,18 +62,16 @@ function HamburgerIcon({ open }) {
   );
 }
 
-// ─── Main Navbar component for Hostel Management System ───────────────────────
+// ─── Main Navbar component ───────────────────────────────────────────────────
 export default function Navbar({ onShowAuth }) {
-  const [scrolled,  setScrolled]  = useState(false);
-  const [menuOpen,  setMenuOpen]  = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState("#home");
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if we're on the landing page
   const isLandingPage = location.pathname === "/";
 
-  // Detect scroll to apply backdrop blur / border (only on landing page)
   useEffect(() => {
     if (!isLandingPage) return;
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -81,7 +79,6 @@ export default function Navbar({ onShowAuth }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isLandingPage]);
 
-  // Track active section via IntersectionObserver (only on landing page)
   useEffect(() => {
     if (!isLandingPage) return;
     const ids = NAV_LINKS.map(l => l.href.replace("#", ""));
@@ -100,8 +97,6 @@ export default function Navbar({ onShowAuth }) {
 
   const handleNavClick = (href) => {
     setMenuOpen(false);
-    
-    // If on landing page, scroll to section
     if (isLandingPage) {
       setActiveLink(href);
       const id = href.replace("#", "");
@@ -110,7 +105,6 @@ export default function Navbar({ onShowAuth }) {
         element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
-      // If on another page, navigate to landing page with hash
       navigate(`/${href}`);
     }
   };
@@ -130,17 +124,34 @@ export default function Navbar({ onShowAuth }) {
       <nav
         role="navigation"
         aria-label="Main navigation"
-        className={`fixed inset-x-0 z-50 flex h-16 items-center justify-between px-6 transition-all duration-300 ${
-          scrolled || !isLandingPage
-            ? "bg-grey/95 backdrop-blur border-b"
-            : "bg-transparent"
-        }`}
+        style={{
+          position: 'fixed',
+          inset: '0 0 auto 0',
+          zIndex: 50,
+          display: 'flex',
+          height: '64px',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          transition: 'all 0.3s ease',
+          background: (scrolled || !isLandingPage) 
+            ? 'rgba(5, 13, 26, 0.95)' 
+            : 'transparent',
+          backdropFilter: (scrolled || !isLandingPage) ? 'blur(8px)' : 'none',
+          borderBottom: (scrolled || !isLandingPage) ? '1px solid #1a3050' : 'none',
+        }}
       >
         {/* ── Brand ── */}
         <a
           href={isLandingPage ? "#home" : "/"}
           aria-label="Hostel Management System home"
-          className="flex items-center gap-4.5 text-decoration-none cursor-pointer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '18px',
+            textDecoration: 'none',
+            cursor: 'pointer',
+          }}
           onClick={(e) => {
             e.preventDefault();
             handleBrandClick();
@@ -148,10 +159,23 @@ export default function Navbar({ onShowAuth }) {
         >
           <LogoMark />
           <div>
-            <div className="text-white font-mono font-bold text-sm tracking-wide leading-tight">
+            <div style={{
+              color: '#eaf2ff',
+              fontFamily: "'Space Mono', monospace",
+              fontWeight: 700,
+              fontSize: '14px',
+              letterSpacing: '0.05em',
+              lineHeight: 1.2,
+            }}>
               SMART HOSTEL OPERATION
             </div>
-            <div className="text-textDim font-mono text-xs tracking-wider uppercase">
+            <div style={{
+              color: '#6b8aaa',
+              fontFamily: "'Space Mono', monospace",
+              fontSize: '10px',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}>
               book your second home
             </div>
           </div>
@@ -160,7 +184,14 @@ export default function Navbar({ onShowAuth }) {
         {/* ── Desktop links ── */}
         <ul
           role="list"
-          className="flex gap-1 list-none m-0 p-0 nav-desktop-links"
+          style={{
+            display: 'flex',
+            gap: '4px',
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+          }}
+          className="nav-desktop-links"
         >
           {NAV_LINKS.map(({ label, href }) => {
             const isActive = activeLink === href;
@@ -173,21 +204,28 @@ export default function Navbar({ onShowAuth }) {
                     e.preventDefault();
                     handleNavClick(href);
                   }}
-                  className={`block px-5.5 py-1.5 font-mono font-semibold text-xs tracking-wider uppercase transition-colors duration-200
-                    ${isActive && isLandingPage
-                      ? 'text-amber-500 border-b-2 border-amber-800'
-                      : 'text-textDim hover:text-text'
-                    }`}
-                  onMouseEnter={e => {
+                  style={{
+                    display: 'block',
+                    padding: '6px 22px',
+                    fontFamily: "'Space Mono', monospace",
+                    fontWeight: 600,
+                    fontSize: '11px',
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase',
+                    transition: 'all 0.2s ease',
+                    color: (isActive && isLandingPage) ? '#f5a623' : '#6b8aaa',
+                    borderBottom: (isActive && isLandingPage) ? '2px solid #f5a623' : '2px solid transparent',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
                     if (!isActive || !isLandingPage) {
-                      e.currentTarget.classList.remove('text-textDim');
-                      e.currentTarget.classList.add('text-text');
+                      e.currentTarget.style.color = '#c8daf0';
                     }
                   }}
-                  onMouseLeave={e => {
+                  onMouseLeave={(e) => {
                     if (!isActive || !isLandingPage) {
-                      e.currentTarget.classList.remove('text-text');
-                      e.currentTarget.classList.add('text-textDim');
+                      e.currentTarget.style.color = '#6b8aaa';
                     }
                   }}
                 >
@@ -199,11 +237,34 @@ export default function Navbar({ onShowAuth }) {
         </ul>
 
         {/* ── CTA + Auth buttons ── */}
-        <div className="flex items-center gap-6">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '24px',
+        }}>
           {/* Login Button */}
           <button
             onClick={() => navigate("/loginPortal")}
-            className="bg-amber-500 text-amber-900 border border-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-6 py-2 rounded hover:bg-amber-500/80 transition-all duration-200"
+            style={{
+              background: '#f5a623',
+              color: '#0a1628',
+              border: '1px solid #0a1628',
+              fontFamily: "'Space Mono', monospace",
+              fontWeight: 700,
+              fontSize: '10px',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              padding: '8px 24px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e09515';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f5a623';
+            }}
           >
             Log In
           </button>
@@ -211,7 +272,26 @@ export default function Navbar({ onShowAuth }) {
           {/* Sign Up Button */}
           <button
             onClick={() => navigate("/signup")}
-            className="bg-transparent text-white border border-white/30 font-mono font-bold text-xs tracking-wide uppercase px-6 py-2 rounded hover:bg-white/10 transition-all duration-200"
+            style={{
+              background: 'transparent',
+              color: '#eaf2ff',
+              border: '1px solid rgba(26, 48, 80, 0.3)',
+              fontFamily: "'Space Mono', monospace",
+              fontWeight: 700,
+              fontSize: '10px',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              padding: '8px 24px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+            }}
           >
             Sign Up
           </button>
@@ -221,7 +301,14 @@ export default function Navbar({ onShowAuth }) {
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(o => !o)}
-            className="hidden md:block p-1"
+            style={{
+              display: 'none',
+              padding: '4px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+            className="md:block"
           >
             <HamburgerIcon open={menuOpen} />
           </button>
@@ -234,7 +321,18 @@ export default function Navbar({ onShowAuth }) {
           role="dialog"
           aria-modal="true"
           aria-label="Mobile navigation"
-          className="fixed top-16 left-0 right-0 z-40 bg-white/95 backdrop-blur border-b border-border p-4 animation-fadeIn duration-200"
+          style={{
+            position: 'fixed',
+            top: '64px',
+            left: 0,
+            right: 0,
+            zIndex: 40,
+            background: 'rgba(10, 22, 40, 0.98)',
+            backdropFilter: 'blur(8px)',
+            borderBottom: '1px solid #1a3050',
+            padding: '16px',
+            animation: 'fadeIn 0.2s ease',
+          }}
         >
           {NAV_LINKS.map(({ label, href }) => (
             <a
@@ -245,23 +343,56 @@ export default function Navbar({ onShowAuth }) {
                 handleNavClick(href);
                 setMenuOpen(false);
               }}
-              className={`block px-12 py-3.5 font-mono font-semibold text-xs tracking-tighter uppercase transition-colors duration-150
-                ${activeLink === href && isLandingPage
-                  ? 'text-amber-500 border-l-3 border-amber-500'
-                  : 'text-text'
-                }`}
+              style={{
+                display: 'block',
+                padding: '14px 48px',
+                fontFamily: "'Space Mono', monospace",
+                fontWeight: 600,
+                fontSize: '11px',
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+                transition: 'color 0.15s ease',
+                color: (activeLink === href && isLandingPage) ? '#f5a623' : '#c8daf0',
+                textDecoration: 'none',
+                borderLeft: (activeLink === href && isLandingPage) ? '3px solid #f5a623' : '3px solid transparent',
+              }}
             >
               {label}
             </a>
           ))}
           {/* Mobile Auth Buttons */}
-          <div className="flex flex-col gap-3 mt-4 px-4">
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            marginTop: '16px',
+            padding: '0 16px',
+          }}>
             <button
               onClick={() => {
                 navigate("/loginPortal");
                 setMenuOpen(false);
               }}
-              className="bg-amber-500 text-amber-900 font-mono font-bold text-xs tracking-wide uppercase px-6 py-3 rounded w-full"
+              style={{
+                background: '#f5a623',
+                color: '#0a1628',
+                fontFamily: "'Space Mono', monospace",
+                fontWeight: 700,
+                fontSize: '10px',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                padding: '12px 24px',
+                borderRadius: '4px',
+                border: 'none',
+                cursor: 'pointer',
+                width: '100%',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f5a623';
+              }}
             >
               Log In
             </button>
@@ -270,7 +401,27 @@ export default function Navbar({ onShowAuth }) {
                 navigate("/signup");
                 setMenuOpen(false);
               }}
-              className="bg-transparent border border-white/30 text-white font-mono font-bold text-xs tracking-wide uppercase px-6 py-3 rounded w-full"
+              style={{
+                background: 'transparent',
+                color: '#eaf2ff',
+                border: '1px solid rgba(26, 48, 80, 0.3)',
+                fontFamily: "'Space Mono', monospace",
+                fontWeight: 700,
+                fontSize: '10px',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                padding: '12px 24px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                width: '100%',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
             >
               Sign Up
             </button>
@@ -282,7 +433,14 @@ export default function Navbar({ onShowAuth }) {
       <style>{`
         @media (max-width: 768px) {
           .nav-desktop-links { display: none !important; }
-          .nav-hamburger { display: block !important; }
+          .md\\\\:block { display: block !important; }
+        }
+        @media (min-width: 769px) {
+          .md\\\\:block { display: none !important; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>

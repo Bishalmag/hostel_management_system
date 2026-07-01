@@ -11,39 +11,39 @@ const EMPTY_NODE = { name: '', node_type: 'entrance', block: '', floor: '', room
 const EMPTY_EDGE = { from_node: '', to_node: '', weight: 1, bidirectional: true };
 
 const TYPE_COLORS = {
-  entrance: 'bg-indigo-500/20 text-indigo-400',
-  block:    'bg-sky-500/20 text-sky-400',
-  floor:    'bg-emerald-500/20 text-emerald-400',
-  room:     'bg-yellow-500/20 text-yellow-400',
-  common:   'bg-purple-500/20 text-purple-400',
+  entrance: { bg: 'rgba(99, 102, 241, 0.2)', text: '#818cf8' },
+  block:    { bg: 'rgba(14, 165, 233, 0.2)', text: '#38bdf8' },
+  floor:    { bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399' },
+  room:     { bg: 'rgba(234, 179, 8, 0.2)', text: '#fbbf24' },
+  common:   { bg: 'rgba(168, 85, 247, 0.2)', text: '#a78bfa' },
 };
 
 const PURPOSE_COLORS = {
-  residential: 'bg-green-500/20 text-green-400 border border-green-500/30',
-  reception: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
-  office: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-  lobby: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30',
-  DI_room: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
-  library: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-  canteen: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
-  hall: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+  residential: { bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399', border: 'rgba(16, 185, 129, 0.3)' },
+  reception: { bg: 'rgba(168, 85, 247, 0.2)', text: '#a78bfa', border: 'rgba(168, 85, 247, 0.3)' },
+  office: { bg: 'rgba(59, 130, 246, 0.2)', text: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+  lobby: { bg: 'rgba(99, 102, 241, 0.2)', text: '#818cf8', border: 'rgba(99, 102, 241, 0.3)' },
+  DI_room: { bg: 'rgba(6, 182, 212, 0.2)', text: '#22d3ee', border: 'rgba(6, 182, 212, 0.3)' },
+  library: { bg: 'rgba(245, 158, 11, 0.2)', text: '#fbbf24', border: 'rgba(245, 158, 11, 0.3)' },
+  canteen: { bg: 'rgba(251, 146, 60, 0.2)', text: '#fb923c', border: 'rgba(251, 146, 60, 0.3)' },
+  hall: { bg: 'rgba(244, 63, 94, 0.2)', text: '#fb7185', border: 'rgba(244, 63, 94, 0.3)' },
 };
 
 export default function NavigationManager() {
-  const [nodes,      setNodes]      = useState([]);
-  const [edges,      setEdges]      = useState([]);
-  const [rooms,      setRooms]      = useState([]);
-  const [floors,     setFloors]     = useState([]);
-  const [blocks,     setBlocks]     = useState([]);
-  const [tab,        setTab]        = useState('nodes');
-  const [nodeForm,   setNodeForm]   = useState(EMPTY_NODE);
-  const [edgeForm,   setEdgeForm]   = useState(EMPTY_EDGE);
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [floors, setFloors] = useState([]);
+  const [blocks, setBlocks] = useState([]);
+  const [tab, setTab] = useState('nodes');
+  const [nodeForm, setNodeForm] = useState(EMPTY_NODE);
+  const [edgeForm, setEdgeForm] = useState(EMPTY_EDGE);
   const [editNodeId, setEditNodeId] = useState(null);
   const [editEdgeId, setEditEdgeId] = useState(null);
-  const [loading,    setLoading]    = useState(true);
-  const [saving,     setSaving]     = useState(false);
-  const [toast,      setToast]      = useState(null);
-  const [syncing,    setSyncing]    = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -58,24 +58,12 @@ export default function NavigationManager() {
         api.get('/hostel/blocks/'),
       ]);
 
-      // Handle paginated or non-paginated responses
-      const nodesData  = n.data.results ?? n.data;
-      const edgesData  = e.data.results ?? e.data;
-      const roomsData  = r.data.results ?? r.data;
+      const nodesData = n.data.results ?? n.data;
+      const edgesData = e.data.results ?? e.data;
+      const roomsData = r.data.results ?? r.data;
       const floorsData = f.data.results ?? f.data;
       const blocksData = b.data.results ?? b.data;
 
-      console.log('=== NAVIGATION DATA ===');
-      console.log('Nodes:', nodesData);
-      console.log('Nodes count:', nodesData?.length || 0);
-      console.log('Edges:', edgesData);
-      console.log('Edges count:', edgesData?.length || 0);
-      console.log('Rooms:', roomsData);
-      console.log('Rooms count:', roomsData?.length || 0);
-      console.log('Floors count:', floorsData?.length || 0);
-      console.log('Blocks count:', blocksData?.length || 0);
-
-      // Ensure we have arrays
       setNodes(Array.isArray(nodesData) ? nodesData : []);
       setEdges(Array.isArray(edgesData) ? edgesData : []);
       setRooms(Array.isArray(roomsData) ? roomsData : []);
@@ -109,21 +97,17 @@ export default function NavigationManager() {
 
     try {
       const allRooms = rooms;
-      console.log(`Starting sync for ${allRooms.length} rooms...`);
 
       for (const room of allRooms) {
         try {
-          // Check if node already exists for this room
           const existingNode = nodes.find(node => node.room === room.id);
           
           if (!existingNode) {
-            // Create node name based on room purpose
             let nodeName;
             if (room.room_purpose === 'residential') {
               nodeName = `Room ${room.room_number}`;
             } else if (room.room_purpose) {
               const purposeDisplay = room.room_purpose.charAt(0).toUpperCase() + room.room_purpose.slice(1);
-              // Handle DI_room special case
               const displayName = room.room_purpose === 'DI_room' ? 'DI Room' : purposeDisplay;
               nodeName = `${displayName} - ${room.room_number}`;
             } else {
@@ -138,7 +122,6 @@ export default function NavigationManager() {
               room: room.id
             };
             
-            console.log(`Creating node for room ${room.room_number} (${room.room_purpose}):`, nodeData);
             await createNode(nodeData);
             created++;
             createdRooms.push(`${room.room_number} (${room.room_purpose})`);
@@ -157,7 +140,7 @@ export default function NavigationManager() {
       } else {
         flash(message, 'success');
       }
-      await load(); // Reload data
+      await load();
     } catch (err) {
       console.error('Sync error:', err);
       flash('Failed to sync rooms: ' + (err.message || 'Unknown error'), 'error');
@@ -167,9 +150,6 @@ export default function NavigationManager() {
   }
 
   // ── AUTO CREATE EDGES ──
-  // 1. same-floor chain (original logic)
-  // 2. cross-floor bridge: link representative node of floor N to floor N+1 (same block)
-  // 3. cross-block bridge: link ground-floor representative node of each block to the next block
   async function autoCreateEdges() {
     if (nodes.length < 2) {
       flash('Need at least 2 nodes to create edges. Sync rooms first.', 'error');
@@ -201,7 +181,6 @@ export default function NavigationManager() {
             weight,
             bidirectional: true
           };
-          console.log(`Creating edge: ${fromNode.name} ↔ ${toNode.name} (w=${weight})`);
           await createEdge(edgeData);
           created++;
           existingEdges.push({ from: fromNode.id, to: toNode.id });
@@ -211,7 +190,6 @@ export default function NavigationManager() {
         }
       };
 
-      // ── 1. SAME-FLOOR CHAIN ──
       const nodesByFloor = {};
       nodes.forEach(node => {
         if (node.floor) {
@@ -222,18 +200,13 @@ export default function NavigationManager() {
         }
       });
 
-      console.log('Nodes by floor:', nodesByFloor);
-
       for (const floorId in nodesByFloor) {
         const floorNodes = [...nodesByFloor[floorId]].sort((a, b) => a.name.localeCompare(b.name));
-
         for (let i = 0; i < floorNodes.length - 1; i++) {
           await tryCreate(floorNodes[i], floorNodes[i + 1], 1.0);
         }
       }
 
-      // ── 2. CROSS-FLOOR BRIDGE (same block, consecutive floor_number) ──
-      // pick one representative node per floor = first node alphabetically
       const repByFloor = {};
       for (const floorId in nodesByFloor) {
         const sorted = [...nodesByFloor[floorId]].sort((a, b) => a.name.localeCompare(b.name));
@@ -251,11 +224,10 @@ export default function NavigationManager() {
         for (let i = 0; i < sortedFloors.length - 1; i++) {
           const repA = repByFloor[sortedFloors[i].id];
           const repB = repByFloor[sortedFloors[i + 1].id];
-          await tryCreate(repA, repB, 2.0); // stairs/lift weight, a bit higher than same-floor walk
+          await tryCreate(repA, repB, 2.0);
         }
       }
 
-      // ── 3. CROSS-BLOCK BRIDGE (ground floor of each block to the next block) ──
       const groundFloorRepByBlock = {};
       for (const blockId in floorsByBlock) {
         const sortedFloors = [...floorsByBlock[blockId]].sort((a, b) => a.floor_number - b.floor_number);
@@ -267,7 +239,7 @@ export default function NavigationManager() {
       for (let i = 0; i < sortedBlocks.length - 1; i++) {
         const repA = groundFloorRepByBlock[sortedBlocks[i].id];
         const repB = groundFloorRepByBlock[sortedBlocks[i + 1].id];
-        await tryCreate(repA, repB, 3.0); // outdoor walk weight, higher again
+        await tryCreate(repA, repB, 3.0);
       }
 
       flash(`✅ Created ${created} edges (${skipped} already exist, ${errors} errors)`, 'success');
@@ -340,7 +312,7 @@ export default function NavigationManager() {
     const payload = { ...nodeForm };
     if (!payload.block) delete payload.block;
     if (!payload.floor) delete payload.floor;
-    if (!payload.room)  delete payload.room;
+    if (!payload.room) delete payload.room;
     try {
       if (editNodeId) {
         await updateNode(editNodeId, payload);
@@ -416,11 +388,9 @@ export default function NavigationManager() {
 
   const nodeMap = Object.fromEntries(nodes.map(n => [n.id, n.name]));
 
-  // Get room counts
   const totalRooms = rooms.length;
   const syncedRooms = nodes.filter(n => n.room).length;
   
-  // Count rooms by purpose
   const purposeCounts = rooms.reduce((acc, room) => {
     const purpose = room.room_purpose || 'undefined';
     acc[purpose] = (acc[purpose] || 0) + 1;
@@ -428,85 +398,277 @@ export default function NavigationManager() {
   }, {});
 
   if (loading) return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-white">Navigation Manager</h1>
-      <div className="text-center text-gray-400 py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Navigation Manager</h1>
+      <div style={{ textAlign: 'center', color: '#6b8aaa', padding: '48px 0' }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '3px solid #1a3050',
+          borderTop: '3px solid #f5a623',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto 16px',
+        }} />
         Loading...
       </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
       {/* Header */}
-      <div className="flex justify-between items-center flex-wrap gap-3">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '12px',
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-white">Navigation Manager</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Navigation Manager</h1>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>
             Build the hostel map: add nodes (locations) then connect them with edges.
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button onClick={load}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition">
-            🔄 Refresh
+            style={{
+              padding: '8px 16px',
+              background: '#0f2040',
+              color: '#eaf2ff',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#122448';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#0f2040';
+            }}
+          >
+            ⟳ Refresh
           </button>
           <button onClick={syncRoomsToNodes} disabled={syncing}
-            className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition">
-            {syncing ? '⏳ Syncing...' : '🔄 Sync Rooms'}
+            style={{
+              padding: '8px 16px',
+              background: syncing ? '#3a5070' : '#f5a623',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: syncing ? 'not-allowed' : 'pointer',
+              transition: 'background 0.3s ease',
+              opacity: syncing ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!syncing) e.currentTarget.style.background = '#e09515';
+            }}
+            onMouseLeave={(e) => {
+              if (!syncing) e.currentTarget.style.background = '#f5a623';
+            }}
+          >
+            {syncing ? '⏳ Syncing...' : '⟳ Sync Rooms'}
           </button>
           <button onClick={autoCreateEdges} disabled={syncing || nodes.length < 2}
-            className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition">
+            style={{
+              padding: '8px 16px',
+              background: (syncing || nodes.length < 2) ? '#3a5070' : '#1ddba8',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: (syncing || nodes.length < 2) ? 'not-allowed' : 'pointer',
+              transition: 'background 0.3s ease',
+              opacity: (syncing || nodes.length < 2) ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!syncing && nodes.length >= 2) e.currentTarget.style.background = '#16c39a';
+            }}
+            onMouseLeave={(e) => {
+              if (!syncing && nodes.length >= 2) e.currentTarget.style.background = '#1ddba8';
+            }}
+          >
             {syncing ? '⏳ Creating...' : '🔗 Auto Create Edges'}
           </button>
           <button onClick={deleteAllData} disabled={syncing || nodes.length === 0}
-            className="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition">
-            🗑️ Delete All
+            style={{
+              padding: '8px 16px',
+              background: (syncing || nodes.length === 0) ? '#3a5070' : '#f87171',
+              color: '#0a1628',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: (syncing || nodes.length === 0) ? 'not-allowed' : 'pointer',
+              transition: 'background 0.3s ease',
+              opacity: (syncing || nodes.length === 0) ? 0.5 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!syncing && nodes.length > 0) e.currentTarget.style.background = '#ef4444';
+            }}
+            onMouseLeave={(e) => {
+              if (!syncing && nodes.length > 0) e.currentTarget.style.background = '#f87171';
+            }}
+          >
+            🗑 Delete All
           </button>
         </div>
       </div>
 
       {/* Toast */}
       {toast && (
-        <div className={`px-4 py-3 rounded-lg text-sm font-medium ${
-          toast.type === 'error'
-            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-            : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-        }`}>
-          {toast.type === 'error' ? '❌' : '✅'} {toast.msg}
+        <div style={{
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          fontWeight: 500,
+          border: '1px solid',
+          background: toast.type === 'error' ? 'rgba(248, 113, 113, 0.2)' : 'rgba(29, 219, 168, 0.2)',
+          color: toast.type === 'error' ? '#f87171' : '#1ddba8',
+          borderColor: toast.type === 'error' ? 'rgba(248, 113, 113, 0.3)' : 'rgba(29, 219, 168, 0.3)',
+        }}>
+          {toast.type === 'error' ? '✕' : '✓'} {toast.msg}
         </div>
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Nodes</p>
-          <p className="text-3xl font-bold text-white mt-1">{nodes.length}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Total Nodes</p>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>{nodes.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Edges</p>
-          <p className="text-3xl font-bold text-white mt-1">{edges.length}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Total Edges</p>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>{edges.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Rooms</p>
-          <p className="text-3xl font-bold text-white mt-1">{totalRooms}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Total Rooms</p>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>{totalRooms}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Synced to Nodes</p>
-          <p className="text-3xl font-bold text-white mt-1">{syncedRooms}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Synced to Nodes</p>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>{syncedRooms}</p>
         </div>
       </div>
 
       {/* Room Purpose Breakdown */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-        <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Room Purpose Breakdown</p>
-        <div className="flex flex-wrap gap-2">
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '12px',
+        padding: '20px',
+      }}>
+        <p style={{
+          color: '#6b8aaa',
+          fontSize: '12px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px',
+          marginBottom: '8px',
+          marginTop: 0,
+        }}>Room Purpose Breakdown</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {Object.entries(purposeCounts).map(([purpose, count]) => {
-            const color = PURPOSE_COLORS[purpose] || 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
+            const color = PURPOSE_COLORS[purpose] || { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa', border: 'rgba(107, 138, 170, 0.3)' };
             return (
-              <span key={purpose} className={`px-3 py-1 rounded-full text-xs font-semibold ${color}`}>
+              <span key={purpose} style={{
+                padding: '4px 12px',
+                borderRadius: '20px',
+                fontSize: '12px',
+                fontWeight: 600,
+                background: color.bg,
+                color: color.text,
+                border: `1px solid ${color.border}`,
+              }}>
                 {purpose}: {count}
               </span>
             );
@@ -515,18 +677,34 @@ export default function NavigationManager() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 border-b border-gray-800">
+      <div style={{
+        display: 'flex',
+        gap: 0,
+        borderBottom: '1px solid #1a3050',
+      }}>
         {[
           { key: 'nodes', label: `Nodes (${nodes.length})` },
           { key: 'edges', label: `Edges (${edges.length})` },
         ].map(t => (
           <button key={t.key}
             onClick={() => { setTab(t.key); cancelNode(); cancelEdge(); }}
-            className={`px-6 py-3 text-sm font-medium transition border-b-2 ${
-              tab === t.key
-                ? 'text-purple-400 border-purple-400'
-                : 'text-gray-400 hover:text-gray-300 border-transparent'
-            }`}>
+            style={{
+              padding: '12px 24px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              color: tab === t.key ? '#a78bfa' : '#6b8aaa',
+              borderBottom: tab === t.key ? '2px solid #a78bfa' : '2px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (tab !== t.key) e.currentTarget.style.color = '#c8daf0';
+            }}
+            onMouseLeave={(e) => {
+              if (tab !== t.key) e.currentTarget.style.color = '#6b8aaa';
+            }}>
             {t.label}
           </button>
         ))}
@@ -534,76 +712,244 @@ export default function NavigationManager() {
 
       {/* ═══ NODES TAB ═══ */}
       {tab === 'nodes' && (
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Form */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6">
-            <h2 className="text-white font-semibold mb-4">
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            padding: '24px',
+          }}>
+            <h2 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              marginBottom: '16px',
+              fontSize: '16px',
+              marginTop: 0,
+            }}>
               {editNodeId ? '✏️ Edit Node' : '➕ Add Node'}
             </h2>
-            <form onSubmit={handleNodeSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleNodeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px',
+              }}>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
                     Node Name *
                   </label>
                   <input required
                     placeholder="e.g. Block A Entrance"
                     value={nodeForm.name}
                     onChange={e => setNodeForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition" />
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }} />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
                     Node Type *
                   </label>
                   <select
                     value={nodeForm.node_type}
                     onChange={e => setNodeForm(f => ({ ...f, node_type: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }}>
                     {NODE_TYPES.map(t => (
                       <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
-                    Block ID <span className="text-gray-600">(optional)</span>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
+                    Block ID <span style={{ color: '#3a5070' }}>(optional)</span>
                   </label>
                   <input type="number"
                     placeholder="Leave blank if not applicable"
                     value={nodeForm.block}
                     onChange={e => setNodeForm(f => ({ ...f, block: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition" />
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }} />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
-                    Floor ID <span className="text-gray-600">(optional)</span>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
+                    Floor ID <span style={{ color: '#3a5070' }}>(optional)</span>
                   </label>
                   <input type="number"
                     placeholder="Leave blank if not applicable"
                     value={nodeForm.floor}
                     onChange={e => setNodeForm(f => ({ ...f, floor: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition" />
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }} />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
-                    Room ID <span className="text-gray-600">(optional)</span>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
+                    Room ID <span style={{ color: '#3a5070' }}>(optional)</span>
                   </label>
                   <input type="number"
                     placeholder="Leave blank if not applicable"
                     value={nodeForm.room}
                     onChange={e => setNodeForm(f => ({ ...f, room: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition" />
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }} />
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
                 <button type="submit" disabled={saving}
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition">
+                  style={{
+                    padding: '10px 20px',
+                    background: saving ? '#3a5070' : '#a78bfa',
+                    color: '#0a1628',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.3s ease',
+                    opacity: saving ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!saving) e.currentTarget.style.background = '#8b5cf6';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saving) e.currentTarget.style.background = '#a78bfa';
+                  }}>
                   {saving ? 'Saving...' : editNodeId ? 'Update Node' : 'Add Node'}
                 </button>
                 {editNodeId && (
                   <button type="button" onClick={cancelNode}
-                    className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition">
+                    style={{
+                      padding: '10px 20px',
+                      background: '#0f2040',
+                      color: '#eaf2ff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'background 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#122448';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#0f2040';
+                    }}>
                     Cancel
                   </button>
                 )}
@@ -613,66 +959,148 @@ export default function NavigationManager() {
 
           {/* Node table */}
           {nodes.length === 0 ? (
-            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-              <div className="text-5xl mb-3">🗺️</div>
-              <h3 className="text-white font-semibold mb-1">No nodes yet</h3>
-              <p className="text-gray-400 text-sm">Click the "Sync Rooms" button above or add your first location node manually.</p>
+            <div style={{
+              background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+              border: '1px solid #1a3050',
+              borderRadius: '16px',
+              padding: '48px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>◇</div>
+              <h3 style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                marginBottom: '4px',
+                fontSize: '18px',
+                marginTop: 0,
+              }}>No nodes yet</h3>
+              <p style={{ color: '#6b8aaa', fontSize: '14px' }}>
+                Click the "Sync Rooms" button above or add your first location node manually.
+              </p>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-800/50 border-b border-gray-800">
-                    <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                      <th className="px-5 py-4 text-left">ID</th>
-                      <th className="px-5 py-4 text-left">Name</th>
-                      <th className="px-5 py-4 text-left">Type</th>
-                      <th className="px-5 py-4 text-left">Block</th>
-                      <th className="px-5 py-4 text-left">Floor</th>
-                      <th className="px-5 py-4 text-left">Room ID</th>
-                      <th className="px-5 py-4 text-left">Linked Room</th>
-                      <th className="px-5 py-4 text-left">Actions</th>
+            <div style={{
+              background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+              border: '1px solid #1a3050',
+              borderRadius: '16px',
+              overflow: 'hidden',
+            }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{
+                  width: '100%',
+                  fontSize: '14px',
+                  borderCollapse: 'collapse',
+                }}>
+                  <thead style={{
+                    background: 'rgba(15, 32, 64, 0.5)',
+                    borderBottom: '1px solid #1a3050',
+                  }}>
+                    <tr style={{
+                      color: '#6b8aaa',
+                      fontSize: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>ID</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Name</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Type</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Block</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Floor</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Room ID</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Linked Room</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800">
+                  <tbody>
                     {nodes.map(n => {
                       const linkedRoom = rooms.find(r => r.id === n.room);
+                      const typeColor = TYPE_COLORS[n.node_type] || { bg: 'rgba(107, 138, 170, 0.2)', text: '#6b8aaa' };
                       return (
                         <tr key={n.id}
-                          className={`hover:bg-gray-800/30 transition ${editNodeId === n.id ? 'bg-purple-500/5' : ''}`}>
-                          <td className="px-5 py-4 text-gray-400 font-mono text-xs">#{n.id}</td>
-                          <td className="px-5 py-4 text-white font-medium">{n.name}</td>
-                          <td className="px-5 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${TYPE_COLORS[n.node_type] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                          style={{
+                            borderBottom: '1px solid #1a3050',
+                            transition: 'background 0.2s ease',
+                            background: editNodeId === n.id ? 'rgba(167, 139, 250, 0.05)' : 'transparent',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (editNodeId !== n.id) e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                          }}
+                          onMouseLeave={(e) => {
+                            if (editNodeId !== n.id) e.currentTarget.style.background = 'transparent';
+                          }}>
+                          <td style={{ padding: '16px 20px', color: '#6b8aaa', fontFamily: 'monospace', fontSize: '12px' }}>#{n.id}</td>
+                          <td style={{ padding: '16px 20px', color: '#eaf2ff', fontWeight: 500 }}>{n.name}</td>
+                          <td style={{ padding: '16px 20px' }}>
+                            <span style={{
+                              padding: '4px 10px',
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              background: typeColor.bg,
+                              color: typeColor.text,
+                            }}>
                               {n.node_type}
                             </span>
                           </td>
-                          <td className="px-5 py-4 text-gray-400">{n.block ?? '—'}</td>
-                          <td className="px-5 py-4 text-gray-400">{n.floor ?? '—'}</td>
-                          <td className="px-5 py-4 text-gray-400">{n.room ?? '—'}</td>
-                          <td className="px-5 py-4">
+                          <td style={{ padding: '16px 20px', color: '#6b8aaa' }}>{n.block ?? '—'}</td>
+                          <td style={{ padding: '16px 20px', color: '#6b8aaa' }}>{n.floor ?? '—'}</td>
+                          <td style={{ padding: '16px 20px', color: '#6b8aaa' }}>{n.room ?? '—'}</td>
+                          <td style={{ padding: '16px 20px' }}>
                             {linkedRoom ? (
-                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                                linkedRoom.room_purpose === 'residential' 
-                                  ? 'bg-green-500/20 text-green-400'
-                                  : linkedRoom.room_purpose === 'reception'
-                                  ? 'bg-purple-500/20 text-purple-400'
-                                  : 'bg-yellow-500/20 text-yellow-400'
-                              }`}>
+                              <span style={{
+                                padding: '4px 8px',
+                                borderRadius: '20px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                background: linkedRoom.room_purpose === 'residential' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(234, 179, 8, 0.2)',
+                                color: linkedRoom.room_purpose === 'residential' ? '#34d399' : '#fbbf24',
+                              }}>
                                 {linkedRoom.room_number} ({linkedRoom.room_purpose})
                               </span>
                             ) : (
-                              <span className="text-gray-500 text-xs">—</span>
+                              <span style={{ color: '#3a5070', fontSize: '12px' }}>—</span>
                             )}
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex gap-2">
+                          <td style={{ padding: '16px 20px' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
                               <button onClick={() => startEditNode(n)}
-                                className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded-lg transition">
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(96, 165, 250, 0.2)',
+                                  color: '#60a5fa',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 500,
+                                  cursor: 'pointer',
+                                  transition: 'background 0.3s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(96, 165, 250, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)';
+                                }}>
                                 Edit
                               </button>
                               <button onClick={() => handleDeleteNode(n.id)}
-                                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded-lg transition">
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(248, 113, 113, 0.2)',
+                                  color: '#f87171',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 500,
+                                  cursor: 'pointer',
+                                  transition: 'background 0.3s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                                }}>
                                 Delete
                               </button>
                             </div>
@@ -690,71 +1118,208 @@ export default function NavigationManager() {
 
       {/* ═══ EDGES TAB ═══ */}
       {tab === 'edges' && (
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Form */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6">
-            <h2 className="text-white font-semibold mb-4">
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            padding: '24px',
+          }}>
+            <h2 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              marginBottom: '16px',
+              fontSize: '16px',
+              marginTop: 0,
+            }}>
               {editEdgeId ? '✏️ Edit Edge' : '➕ Add Edge'}
             </h2>
             {nodes.length < 2 && (
-              <div className="mb-4 px-4 py-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-400 text-sm">
+              <div style={{
+                marginBottom: '16px',
+                padding: '12px 16px',
+                background: 'rgba(245, 166, 35, 0.1)',
+                border: '1px solid rgba(245, 166, 35, 0.3)',
+                borderRadius: '8px',
+                color: '#f5a623',
+                fontSize: '14px',
+              }}>
                 ⚠️ Add at least 2 nodes first before creating edges. Click "Sync Rooms" to create nodes automatically.
               </div>
             )}
-            <form onSubmit={handleEdgeSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <form onSubmit={handleEdgeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
+                gap: '16px',
+              }}>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
                     From Node *
                   </label>
                   <select required
                     value={edgeForm.from_node}
                     onChange={e => setEdgeForm(f => ({ ...f, from_node: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }}>
                     <option value="">Select node...</option>
                     {nodes.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
                     To Node *
                   </label>
                   <select required
                     value={edgeForm.to_node}
                     onChange={e => setEdgeForm(f => ({ ...f, to_node: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition">
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }}>
                     <option value="">Select node...</option>
                     {nodes.filter(n => n.id !== parseInt(edgeForm.from_node))
                           .map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">
+                  <label style={{
+                    display: 'block',
+                    fontSize: '12px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    marginBottom: '4px',
+                  }}>
                     Weight (distance / time)
                   </label>
                   <input type="number" min="0.1" step="0.1"
                     value={edgeForm.weight}
                     onChange={e => setEdgeForm(f => ({ ...f, weight: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition" />
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      background: '#0f2040',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.3s ease',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => {
+                      e.currentTarget.style.borderColor = '#a78bfa';
+                    }}
+                    onBlur={(e) => {
+                      e.currentTarget.style.borderColor = '#1a3050';
+                    }} />
                 </div>
               </div>
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                cursor: 'pointer',
+              }}>
                 <input type="checkbox"
                   checked={edgeForm.bidirectional}
                   onChange={e => setEdgeForm(f => ({ ...f, bidirectional: e.target.checked }))}
-                  className="w-4 h-4 accent-purple-500" />
-                <span className="text-sm text-gray-300">
-                  Bidirectional <span className="text-gray-500">(A ↔ B — uncheck for one-way A → B only)</span>
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    accentColor: '#a78bfa',
+                  }} />
+                <span style={{ fontSize: '14px', color: '#c8daf0' }}>
+                  Bidirectional <span style={{ color: '#3a5070' }}>(A ↔ B — uncheck for one-way A → B only)</span>
                 </span>
               </label>
-              <div className="flex gap-3 pt-2">
+              <div style={{ display: 'flex', gap: '12px', paddingTop: '8px' }}>
                 <button type="submit" disabled={saving || nodes.length < 2}
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition">
+                  style={{
+                    padding: '10px 20px',
+                    background: (saving || nodes.length < 2) ? '#3a5070' : '#a78bfa',
+                    color: '#0a1628',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: (saving || nodes.length < 2) ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.3s ease',
+                    opacity: (saving || nodes.length < 2) ? 0.5 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!saving && nodes.length >= 2) e.currentTarget.style.background = '#8b5cf6';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saving && nodes.length >= 2) e.currentTarget.style.background = '#a78bfa';
+                  }}>
                   {saving ? 'Saving...' : editEdgeId ? 'Update Edge' : 'Add Edge'}
                 </button>
                 {editEdgeId && (
                   <button type="button" onClick={cancelEdge}
-                    className="px-5 py-2.5 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg transition">
+                    style={{
+                      padding: '10px 20px',
+                      background: '#0f2040',
+                      color: '#eaf2ff',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      transition: 'background 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#122448';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#0f2040';
+                    }}>
                     Cancel
                   </button>
                 )}
@@ -764,61 +1329,142 @@ export default function NavigationManager() {
 
           {/* Edge table */}
           {edges.length === 0 ? (
-            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-              <div className="text-5xl mb-3">🔗</div>
-              <h3 className="text-white font-semibold mb-1">No edges yet</h3>
-              <p className="text-gray-400 text-sm">Click "Auto Create Edges" to automatically connect nodes or add them manually above.</p>
+            <div style={{
+              background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+              border: '1px solid #1a3050',
+              borderRadius: '16px',
+              padding: '48px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>◇</div>
+              <h3 style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                marginBottom: '4px',
+                fontSize: '18px',
+                marginTop: 0,
+              }}>No edges yet</h3>
+              <p style={{ color: '#6b8aaa', fontSize: '14px' }}>
+                Click "Auto Create Edges" to automatically connect nodes or add them manually above.
+              </p>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-800/50 border-b border-gray-800">
-                    <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                      <th className="px-5 py-4 text-left">ID</th>
-                      <th className="px-5 py-4 text-left">From</th>
-                      <th className="px-5 py-4 text-left"></th>
-                      <th className="px-5 py-4 text-left">To</th>
-                      <th className="px-5 py-4 text-left">Weight</th>
-                      <th className="px-5 py-4 text-left">Bidir</th>
-                      <th className="px-5 py-4 text-left">Actions</th>
+            <div style={{
+              background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+              border: '1px solid #1a3050',
+              borderRadius: '16px',
+              overflow: 'hidden',
+            }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{
+                  width: '100%',
+                  fontSize: '14px',
+                  borderCollapse: 'collapse',
+                }}>
+                  <thead style={{
+                    background: 'rgba(15, 32, 64, 0.5)',
+                    borderBottom: '1px solid #1a3050',
+                  }}>
+                    <tr style={{
+                      color: '#6b8aaa',
+                      fontSize: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>ID</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>From</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}></th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>To</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Weight</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Bidir</th>
+                      <th style={{ padding: '16px 20px', textAlign: 'left' }}>Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800">
+                  <tbody>
                     {edges.map(e => {
                       const fromNode = nodes.find(n => n.id === e.from_node);
                       const toNode = nodes.find(n => n.id === e.to_node);
                       return (
                         <tr key={e.id}
-                          className={`hover:bg-gray-800/30 transition ${editEdgeId === e.id ? 'bg-purple-500/5' : ''}`}>
-                          <td className="px-5 py-4 text-gray-400 font-mono text-xs">#{e.id}</td>
-                          <td className="px-5 py-4 text-white font-medium">
+                          style={{
+                            borderBottom: '1px solid #1a3050',
+                            transition: 'background 0.2s ease',
+                            background: editEdgeId === e.id ? 'rgba(167, 139, 250, 0.05)' : 'transparent',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (editEdgeId !== e.currentTarget.dataset.id) {
+                              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (editEdgeId !== e.currentTarget.dataset.id) {
+                              e.currentTarget.style.background = 'transparent';
+                            }
+                          }}
+                          data-id={e.id}>
+                          <td style={{ padding: '16px 20px', color: '#6b8aaa', fontFamily: 'monospace', fontSize: '12px' }}>#{e.id}</td>
+                          <td style={{ padding: '16px 20px', color: '#eaf2ff', fontWeight: 500 }}>
                             {e.from_node_name ?? fromNode?.name ?? e.from_node}
                           </td>
-                          <td className="px-5 py-4 text-gray-500">
+                          <td style={{ padding: '16px 20px', color: '#3a5070' }}>
                             {e.bidirectional ? '↔' : '→'}
                           </td>
-                          <td className="px-5 py-4 text-white font-medium">
+                          <td style={{ padding: '16px 20px', color: '#eaf2ff', fontWeight: 500 }}>
                             {e.to_node_name ?? toNode?.name ?? e.to_node}
                           </td>
-                          <td className="px-5 py-4 text-gray-300">{e.weight}</td>
-                          <td className="px-5 py-4">
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              e.bidirectional
-                                ? 'bg-emerald-500/20 text-emerald-400'
-                                : 'bg-gray-500/20 text-gray-400'
-                            }`}>
+                          <td style={{ padding: '16px 20px', color: '#c8daf0' }}>{e.weight}</td>
+                          <td style={{ padding: '16px 20px' }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              borderRadius: '20px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              background: e.bidirectional ? 'rgba(16, 185, 129, 0.2)' : 'rgba(107, 138, 170, 0.2)',
+                              color: e.bidirectional ? '#34d399' : '#6b8aaa',
+                            }}>
                               {e.bidirectional ? 'Yes' : 'No'}
                             </span>
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex gap-2">
+                          <td style={{ padding: '16px 20px' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
                               <button onClick={() => startEditEdge(e)}
-                                className="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-xs font-medium rounded-lg transition">
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(96, 165, 250, 0.2)',
+                                  color: '#60a5fa',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 500,
+                                  cursor: 'pointer',
+                                  transition: 'background 0.3s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(96, 165, 250, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(96, 165, 250, 0.2)';
+                                }}>
                                 Edit
                               </button>
                               <button onClick={() => handleDeleteEdge(e.id)}
-                                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-medium rounded-lg transition">
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'rgba(248, 113, 113, 0.2)',
+                                  color: '#f87171',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  fontSize: '12px',
+                                  fontWeight: 500,
+                                  cursor: 'pointer',
+                                  transition: 'background 0.3s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                                }}>
                                 Delete
                               </button>
                             </div>
@@ -833,6 +1479,14 @@ export default function NavigationManager() {
           )}
         </div>
       )}
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

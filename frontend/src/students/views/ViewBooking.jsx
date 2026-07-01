@@ -17,6 +17,18 @@ const ViewBooking = () => {
   const [cancelling, setCancelling] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
 
+  // Helper function to format Nepali Rupees
+  const formatPrice = (price) => {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
+    return formatted.replace('NPR', 'Rs.');
+  };
+
   useEffect(() => {
     fetchBookingDetails();
   }, [bookingId]);
@@ -26,27 +38,21 @@ const ViewBooking = () => {
       setLoading(true);
       setError(null);
       
-      // Get booking details
       const bookingRes = await api.get(`/bookings/bookings/${bookingId}/`);
       const bookingData = bookingRes.data;
       
-      // Get room details
       const roomRes = await api.get(`/hostel/rooms/${bookingData.room}/`);
       const room = roomRes.data;
       
-      // Get floor details
       const floorRes = await api.get(`/hostel/floors/${room.floor}/`);
       const floor = floorRes.data;
       
-      // Get block details
       const blockRes = await api.get(`/hostel/blocks/${floor.block}/`);
       const block = blockRes.data;
       
-      // Get hostel details
       const hostelRes = await api.get(`/hostel/hostels/${block.hostel}/`);
       const hostel = hostelRes.data;
       
-      // Get payment details
       let payment = null;
       try {
         const paymentRes = await api.get(`/bookings/payments/?booking=${bookingId}`);
@@ -84,7 +90,6 @@ const ViewBooking = () => {
         status: 'cancelled'
       });
       
-      // Update local state
       setBooking(prev => ({
         ...prev,
         status: 'cancelled'
@@ -92,8 +97,6 @@ const ViewBooking = () => {
       
       showSuccess('Booking cancelled successfully!', 'Cancelled');
       setShowCancelModal(false);
-      
-      // Refresh booking details
       await fetchBookingDetails();
       
     } catch (err) {
@@ -110,20 +113,30 @@ const ViewBooking = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      approved: 'bg-green-500/20 text-green-400 border-green-500/30',
-      rejected: 'bg-red-500/20 text-red-400 border-red-500/30',
-      cancelled: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+      pending: 'rgba(245, 166, 35, 0.1)',
+      approved: 'rgba(29, 219, 168, 0.1)',
+      rejected: 'rgba(248, 113, 113, 0.1)',
+      cancelled: 'rgba(107, 114, 128, 0.1)',
     };
-    return colors[status] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+    return colors[status] || 'rgba(107, 114, 128, 0.1)';
+  };
+
+  const getStatusTextColor = (status) => {
+    const colors = {
+      pending: '#f5a623',
+      approved: '#1ddba8',
+      rejected: '#f87171',
+      cancelled: '#6b8aaa',
+    };
+    return colors[status] || '#6b8aaa';
   };
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'pending': return '⏳';
-      case 'approved': return '✅';
-      case 'rejected': return '❌';
-      case 'cancelled': return '🚫';
+      case 'pending': return '';
+      case 'approved': return '';
+      case 'rejected': return '';
+      case 'cancelled': return '';
       default: return '📋';
     }
   };
@@ -132,16 +145,6 @@ const ViewBooking = () => {
     if (!dateString) return 'N/A';
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const formatPrice = (price) => {
-    if (!price) return 'N/A';
-    return new Intl.NumberFormat('en-NP', {
-      style: 'currency',
-      currency: 'NPR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
   };
 
   const getDaysRemaining = () => {
@@ -163,10 +166,23 @@ const ViewBooking = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading booking details...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading booking details...</p>
         </div>
       </div>
     );
@@ -174,12 +190,29 @@ const ViewBooking = () => {
 
   if (error || !booking) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400 mb-4">{error || 'Booking not found'}</p>
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171', marginBottom: '16px' }}>{error || 'Booking not found'}</p>
           <button
             onClick={() => navigate('/students/my-bookings')}
-            className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Back to My Bookings
           </button>
@@ -193,86 +226,164 @@ const ViewBooking = () => {
   const isPast = new Date(booking.check_out_date) < new Date();
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
       {/* Back Button */}
       <button
         onClick={() => navigate('/students/my-bookings')}
-        className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+        style={{
+          color: '#6b8aaa',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '14px',
+          transition: 'color 0.2s ease',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+        onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
       >
         ← Back to My Bookings
       </button>
 
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: '24px',
+      }}>
         <div>
-          <h1 className="text-3xl font-bold text-white">Booking Details</h1>
-          <p className="text-gray-400 mt-1">Booking #{booking.id}</p>
+          <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#eaf2ff', margin: 0 }}>Booking Details</h1>
+          <p style={{ color: '#6b8aaa', marginTop: '4px' }}>Booking #{booking.id}</p>
         </div>
-        <span className={`px-3 py-1.5 rounded-full text-sm font-medium border flex items-center gap-2 ${getStatusColor(booking.status)}`}>
+        <span style={{
+          padding: '6px 16px',
+          borderRadius: '9999px',
+          fontSize: '14px',
+          fontWeight: 500,
+          border: '1px solid',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          background: getStatusColor(booking.status),
+          color: getStatusTextColor(booking.status),
+          borderColor: getStatusColor(booking.status),
+          textTransform: 'capitalize',
+        }}>
           {getStatusIcon(booking.status)}
-          <span className="capitalize">{booking.status}</span>
+          {booking.status}
         </span>
       </div>
 
       {/* Booking Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Hostel</p>
-          <p className="text-white font-semibold mt-1">{booking.hostel_name}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '16px',
+        marginBottom: '24px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Hostel</p>
+          <p style={{ color: '#eaf2ff', fontWeight: 600, marginTop: '4px' }}>{booking.hostel_name}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Room</p>
-          <p className="text-white font-semibold mt-1">Room {booking.room_number}</p>
-          <p className="text-gray-500 text-xs">Block: {booking.block_name}</p>
-          <p className="text-gray-500 text-xs">Floor: {booking.floor_number}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Room</p>
+          <p style={{ color: '#eaf2ff', fontWeight: 600, marginTop: '4px' }}>Room {booking.room_number}</p>
+          <p style={{ color: '#6b8aaa', fontSize: '12px', margin: '2px 0' }}>Block: {booking.block_name}</p>
+          <p style={{ color: '#6b8aaa', fontSize: '12px', margin: 0 }}>Floor: {booking.floor_number}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Stay Duration</p>
-          <p className="text-white font-semibold mt-1">{getStayDuration()} days</p>
-          <p className="text-gray-500 text-xs">Check-in: {formatDate(booking.check_in_date)}</p>
-          <p className="text-gray-500 text-xs">Check-out: {formatDate(booking.check_out_date)}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Stay Duration</p>
+          <p style={{ color: '#eaf2ff', fontWeight: 600, marginTop: '4px' }}>{getStayDuration()} days</p>
+          <p style={{ color: '#6b8aaa', fontSize: '12px', margin: '2px 0' }}>Check-in: {formatDate(booking.check_in_date)}</p>
+          <p style={{ color: '#6b8aaa', fontSize: '12px', margin: 0 }}>Check-out: {formatDate(booking.check_out_date)}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Amount</p>
-          <p className="text-cyan-400 font-bold text-2xl mt-1">{formatPrice(booking.total_amount)}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Amount</p>
+          <p style={{ color: '#f5a623', fontWeight: 700, fontSize: '24px', marginTop: '4px' }}>{formatPrice(booking.total_amount)}</p>
           {isActive && (
-            <p className="text-yellow-400 text-xs mt-1">{getDaysRemaining()} days remaining</p>
+            <p style={{ color: '#f5a623', fontSize: '12px', marginTop: '4px' }}>{getDaysRemaining()} days remaining</p>
           )}
         </div>
       </div>
 
       {/* Room Details */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-          <h2 className="text-white font-semibold flex items-center gap-2">
-            <span className="text-xl">🏠</span> Room Details
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        marginBottom: '24px',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+          background: 'rgba(18, 36, 72, 0.3)',
+        }}>
+          <h2 style={{
+            color: '#eaf2ff',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '18px',
+            margin: 0,
+          }}>
+            <span style={{ fontSize: '20px' }}>🏠</span> Room Details
           </h2>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div style={{ padding: '24px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '16px',
+          }}>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Room Number</p>
-              <p className="text-white text-lg font-semibold">Room {booking.room_number}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Room Number</p>
+              <p style={{ color: '#eaf2ff', fontSize: '18px', fontWeight: 600, marginTop: '4px' }}>Room {booking.room_number}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Room Type</p>
-              <p className="text-white capitalize">{booking.room_type}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Room Type</p>
+              <p style={{ color: '#eaf2ff', textTransform: 'capitalize', marginTop: '4px' }}>{booking.room_type}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Block / Floor</p>
-              <p className="text-white">{booking.block_name} / Floor {booking.floor_number}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Block / Floor</p>
+              <p style={{ color: '#eaf2ff', marginTop: '4px' }}>{booking.block_name} / Floor {booking.floor_number}</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Capacity</p>
-              <p className="text-white">{booking.capacity} persons</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Capacity</p>
+              <p style={{ color: '#eaf2ff', marginTop: '4px' }}>{booking.capacity} persons</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Current Occupancy</p>
-              <p className="text-white">{booking.current_occupancy} occupants</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Current Occupancy</p>
+              <p style={{ color: '#eaf2ff', marginTop: '4px' }}>{booking.current_occupancy} occupants</p>
             </div>
             <div>
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Hostel Address</p>
-              <p className="text-white text-sm">{booking.hostel_address}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Hostel Address</p>
+              <p style={{ color: '#eaf2ff', fontSize: '14px', marginTop: '4px' }}>{booking.hostel_address}</p>
             </div>
           </div>
         </div>
@@ -280,27 +391,66 @@ const ViewBooking = () => {
 
       {/* Payment Details */}
       {booking.payment && (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-            <h2 className="text-white font-semibold flex items-center gap-2">
-              <span className="text-xl">💰</span> Payment Details
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+        }}>
+          <div style={{
+            padding: '16px 24px',
+            borderBottom: '1px solid #1a3050',
+            background: 'rgba(18, 36, 72, 0.3)',
+          }}>
+            <h2 style={{
+              color: '#eaf2ff',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '18px',
+              margin: 0,
+            }}>
+              <span style={{ fontSize: '20px' }}>💰</span> Payment Details
             </h2>
           </div>
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div style={{ padding: '24px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '16px',
+            }}>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wide">Amount</p>
-                <p className="text-white text-lg font-semibold">{formatPrice(booking.payment.amount)}</p>
+                <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Amount</p>
+                <p style={{ color: '#eaf2ff', fontSize: '18px', fontWeight: 600, marginTop: '4px' }}>{formatPrice(booking.payment.amount)}</p>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wide">Status</p>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium border inline-block ${getStatusColor(booking.payment.paid_status)}`}>
+                <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Status</p>
+                <span style={{
+                  padding: '2px 12px',
+                  borderRadius: '9999px',
+                  fontSize: '10px',
+                  fontWeight: 500,
+                  border: '1px solid',
+                  display: 'inline-block',
+                  marginTop: '4px',
+                  background: booking.payment.paid_status === 'paid' 
+                    ? 'rgba(29, 219, 168, 0.1)' 
+                    : 'rgba(245, 166, 35, 0.1)',
+                  color: booking.payment.paid_status === 'paid' 
+                    ? '#1ddba8' 
+                    : '#f5a623',
+                  borderColor: booking.payment.paid_status === 'paid' 
+                    ? 'rgba(29, 219, 168, 0.3)' 
+                    : 'rgba(245, 166, 35, 0.3)',
+                }}>
                   {booking.payment.paid_status}
                 </span>
               </div>
               <div>
-                <p className="text-gray-400 text-xs uppercase tracking-wide">Paid On</p>
-                <p className="text-white">{booking.payment.paid_at ? formatDate(booking.payment.paid_at) : 'Not paid yet'}</p>
+                <p style={{ color: '#6b8aaa', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Paid On</p>
+                <p style={{ color: '#eaf2ff', marginTop: '4px' }}>{booking.payment.paid_at ? formatDate(booking.payment.paid_at) : 'Not paid yet'}</p>
               </div>
             </div>
           </div>
@@ -308,13 +458,34 @@ const ViewBooking = () => {
       )}
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-3">
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
         {isPending && (
           <button
             onClick={handlePayment}
-            className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg transition shadow-lg shadow-green-500/25 flex items-center gap-2"
+            style={{
+              padding: '10px 24px',
+              background: 'linear-gradient(to right, #f5a623, #e09515)',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 20px rgba(245, 166, 35, 0.3)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #e09515, #c47d0e)';
+              e.currentTarget.style.boxShadow = '0 4px 30px rgba(245, 166, 35, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #f5a623, #e09515)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.3)';
+            }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Pay Now
@@ -324,7 +495,22 @@ const ViewBooking = () => {
         {isActive && (
           <button
             onClick={() => navigate(`/students/pay-rent`)}
-            className="px-6 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg transition"
+            style={{
+              padding: '10px 24px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#e09515';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#f5a623';
+            }}
           >
             Pay Rent
           </button>
@@ -334,7 +520,25 @@ const ViewBooking = () => {
           <button
             onClick={() => setShowCancelModal(true)}
             disabled={cancelling}
-            className="px-6 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg transition disabled:opacity-50"
+            style={{
+              padding: '10px 24px',
+              background: 'rgba(248, 113, 113, 0.1)',
+              color: '#f87171',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: '1px solid rgba(248, 113, 113, 0.2)',
+              cursor: cancelling ? 'not-allowed' : 'pointer',
+              opacity: cancelling ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!cancelling) {
+                e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(248, 113, 113, 0.1)';
+            }}
           >
             Cancel Booking
           </button>
@@ -342,7 +546,22 @@ const ViewBooking = () => {
         
         <button
           onClick={() => navigate('/students/my-bookings')}
-          className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold rounded-lg transition"
+          style={{
+            padding: '10px 24px',
+            background: 'rgba(18, 36, 72, 0.5)',
+            color: '#c8daf0',
+            fontWeight: 600,
+            borderRadius: '8px',
+            border: '1px solid #1a3050',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+          }}
         >
           View All Bookings
         </button>
@@ -350,26 +569,71 @@ const ViewBooking = () => {
 
       {/* Cancel Modal */}
       {showCancelModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Cancel Booking?</h2>
-            <p className="text-gray-400 mb-2">
-              Are you sure you want to cancel your booking at <span className="text-white">{booking.hostel_name}</span>?
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '16px',
+        }}>
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '16px',
+            maxWidth: '448px',
+            width: '100%',
+            padding: '24px',
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#eaf2ff', marginBottom: '16px' }}>Cancel Booking?</h2>
+            <p style={{ color: '#6b8aaa', marginBottom: '8px' }}>
+              Are you sure you want to cancel your booking at <span style={{ color: '#eaf2ff' }}>{booking.hostel_name}</span>?
             </p>
-            <p className="text-gray-500 text-sm mb-6">
+            <p style={{ color: '#3a5070', fontSize: '14px', marginBottom: '24px' }}>
               Room {booking.room_number} • {formatDate(booking.check_in_date)} to {formatDate(booking.check_out_date)}
             </p>
-            <div className="flex gap-3">
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={() => setShowCancelModal(false)}
-                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#1a3050',
+                  color: '#eaf2ff',
+                  fontWeight: 500,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s ease',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#2a4870'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#1a3050'}
               >
                 Keep Booking
               </button>
               <button
                 onClick={handleCancelBooking}
                 disabled={cancelling}
-                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition disabled:opacity-50"
+                style={{
+                  flex: 1,
+                  padding: '8px 16px',
+                  background: '#f87171',
+                  color: '#0a1628',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: cancelling ? 'not-allowed' : 'pointer',
+                  opacity: cancelling ? 0.5 : 1,
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!cancelling) e.currentTarget.style.background = '#fca5a5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f87171';
+                }}
               >
                 {cancelling ? 'Cancelling...' : 'Yes, Cancel'}
               </button>
@@ -377,6 +641,14 @@ const ViewBooking = () => {
           </div>
         </div>
       )}
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

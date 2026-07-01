@@ -58,7 +58,7 @@ function Counter({ value, label, color }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HERO SECTION - Updated with direct navigation
+// HERO SECTION
 // ═══════════════════════════════════════════════════════════════════════════════
 function HeroSection() {
   const navigate = useNavigate();
@@ -103,7 +103,7 @@ function HeroSection() {
               width: 6, height: 6, borderRadius: "50%",
               background: colors.teal, animation: "pulse 2s ease-in-out infinite",
             }} />
-            🏠 SMART Hostel Management System
+            SMART Hostel Management System
           </div>
 
           {/* Headline */}
@@ -165,8 +165,6 @@ function HeroSection() {
               onMouseEnter={e => { e.currentTarget.style.background = colors.amberDim; e.currentTarget.style.transform = "translateY(-2px)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = colors.amber; e.currentTarget.style.transform = "translateY(0)"; }}
             >Get Started</button>
-
-           
           </div>
 
           {/* Trust strips */}
@@ -213,17 +211,15 @@ function HeroSection() {
             </div>
             <div style={{ padding: "20px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
-                {["🏨", "👨‍🎓", "💰", "📊"].map((icon, i) => (
+                {["Hostels", "Students", "Revenue", "Occupancy"].map((label, i) => (
                   <div key={i} style={{
                     background: colors.bgLight,
                     border: `1px solid ${colors.border}`,
                     padding: "12px",
                     textAlign: "center",
                   }}>
-                    <div style={{ fontSize: 20 }}>{icon}</div>
-                    <div style={{ fontSize: 10, color: colors.textDim, marginTop: 4 }}>
-                      {["Hostels", "Students", "Revenue", "Occupancy"][i]}
-                    </div>
+                    <div style={{ fontSize: 20, color: colors.amber }}>▣</div>
+                    <div style={{ fontSize: 10, color: colors.textDim, marginTop: 4 }}>{label}</div>
                   </div>
                 ))}
               </div>
@@ -247,42 +243,36 @@ function HeroSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FEATURES SECTION - Using your actual features
+// FEATURES SECTION
 // ═══════════════════════════════════════════════════════════════════════════════
 function FeaturesSection() {
   const features = [
     {
-      icon: "🏨",
       title: "Hostel Management",
       description: "Manage multiple hostels, blocks, floors, and rooms with real-time availability tracking and occupancy monitoring.",
       accent: colors.amber,
     },
     {
-      icon: "📅",
       title: "Booking System",
       description: "Easy online booking with automated room allocation, approval workflow, and instant confirmations for students.",
       accent: colors.teal,
     },
     {
-      icon: "💰",
       title: "Payment Integration",
       description: "Secure online payments with eSewa integration. Track payment history, generate receipts, and manage pending dues.",
       accent: colors.amber,
     },
     {
-      icon: "⚠️",
       title: "Complaint Management",
       description: "Students can register complaints online. Admins can track, assign, and resolve issues with real-time status updates.",
       accent: colors.teal,
     },
     {
-      icon: "💬",
       title: "Feedback System",
       description: "Collect and analyze student feedback with ratings and comments to continuously improve hostel services.",
       accent: colors.amber,
     },
     {
-      icon: "📢",
       title: "Announcements",
       description: "Send important announcements and notifications to all students instantly through the integrated notification system.",
       accent: colors.teal,
@@ -327,7 +317,7 @@ function FeaturesSection() {
   );
 }
 
-function FeatureCard({ icon, title, description, accent, delay }) {
+function FeatureCard({ title, description, accent, delay }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
@@ -349,10 +339,11 @@ function FeatureCard({ icon, title, description, accent, delay }) {
         width: 48, height: 48,
         border: `1px solid ${hovered ? accent : colors.border}`,
         display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 22, marginBottom: 20,
+        fontSize: 20, marginBottom: 20,
         background: hovered ? accent + "12" : "transparent",
         transition: "all 0.25s",
-      }}>{icon}</div>
+        color: colors.amber,
+      }}>◆</div>
       <h3 style={{
         fontFamily: fonts.display, fontSize: 17, fontWeight: 700,
         color: colors.white, marginBottom: 10, lineHeight: 1.3,
@@ -363,7 +354,7 @@ function FeatureCard({ icon, title, description, accent, delay }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// STATS STRIP - UPDATED WITH REAL DATA
+// STATS STRIP
 // ═══════════════════════════════════════════════════════════════════════════════
 function StatsStrip({ stats }) {
   return (
@@ -411,7 +402,7 @@ function StatsStrip({ stats }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HOW IT WORKS - Using your system flow
+// HOW IT WORKS
 // ═══════════════════════════════════════════════════════════════════════════════
 function HowItWorksSection() {
   const steps = [
@@ -419,25 +410,21 @@ function HowItWorksSection() {
       num: "01", 
       title: "Student Registration", 
       desc: "Students create accounts and complete their profile with personal and academic details.",
-      icon: "📝"
     },
     { 
       num: "02", 
       title: "Browse & Book", 
       desc: "Search available rooms, view details, and submit booking requests with preferred dates.",
-      icon: "🔍"
     },
     { 
       num: "03", 
       title: "Admin Approval", 
       desc: "Admins review booking requests, approve or reject, and update room occupancy in real-time.",
-      icon: "✅"
     },
     { 
       num: "04", 
       title: "Payment & Move-in", 
       desc: "Complete secure payment, receive digital receipts, and get ready to move into your new room.",
-      icon: "🏠"
     },
   ];
 
@@ -473,8 +460,10 @@ function HowItWorksSection() {
               textAlign: "center",
             }}>
               <div style={{
-                fontSize: 40, marginBottom: 16,
-              }}>{s.icon}</div>
+                fontSize: 32,
+                marginBottom: 16,
+                color: colors.amber,
+              }}>◆</div>
               <div style={{
                 fontFamily: fonts.mono, fontWeight: 700,
                 fontSize: 34, color: colors.border, marginBottom: 10, lineHeight: 1,
@@ -504,7 +493,7 @@ function HowItWorksSection() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// TESTIMONIALS - Using your system feedback
+// TESTIMONIALS
 // ═══════════════════════════════════════════════════════════════════════════════
 function TestimonialsSection() {
   const reviews = [
@@ -594,7 +583,7 @@ function ReviewCard({ review, delay }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CTA SECTION - Updated with direct navigation
+// CTA SECTION
 // ═══════════════════════════════════════════════════════════════════════════════
 function CTASection() {
   const navigate = useNavigate();
@@ -664,7 +653,7 @@ function CTASection() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ROOT EXPORT - UPDATED WITH API FETCH
+// ROOT EXPORT
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function LandingPage({ onNavigate, showAuthModal, setShowAuthModal, authMode, setAuthMode }) {
   const [stats, setStats] = useState({
@@ -689,7 +678,6 @@ export default function LandingPage({ onNavigate, showAuthModal, setShowAuthModa
       } catch (err) {
         console.error('Error fetching stats:', err);
         setError('Failed to load statistics');
-        // Keep showing the static stats as fallback
         setStats({
           hostels: 1,
           rooms: 3,

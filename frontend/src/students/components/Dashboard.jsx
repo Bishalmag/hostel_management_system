@@ -1,65 +1,169 @@
-import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
-import HomePage from "./HomePage";
+import React, { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./layouts/Sidebar";
+import Navbar from "./layouts/Navbar";
+import Footer from "./layouts/Footer";
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const sidebarWidth = collapsed ? "64px" : "260px";
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const sidebarWidth = collapsed ? "90px" : "280px";
+  
+  // Layout Constants - Reduced navbar height
+  const navbarHeight = "56px";  // Changed from 64px to 56px
+  const footerHeight = "48px";
+  const middleLayoutHeight = `calc(100vh - ${navbarHeight} - ${footerHeight})`;
 
   return (
-    <div className="bg-gray-950 min-h-screen flex flex-col">
-
-      {/* TOP NAVBAR - Full width */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-16">
-        <Navbar 
+    <div style={{ 
+      height: '100vh',
+      display: 'flex', 
+      flexDirection: 'column',
+      backgroundColor: '#050d1a',
+      overflow: 'hidden'
+    }}>
+      {/* NAVBAR - Fixed at top, full width */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        height: navbarHeight,
+        backgroundColor: '#0a1628',
+        borderBottom: '1px solid #1a3050',
+        flexShrink: 0,
+      }}>
+        <Navbar
           mobileOpen={mobileOpen}
           onMobileMenuClick={() => setMobileOpen(!mobileOpen)}
         />
       </div>
 
-      {/* MAIN LAYOUT BELOW NAVBAR */}
-      <div className="flex flex-1 pt-16">
-        {/* SIDEBAR */}
+      {/* MAIN LAYOUT - Sandwiched vertically between navbar and footer */}
+      <div style={{ 
+        display: 'flex', 
+        flex: 1,
+        marginTop: navbarHeight,
+        height: middleLayoutHeight,
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+        {/* SIDEBAR - Fixed on left, ending above the footer */}
         <div
-          className="fixed left-0 top-16 z-40 hidden md:block transition-all duration-300"
           style={{
+            position: 'fixed',
+            left: 0,
+            top: navbarHeight,
+            zIndex: 40,
             width: sidebarWidth,
-            height: "calc(100vh - 64px)",
+            height: middleLayoutHeight,
+            backgroundColor: '#0a1628',
+            borderRight: '1px solid #1a3050',
+            transition: 'all 0.3s ease',
+            overflow: 'hidden',
+            display: isMobile ? 'none' : 'block',
+            flexShrink: 0,
           }}
         >
           <Sidebar
             collapsed={collapsed}
-            onToggle={() => setCollapsed(!collapsed)}
+            onToggleCollapse={() => setCollapsed(!collapsed)}
             mobileOpen={mobileOpen}
             onMobileClose={() => setMobileOpen(false)}
           />
         </div>
 
-        {/* MOBILE SIDEBAR */}
-        <div className="md:hidden">
-          <Sidebar
-            collapsed={false}
-            mobileOpen={mobileOpen}
-            onMobileClose={() => setMobileOpen(false)}
-          />
-        </div>
+        {/* MOBILE SIDEBAR - Overlay, ending above the footer */}
+        {mobileOpen && (
+          <>
+            <div
+              style={{
+                position: 'fixed',
+                top: navbarHeight,
+                left: 0,
+                zIndex: 45,
+                width: '280px',
+                height: middleLayoutHeight,
+                backgroundColor: '#0a1628',
+                borderRight: '1px solid #1a3050',
+              }}
+            >
+              <Sidebar
+                collapsed={false}
+                mobileOpen={mobileOpen}
+                onMobileClose={() => setMobileOpen(false)}
+              />
+            </div>
+            {/* Backdrop bounded between navbar and footer */}
+            <div
+              style={{
+                position: 'fixed',
+                left: 0,
+                right: 0,
+                top: navbarHeight,
+                bottom: footerHeight,
+                backgroundColor: 'rgba(0,0,0,0.6)',
+                zIndex: 44,
+                backdropFilter: 'blur(4px)',
+              }}
+              onClick={() => setMobileOpen(false)}
+            />
+          </>
+        )}
 
-        {/* MAIN CONTENT */}
+        {/* MAIN CONTENT - With scrollable area */}
         <div
-          className="flex-1 transition-all duration-300"
           style={{
-            marginLeft: window.innerWidth >= 768 ? sidebarWidth : "0px",
+            flex: 1,
+            marginLeft: isMobile ? '0px' : sidebarWidth,
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            flexDirection: 'column',
+            height: middleLayoutHeight,
+            backgroundColor: '#050d1a',
           }}
         >
-          <main className="min-h-[calc(100vh-64px)] p-6">
-            <HomePage />
-          </main>
-          <Footer />
+          {/* Scrollable content area */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: '10px',
+            backgroundColor: '#050d1a',
+          }}>
+            <Outlet />
+          </div>
         </div>
+      </div>
+
+      {/* FOOTER - Fixed at bottom, full width from left to right (like Navbar) */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 40,
+        height: footerHeight,
+        backgroundColor: '#0a1628',
+        borderTop: '1px solid #1a3050',
+        flexShrink: 0,
+        transition: 'all 0.3s ease',
+      }}>
+        <Footer />
       </div>
     </div>
   );

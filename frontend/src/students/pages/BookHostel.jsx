@@ -29,53 +29,37 @@ const BookHostel = () => {
     
     if (preSelectedRoom) {
       console.log('Pre-selected room found:', preSelectedRoom);
-      // Set the selected room and show booking form
       setSelectedRoomForBooking(preSelectedRoom);
       setShowBookingForm(true);
       if (preSelectedHostel) {
         setSelectedHostel(preSelectedHostel);
       }
       
-      // Pre-fill any filters if needed
       if (preSelectedFilters) {
-        // You can store these if needed
         console.log('Filters:', preSelectedFilters);
       }
       
-      // Scroll to booking form after a delay
       setTimeout(() => {
         document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
       }, 300);
-      
-      // Clear the state to prevent re-triggering (optional)
-      // navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.state]);
 
   // Booking form state
   const [bookingForm, setBookingForm] = useState({
-    // Personal info
     middle_name: '',
     gender: '',
     phone: '',
-    
-    // Emergency contact
     guardian_name: '',
     guardian_relation: '',
     guardian_contact: '',
-    
-    // Temporary address
     temp_address: '',
     temp_city: '',
     temp_state: '',
-    
-    // Permanent address
     perm_address: '',
     perm_city: '',
     perm_state: '',
     same_as_temp: false,
-    
-    // Booking dates
     check_in_date: '',
     check_out_date: '',
   });
@@ -110,7 +94,6 @@ const BookHostel = () => {
         const currentStudent = students.find(s => s.user === user?.id);
         if (currentStudent) {
           setStudentProfile(currentStudent);
-          // Pre-fill form with existing student data
           setBookingForm(prev => ({
             ...prev,
             middle_name: currentStudent.middle_name || '',
@@ -153,7 +136,6 @@ const BookHostel = () => {
         return;
       }
       
-      // Group rooms by type, AC, bathroom
       const grouped = {};
       response.data.forEach((room) => {
         if (!room.room_type) return;
@@ -201,16 +183,13 @@ const BookHostel = () => {
   };
 
   const handleBookNow = (option) => {
-    // If there's only one room in this group, show booking form directly
     if (option.rooms.length === 1) {
       setSelectedRoomForBooking(option.rooms[0]);
       setShowBookingForm(true);
-      // Scroll to booking form
       setTimeout(() => {
         document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
     } else {
-      // Navigate to RoomDetails with the hostel and room type filters
       navigate(`/students/room-details/${selectedHostel.id}`, {
         state: {
           hostel: selectedHostel,
@@ -248,7 +227,6 @@ const BookHostel = () => {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate required fields
     const requiredFields = ['phone', 'guardian_name', 'guardian_contact', 'check_in_date', 'check_out_date'];
     const missingFields = requiredFields.filter(field => !bookingForm[field]);
     
@@ -264,7 +242,6 @@ const BookHostel = () => {
 
     setSubmitting(true);
     try {
-      // 1. Update or create student profile
       let studentId;
       const studentData = {
         middle_name: bookingForm.middle_name || null,
@@ -293,12 +270,10 @@ const BookHostel = () => {
         setStudentProfile(response.data);
       }
 
-      // 2. Calculate total amount (use decimal with 2 decimal places)
       const days = Math.ceil((new Date(bookingForm.check_out_date) - new Date(bookingForm.check_in_date)) / (1000 * 60 * 60 * 24));
       const pricePerMonth = selectedRoomForBooking.price_per_month || 5000;
       const totalAmount = Number(((pricePerMonth / 30) * days).toFixed(2));
 
-      // 3. Create booking - validate all fields
       const bookingData = {
         student: studentId,
         room: selectedRoomForBooking.id,
@@ -318,7 +293,6 @@ const BookHostel = () => {
         `Check-in: ${bookingForm.check_in_date} | Check-out: ${bookingForm.check_out_date}`
       );
 
-      // 4. Navigate to payment
       navigate(`/students/pay/${bookingResponse.data.id}`);
       
     } catch (err) {
@@ -359,14 +333,15 @@ const BookHostel = () => {
   };
 
   const formatPrice = (price) => {
-    if (!price || price === 0) return 'Price not set';
-    return new Intl.NumberFormat('en-NP', {
-      style: 'currency',
-      currency: 'NPR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+  if (!price || price === 0) return 'Rs. 0';
+  const formatted = new Intl.NumberFormat('en-NP', {
+    style: 'currency',
+    currency: 'NPR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+  return formatted.replace('NPR', 'Rs.');
+};
 
   const getTodayDate = () => {
     return new Date().toISOString().split('T')[0];
@@ -378,10 +353,23 @@ const BookHostel = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading hostels...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading hostels...</p>
         </div>
       </div>
     );
@@ -389,12 +377,30 @@ const BookHostel = () => {
 
   if (error && !showRoomOptions && !showBookingForm) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400">{error}</p>
+      <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171' }}>{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             Try Again
           </button>
@@ -413,43 +419,122 @@ const BookHostel = () => {
       : 0;
 
     return (
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div style={{ maxWidth: '896px', margin: '0 auto', padding: '24px' }}>
         <button 
           onClick={handleBackToRooms} 
-          className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+          style={{
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            fontSize: '14px',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+          onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
         >
           ← Back to Rooms
         </button>
 
-        <div id="booking-form" className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Complete Your Booking</h2>
-          <p className="text-gray-400 text-sm mb-6">
+        <div id="booking-form" style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '32px',
+        }}>
+          <h2 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: '0 0 8px 0',
+          }}>Complete Your Booking</h2>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginBottom: '24px',
+          }}>
             Room {selectedRoomForBooking.room_number} • {selectedRoomForBooking.room_type} • {selectedRoomForBooking.ac_type === 'ac' ? 'AC' : 'Non-AC'}
             {selectedRoomForBooking.floor_number && ` • Floor ${selectedRoomForBooking.floor_number}`}
           </p>
 
-          <form onSubmit={handleBookingSubmit} className="space-y-6">
+          <form onSubmit={handleBookingSubmit}>
             {/* Personal Information */}
-            <div className="bg-gray-800/30 rounded-xl p-6">
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">Personal Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.3)',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+            }}>
+              <h3 style={{
+                color: '#f5a623',
+                fontWeight: 600,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: '0 0 16px 0',
+              }}>Personal Information</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+              }}>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Middle Name</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Middle Name</label>
                   <input
                     type="text"
                     name="middle_name"
                     value={bookingForm.middle_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Gender *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Gender *</label>
                   <select
                     name="gender"
                     value={bookingForm.gender}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                   >
                     <option value="">Select</option>
                     <option value="male">Male</option>
@@ -458,14 +543,32 @@ const BookHostel = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Phone *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Phone *</label>
                   <input
                     type="tel"
                     name="phone"
                     value={bookingForm.phone}
                     onChange={handleInputChange}
                     placeholder="Enter phone number"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
@@ -473,41 +576,111 @@ const BookHostel = () => {
             </div>
 
             {/* Emergency Contact */}
-            <div className="bg-gray-800/30 rounded-xl p-6">
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">Emergency Contact</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.3)',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+            }}>
+              <h3 style={{
+                color: '#f5a623',
+                fontWeight: 600,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: '0 0 16px 0',
+              }}>Emergency Contact</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+              }}>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Guardian Name *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Guardian Name *</label>
                   <input
                     type="text"
                     name="guardian_name"
                     value={bookingForm.guardian_name}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Relation *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Relation *</label>
                   <input
                     type="text"
                     name="guardian_relation"
                     value={bookingForm.guardian_relation}
                     onChange={handleInputChange}
                     placeholder="e.g., Father, Mother"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Guardian Contact *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Guardian Contact *</label>
                   <input
                     type="tel"
                     name="guardian_contact"
                     value={bookingForm.guardian_contact}
                     onChange={handleInputChange}
                     placeholder="Enter guardian phone"
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
@@ -515,92 +688,238 @@ const BookHostel = () => {
             </div>
 
             {/* Addresses */}
-            <div className="bg-gray-800/30 rounded-xl p-6">
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">Address Details</h3>
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.3)',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+            }}>
+              <h3 style={{
+                color: '#f5a623',
+                fontWeight: 600,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: '0 0 16px 0',
+              }}>Address Details</h3>
               
-              {/* Temporary Address */}
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm font-medium mb-3">Temporary Address</p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs text-gray-400 uppercase mb-1">Address</label>
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{
+                  color: '#c8daf0',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  margin: '0 0 12px 0',
+                }}>Temporary Address</p>
+                <div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '10px',
+                      color: '#6b8aaa',
+                      textTransform: 'uppercase',
+                      marginBottom: '4px',
+                    }}>Address</label>
                     <input
                       type="text"
                       name="temp_address"
                       value={bookingForm.temp_address}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                      style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        background: '#0a1628',
+                        border: '1px solid #1a3050',
+                        borderRadius: '8px',
+                        color: '#eaf2ff',
+                        fontSize: '14px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s ease',
+                      }}
+                      onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                      onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                    gap: '12px',
+                  }}>
                     <div>
-                      <label className="block text-xs text-gray-400 uppercase mb-1">City</label>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '10px',
+                        color: '#6b8aaa',
+                        textTransform: 'uppercase',
+                        marginBottom: '4px',
+                      }}>City</label>
                       <input
                         type="text"
                         name="temp_city"
                         value={bookingForm.temp_city}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                        style={{
+                          width: '100%',
+                          padding: '10px 16px',
+                          background: '#0a1628',
+                          border: '1px solid #1a3050',
+                          borderRadius: '8px',
+                          color: '#eaf2ff',
+                          fontSize: '14px',
+                          outline: 'none',
+                          transition: 'border-color 0.2s ease',
+                        }}
+                        onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                        onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-gray-400 uppercase mb-1">State</label>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '10px',
+                        color: '#6b8aaa',
+                        textTransform: 'uppercase',
+                        marginBottom: '4px',
+                      }}>State</label>
                       <input
                         type="text"
                         name="temp_state"
                         value={bookingForm.temp_state}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                        style={{
+                          width: '100%',
+                          padding: '10px 16px',
+                          background: '#0a1628',
+                          border: '1px solid #1a3050',
+                          borderRadius: '8px',
+                          color: '#eaf2ff',
+                          fontSize: '14px',
+                          outline: 'none',
+                          transition: 'border-color 0.2s ease',
+                        }}
+                        onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                        onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                       />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Permanent Address */}
               <div>
-                <div className="flex items-center gap-2 mb-3">
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '12px',
+                }}>
                   <input
                     type="checkbox"
                     name="same_as_temp"
                     checked={bookingForm.same_as_temp}
                     onChange={handleSameAsTemp}
-                    className="w-4 h-4 rounded border-gray-700 bg-gray-800 text-cyan-500"
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      borderRadius: '4px',
+                      border: '1px solid #1a3050',
+                      background: '#0a1628',
+                      accentColor: '#f5a623',
+                    }}
                   />
-                  <label className="text-sm text-gray-400">Same as temporary address</label>
+                  <label style={{
+                    fontSize: '14px',
+                    color: '#6b8aaa',
+                  }}>Same as temporary address</label>
                 </div>
                 
                 {!bookingForm.same_as_temp && (
-                  <div className="space-y-4 mt-3">
-                    <div>
-                      <label className="block text-xs text-gray-400 uppercase mb-1">Permanent Address</label>
+                  <div>
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '10px',
+                        color: '#6b8aaa',
+                        textTransform: 'uppercase',
+                        marginBottom: '4px',
+                      }}>Permanent Address</label>
                       <input
                         type="text"
                         name="perm_address"
                         value={bookingForm.perm_address}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                        style={{
+                          width: '100%',
+                          padding: '10px 16px',
+                          background: '#0a1628',
+                          border: '1px solid #1a3050',
+                          borderRadius: '8px',
+                          color: '#eaf2ff',
+                          fontSize: '14px',
+                          outline: 'none',
+                          transition: 'border-color 0.2s ease',
+                        }}
+                        onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                        onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                      gap: '12px',
+                    }}>
                       <div>
-                        <label className="block text-xs text-gray-400 uppercase mb-1">City</label>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '10px',
+                          color: '#6b8aaa',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}>City</label>
                         <input
                           type="text"
                           name="perm_city"
                           value={bookingForm.perm_city}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                          style={{
+                            width: '100%',
+                            padding: '10px 16px',
+                            background: '#0a1628',
+                            border: '1px solid #1a3050',
+                            borderRadius: '8px',
+                            color: '#eaf2ff',
+                            fontSize: '14px',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                          }}
+                          onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                          onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-400 uppercase mb-1">State</label>
+                        <label style={{
+                          display: 'block',
+                          fontSize: '10px',
+                          color: '#6b8aaa',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}>State</label>
                         <input
                           type="text"
                           name="perm_state"
                           value={bookingForm.perm_state}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                          style={{
+                            width: '100%',
+                            padding: '10px 16px',
+                            background: '#0a1628',
+                            border: '1px solid #1a3050',
+                            borderRadius: '8px',
+                            color: '#eaf2ff',
+                            fontSize: '14px',
+                            outline: 'none',
+                            transition: 'border-color 0.2s ease',
+                          }}
+                          onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                          onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                         />
                       </div>
                     </div>
@@ -610,30 +929,82 @@ const BookHostel = () => {
             </div>
 
             {/* Booking Dates */}
-            <div className="bg-gray-800/30 rounded-xl p-6">
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">Booking Dates</h3>
-              <div className="grid grid-cols-2 gap-4">
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.3)',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+            }}>
+              <h3 style={{
+                color: '#f5a623',
+                fontWeight: 600,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: '0 0 16px 0',
+              }}>Booking Dates</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '16px',
+              }}>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Check-in Date *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Check-in Date *</label>
                   <input
                     type="date"
                     name="check_in_date"
                     value={bookingForm.check_in_date}
                     onChange={handleInputChange}
                     min={getTodayDate()}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 uppercase mb-1">Check-out Date *</label>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '10px',
+                    color: '#6b8aaa',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>Check-out Date *</label>
                   <input
                     type="date"
                     name="check_out_date"
                     value={bookingForm.check_out_date}
                     onChange={handleInputChange}
                     min={getMinCheckOutDate()}
-                    className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                    style={{
+                      width: '100%',
+                      padding: '10px 16px',
+                      background: '#0a1628',
+                      border: '1px solid #1a3050',
+                      borderRadius: '8px',
+                      color: '#eaf2ff',
+                      fontSize: '14px',
+                      outline: 'none',
+                      transition: 'border-color 0.2s ease',
+                    }}
+                    onFocus={(e) => e.currentTarget.style.borderColor = '#f5a623'}
+                    onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
                     required
                   />
                 </div>
@@ -641,28 +1012,63 @@ const BookHostel = () => {
             </div>
 
             {/* Summary */}
-            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-6">
-              <h3 className="text-cyan-400 font-semibold text-sm uppercase tracking-wider mb-4">Booking Summary</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Room</span>
-                  <span className="text-white">Room {selectedRoomForBooking.room_number}</span>
+            <div style={{
+              background: 'rgba(245, 166, 35, 0.05)',
+              border: '1px solid rgba(245, 166, 35, 0.2)',
+              borderRadius: '12px',
+              padding: '24px',
+              marginBottom: '24px',
+            }}>
+              <h3 style={{
+                color: '#f5a623',
+                fontWeight: 600,
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: '0 0 16px 0',
+              }}>Booking Summary</h3>
+              <div>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '4px 0',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Room</span>
+                  <span style={{ color: '#eaf2ff' }}>Room {selectedRoomForBooking.room_number}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Room Type</span>
-                  <span className="text-white capitalize">{selectedRoomForBooking.room_type} • {selectedRoomForBooking.ac_type === 'ac' ? 'AC' : 'Non-AC'}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '4px 0',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Room Type</span>
+                  <span style={{ color: '#eaf2ff', textTransform: 'capitalize' }}>{selectedRoomForBooking.room_type} • {selectedRoomForBooking.ac_type === 'ac' ? 'AC' : 'Non-AC'}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Floor</span>
-                  <span className="text-white">Floor {selectedRoomForBooking.floor_number || 'N/A'}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '4px 0',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Floor</span>
+                  <span style={{ color: '#eaf2ff' }}>Floor {selectedRoomForBooking.floor_number || 'N/A'}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Stay Duration</span>
-                  <span className="text-white">{days} days</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '4px 0',
+                }}>
+                  <span style={{ color: '#6b8aaa' }}>Stay Duration</span>
+                  <span style={{ color: '#eaf2ff' }}>{days} days</span>
                 </div>
-                <div className="flex justify-between pt-2 border-t border-gray-700">
-                  <span className="text-gray-400 font-semibold">Total Amount</span>
-                  <span className="text-cyan-400 font-bold text-xl">{formatPrice(totalAmount)}</span>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  paddingTop: '8px',
+                  marginTop: '8px',
+                  borderTop: '1px solid #1a3050',
+                }}>
+                  <span style={{ color: '#6b8aaa', fontWeight: 600 }}>Total Amount</span>
+                  <span style={{ color: '#f5a623', fontWeight: 700, fontSize: '20px' }}>{formatPrice(totalAmount)}</span>
                 </div>
               </div>
             </div>
@@ -670,7 +1076,29 @@ const BookHostel = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 disabled:bg-gray-700 disabled:cursor-not-allowed text-black font-bold rounded-xl transition"
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: submitting ? '#3a5070' : '#f5a623',
+                color: '#0a1628',
+                fontWeight: 700,
+                borderRadius: '12px',
+                border: 'none',
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                opacity: submitting ? 0.5 : 1,
+                transition: 'all 0.2s ease',
+                fontSize: '16px',
+              }}
+              onMouseEnter={(e) => {
+                if (!submitting) {
+                  e.currentTarget.style.background = '#e09515';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!submitting) {
+                  e.currentTarget.style.background = '#f5a623';
+                }
+              }}
             >
               {submitting ? 'Processing...' : 'Confirm Booking & Pay'}
             </button>
@@ -684,70 +1112,208 @@ const BookHostel = () => {
   if (showRoomOptions && selectedHostel) {
     if (loadingRoomTypes) {
       return (
-        <div className="max-w-6xl mx-auto p-6">
-          <button onClick={handleBackToHostels} className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm">
+        <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+          <button 
+            onClick={handleBackToHostels} 
+            style={{
+              color: '#6b8aaa',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '14px',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
+          >
             ← Back to Hostels
           </button>
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading room options...</p>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '48px 0',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                border: '3px solid #1a3050',
+                borderTop: '3px solid #f5a623',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px',
+              }} />
+              <p style={{ color: '#6b8aaa' }}>Loading room options...</p>
+            </div>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        <div>
-          <button onClick={handleBackToHostels} className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm">
+      <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <button 
+            onClick={handleBackToHostels} 
+            style={{
+              color: '#6b8aaa',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontSize: '14px',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
+          >
             ← Back to Hostels
           </button>
-          <h1 className="text-3xl font-bold text-white">{selectedHostel.name}</h1>
-          <p className="text-gray-400 mt-1">Select your preferred room type</p>
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>{selectedHostel.name}</h1>
+          <p style={{
+            color: '#6b8aaa',
+            marginTop: '4px',
+          }}>Select your preferred room type</p>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <p className="text-red-400">{error}</p>
+          <div style={{
+            background: 'rgba(248, 113, 113, 0.1)',
+            border: '1px solid rgba(248, 113, 113, 0.3)',
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '16px',
+          }}>
+            <p style={{ color: '#f87171', margin: 0 }}>{error}</p>
           </div>
         )}
 
         {roomOptions.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '24px',
+          }}>
             {roomOptions.map((option, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden hover:border-cyan-500/50 transition-all group">
-                <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-                  <div className="flex justify-between items-start">
-                    <h2 className="text-xl font-bold text-white capitalize">{option.room_type_label} Rooms</h2>
-                    <span className="text-sm text-green-400 bg-green-500/20 px-2 py-1 rounded-full">
+              <div key={index} style={{
+                background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+                border: '1px solid #1a3050',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#1a3050';
+              }}>
+                <div style={{
+                  padding: '16px 24px',
+                  borderBottom: '1px solid #1a3050',
+                  background: 'rgba(18, 36, 72, 0.3)',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                  }}>
+                    <h2 style={{
+                      fontSize: '20px',
+                      fontWeight: 700,
+                      color: '#eaf2ff',
+                      textTransform: 'capitalize',
+                      margin: 0,
+                    }}>{option.room_type_label} Rooms</h2>
+                    <span style={{
+                      fontSize: '14px',
+                      color: '#1ddba8',
+                      background: 'rgba(29, 219, 168, 0.1)',
+                      padding: '2px 8px',
+                      borderRadius: '9999px',
+                    }}>
                       {option.count} available
                     </span>
                   </div>
-                  <p className="text-gray-500 text-sm mt-1">
+                  <p style={{
+                    color: '#6b8aaa',
+                    fontSize: '14px',
+                    marginTop: '4px',
+                  }}>
                     {option.ac_label} • {option.bathroom_label}
                   </p>
                 </div>
                 
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    {option.ac_type === 'ac' ? (
-                      <span className="text-blue-400 text-xl">❄️</span>
-                    ) : (
-                      <span className="text-orange-400 text-xl">🌡️</span>
-                    )}
-                    <span className="text-white font-medium">{option.ac_label}</span>
+                <div style={{ padding: '24px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                  }}>
+                    <span style={{
+                      fontSize: '24px',
+                    }}>{option.ac_type === 'ac' ? '❄️' : '🌡️'}</span>
+                    <span style={{
+                      color: '#eaf2ff',
+                      fontWeight: 500,
+                    }}>{option.ac_label}</span>
                   </div>
                   
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <p className="text-cyan-400 font-bold text-2xl">
+                  <div style={{
+                    paddingTop: '16px',
+                    borderTop: '1px solid #1a3050',
+                  }}>
+                    <p style={{
+                      color: '#f5a623',
+                      fontWeight: 700,
+                      fontSize: '24px',
+                      margin: 0,
+                    }}>
                       {formatPrice(option.price_per_month)}
-                      <span className="text-xs text-gray-400 ml-1">/month</span>
+                      <span style={{
+                        fontSize: '12px',
+                        color: '#6b8aaa',
+                        marginLeft: '4px',
+                      }}>/month</span>
                     </p>
                   </div>
                   
                   <button
                     onClick={() => handleBookNow(option)}
-                    className="w-full mt-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition group-hover:shadow-lg group-hover:shadow-cyan-500/20"
+                    style={{
+                      width: '100%',
+                      marginTop: '16px',
+                      padding: '10px',
+                      background: '#f5a623',
+                      color: '#0a1628',
+                      fontWeight: 700,
+                      borderRadius: '8px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#e09515';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.2)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#f5a623';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
                   >
                     {option.count === 1 ? 'Book Now →' : 'View Available Rooms →'}
                   </button>
@@ -756,9 +1322,29 @@ const BookHostel = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-gray-900 rounded-2xl">
-            <p className="text-gray-400">No rooms available at this hostel.</p>
-            <button onClick={handleBackToHostels} className="mt-4 px-6 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-medium rounded-lg">
+          <div style={{
+            textAlign: 'center',
+            padding: '48px 0',
+            background: '#0a1628',
+            borderRadius: '16px',
+          }}>
+            <p style={{ color: '#6b8aaa' }}>No rooms available at this hostel.</p>
+            <button 
+              onClick={handleBackToHostels} 
+              style={{
+                marginTop: '16px',
+                padding: '8px 24px',
+                background: '#f5a623',
+                color: '#0a1628',
+                fontWeight: 500,
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
+            >
               Back to Hostels
             </button>
           </div>
@@ -769,32 +1355,102 @@ const BookHostel = () => {
 
   // Hostels List View
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-white mb-6">Available Hostels</h1>
+    <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '24px' }}>
+      <h1 style={{
+        fontSize: '32px',
+        fontWeight: 700,
+        color: '#eaf2ff',
+        margin: '0 0 24px 0',
+      }}>Available Hostels</h1>
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
-          <p className="text-red-400">{error}</p>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '16px',
+        }}>
+          <p style={{ color: '#f87171', margin: 0 }}>{error}</p>
         </div>
       )}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '24px',
+      }}>
         {hostels.map((hostel) => (
           <div 
             key={hostel.id} 
-            className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-6 hover:border-cyan-500/50 transition-all cursor-pointer group"
+            style={{
+              background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+              border: '1px solid #1a3050',
+              borderRadius: '16px',
+              padding: '24px',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
           >
-            <h2 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+              margin: '0 0 8px 0',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#eaf2ff'}
+            >
               {hostel.name}
             </h2>
-            <p className="text-gray-400 mb-4 line-clamp-2">{hostel.address}</p>
+            <p style={{
+              color: '#6b8aaa',
+              margin: '0 0 16px 0',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}>{hostel.address}</p>
             <button
               onClick={() => handleSelectHostel(hostel)}
-              className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition group-hover:shadow-lg group-hover:shadow-cyan-500/20"
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: '#f5a623',
+                color: '#0a1628',
+                fontWeight: 700,
+                borderRadius: '8px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e09515';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f5a623';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               View Rooms →
             </button>
           </div>
         ))}
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

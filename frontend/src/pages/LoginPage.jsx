@@ -29,108 +29,272 @@ const Login = () => {
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
+    try {
+      const { data } = await loginUser(formData.email, formData.password);
+      login(data.user, data.access, data.refresh);
 
+      const role = data.user?.role?.name || '';
+      if (role === 'Student') navigate('/students/homepage');
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setErrors({});
-  try {
-    const { data } = await loginUser(formData.email, formData.password);
-    login(data.user, data.access, data.refresh);
-
-    // Role-based redirect
-    const role = data.user?.role?.name || '';
-    if (role === 'Student')              navigate('/students/homepage');
-    // else if (role === 'Super Admin')     navigate('/admin/dashboard');
-    // else if (role === 'Hostel Admin')    navigate('/admin/dashboard');
-    // else                                 navigate('/students/homepage');
-
-  } catch (err) {
-    setErrors({ general: err.response?.data?.detail || 'Login failed' });
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      setErrors({ general: err.response?.data?.detail || 'Login failed' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-[#050B18] relative overflow-hidden">
-
+    <div style={{
+      width: '100%',
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#050d1a',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
       {/* glow background */}
-      <div className="absolute w-[850px] h-[500px] bg-yellow-500/20 blur-[120px] rounded-full top-[-100px] left-[-100px]" />
-      <div className="absolute w-[850px] h-[400px] bg-blue-500/20 blur-[120px] rounded-full bottom-[-100px] right-[-100px]" />
+      <div style={{
+        position: 'absolute',
+        width: '850px',
+        height: '500px',
+        background: 'rgba(245, 166, 35, 0.2)',
+        filter: 'blur(120px)',
+        borderRadius: '50%',
+        top: '-100px',
+        left: '-100px',
+      }} />
+      <div style={{
+        position: 'absolute',
+        width: '850px',
+        height: '400px',
+        background: 'rgba(59, 130, 246, 0.2)',
+        filter: 'blur(120px)',
+        borderRadius: '50%',
+        bottom: '-100px',
+        right: '-100px',
+      }} />
 
       {/* card */}
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
-
+      <div style={{
+        width: '100%',
+        maxWidth: '448px',
+        background: 'rgba(255,255,255,0.05)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '32px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+      }}>
         {/* title */}
-        <div className="text-center mb-6">
-          <h1 className="text-white text-3xl font-bold">
-            Hostel <span className="text-yellow-400">Login</span>
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '24px',
+        }}>
+          <h1 style={{
+            color: '#eaf2ff',
+            fontSize: '32px',
+            fontWeight: 700,
+          }}>
+            Hostel <span style={{ color: '#f5a623' }}>Login</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-2">
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '8px',
+          }}>
             Access your smart hostel dashboard
           </p>
         </div>
 
         {/* email */}
-        <div className="mb-4">
-          <label className="text-gray-300 text-sm">Email</label>
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{
+            color: '#c8daf0',
+            fontSize: '14px',
+          }}>Email</label>
           <input
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full mt-1 p-3 rounded-lg bg-white/10 text-white border border-white/10 focus:border-yellow-400 focus:outline-none"
+            style={{
+              width: '100%',
+              marginTop: '4px',
+              padding: '12px',
+              borderRadius: '8px',
+              background: 'rgba(255,255,255,0.05)',
+              color: '#eaf2ff',
+              border: '1px solid rgba(255,255,255,0.1)',
+              outline: 'none',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s ease',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+            }}
             placeholder="Enter email"
           />
         </div>
 
         {/* password */}
-        <div className="mb-4">
-          <label className="text-gray-300 text-sm">Password</label>
-
-          <div className="relative mt-1">
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{
+            color: '#c8daf0',
+            fontSize: '14px',
+          }}>Password</label>
+          <div style={{
+            position: 'relative',
+            marginTop: '4px',
+          }}>
             <input
               type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 rounded-lg bg-white/10 text-white border border-white/10 focus:border-yellow-400 focus:outline-none pr-10"
+              style={{
+                width: '100%',
+                padding: '12px',
+                paddingRight: '40px',
+                borderRadius: '8px',
+                background: 'rgba(255,255,255,0.05)',
+                color: '#eaf2ff',
+                border: '1px solid rgba(255,255,255,0.1)',
+                outline: 'none',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#f5a623';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              }}
               placeholder="Enter password"
             />
-              {errors.general && (
-                  <p className="text-red-400 text-sm mb-3 text-center">{errors.general}</p>
-             )}
+            {errors.general && (
+              <p style={{
+                color: '#f87171',
+                fontSize: '14px',
+                marginTop: '8px',
+                textAlign: 'center',
+              }}>{errors.general}</p>
+            )}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-gray-400"
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6b8aaa',
+                fontSize: '18px',
+              }}
             >
-              {showPassword ? "🙈" : "👁️"}
+              {showPassword ? "◉" : "○"}
             </button>
           </div>
         </div>
 
         {/* remember */}
-        <div className="flex items-center gap-2 mb-6">
-          <input type="checkbox" className="accent-yellow-400" />
-          <span className="text-gray-400 text-sm">Remember me</span>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '24px',
+        }}>
+          <input
+            type="checkbox"
+            style={{
+              accentColor: '#f5a623',
+              width: '16px',
+              height: '16px',
+            }}
+          />
+          <span style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+          }}>Remember me</span>
         </div>
 
         {/* button */}
         <button
           onClick={handleSubmit}
-          className="w-full py-3 rounded-lg bg-yellow-400 text-black font-bold hover:bg-yellow-500 transition"
+          style={{
+            width: '100%',
+            padding: '12px',
+            borderRadius: '8px',
+            background: '#f5a623',
+            color: '#0a1628',
+            fontWeight: 700,
+            border: 'none',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            opacity: loading ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.background = '#e09515';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.currentTarget.style.background = '#f5a623';
+            }
+          }}
         >
           {loading ? "Logging in..." : "Login"}
         </button>
 
         {/* links */}
-        <div className="flex justify-between text-sm mt-5 text-gray-400">
-          <Link to="/forgot-password" className="hover:text-yellow-400">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '14px',
+          marginTop: '20px',
+          color: '#6b8aaa',
+        }}>
+          <Link
+            to="/forgot-password"
+            style={{
+              color: '#6b8aaa',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#f5a623';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#6b8aaa';
+            }}
+          >
             Forgot Password
           </Link>
-          <Link to="/signup" className="hover:text-yellow-400">
+          <Link
+            to="/signup"
+            style={{
+              color: '#6b8aaa',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#f5a623';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#6b8aaa';
+            }}
+          >
             Create Account
           </Link>
         </div>

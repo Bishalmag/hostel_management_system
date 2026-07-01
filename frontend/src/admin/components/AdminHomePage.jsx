@@ -140,47 +140,124 @@ const AdminHomePage = () => {
            today.getFullYear() === year;
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusColor = (status) => {
     const colors = {
-      pending: 'bg-yellow-500/20 text-yellow-400',
-      approved: 'bg-green-500/20 text-green-400',
-      rejected: 'bg-red-500/20 text-red-400',
-      registered: 'bg-yellow-500/20 text-yellow-400',
-      in_progress: 'bg-blue-500/20 text-blue-400',
-      resolved: 'bg-green-500/20 text-green-400',
+      pending: '#f5a623',
+      approved: '#1ddba8',
+      rejected: '#f87171',
+      registered: '#f5a623',
+      in_progress: '#60a5fa',
+      resolved: '#1ddba8',
     };
-    return colors[status] || 'bg-gray-500/20 text-gray-400';
+    return colors[status] || '#6b8aaa';
+  };
+
+  const getStatusBgColor = (status) => {
+    const colors = {
+      pending: 'rgba(245, 166, 35, 0.15)',
+      approved: 'rgba(29, 219, 168, 0.15)',
+      rejected: 'rgba(248, 113, 113, 0.15)',
+      registered: 'rgba(245, 166, 35, 0.15)',
+      in_progress: 'rgba(96, 165, 250, 0.15)',
+      resolved: 'rgba(29, 219, 168, 0.15)',
+    };
+    return colors[status] || 'rgba(107, 138, 170, 0.15)';
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '384px',
+      }}>
+        <div style={{
+          textAlign: 'center',
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '32px',
+    }}>
       {/* Welcome Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-cyan-600/20 via-indigo-600/20 to-purple-600/20 border border-cyan-500/30 rounded-2xl p-8">
-        <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl"></div>
-        <div className="relative">
-          <div className="flex justify-between items-start">
+      <div style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: 'linear-gradient(to right, rgba(245, 166, 35, 0.15), rgba(167, 139, 250, 0.15), rgba(245, 166, 35, 0.1))',
+        border: '1px solid rgba(245, 166, 35, 0.3)',
+        borderRadius: '16px',
+        padding: '32px',
+      }}>
+        <div style={{
+          position: 'absolute',
+          right: '-80px',
+          top: '-80px',
+          width: '160px',
+          height: '160px',
+          background: 'rgba(245, 166, 35, 0.05)',
+          borderRadius: '50%',
+          filter: 'blur(48px)',
+        }} />
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+          }}>
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">
-                Welcome back, Admin 👋
+              <h1 style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                color: '#eaf2ff',
+                marginBottom: '8px',
+              }}>
+                Welcome back, Admin
               </h1>
-              <p className="text-gray-400">Here's what's happening with your hostel management system today.</p>
+              <p style={{ color: '#6b8aaa' }}>Here's what's happening with your hostel management system today.</p>
             </div>
             <button
               onClick={() => setShowAnnouncementModal(true)}
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center gap-2 transition shadow-lg shadow-red-500/25 hover:shadow-red-500/40"
+              style={{
+                padding: '8px 16px',
+                background: '#f5a623',
+                color: '#0a1628',
+                border: 'none',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 16px rgba(245, 166, 35, 0.25)',
+                fontWeight: 600,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e09515';
+                e.currentTarget.style.boxShadow = '0 4px 24px rgba(245, 166, 35, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f5a623';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(245, 166, 35, 0.25)';
+              }}
             >
-              <span className="text-lg">📢</span>
+              <span style={{ fontSize: '18px' }}>◆</span>
               Send Announcement
             </button>
           </div>
@@ -188,155 +265,515 @@ const AdminHomePage = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+      }}>
         <button
           onClick={() => navigate('/admin/rooms/add')}
-          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-cyan-500/50 transition-all group text-left"
+          style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#1a3050';
+          }}
         >
-          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">🚪</div>
-          <p className="text-white font-medium text-sm">Add Room</p>
-          <p className="text-gray-500 text-xs">Create new room</p>
+          <div style={{
+            fontSize: '24px',
+            marginBottom: '8px',
+            transition: 'transform 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          >◇</div>
+          <p style={{ color: '#eaf2ff', fontWeight: 500, fontSize: '14px', margin: 0 }}>Add Room</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', margin: '4px 0 0 0' }}>Create new room</p>
         </button>
         <button
           onClick={() => navigate('/admin/bookings')}
-          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-cyan-500/50 transition-all group text-left"
+          style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#1a3050';
+          }}
         >
-          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📋</div>
-          <p className="text-white font-medium text-sm">Manage Bookings</p>
-          <p className="text-gray-500 text-xs">View all bookings</p>
+          <div style={{
+            fontSize: '24px',
+            marginBottom: '8px',
+            transition: 'transform 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          >▣</div>
+          <p style={{ color: '#eaf2ff', fontWeight: 500, fontSize: '14px', margin: 0 }}>Manage Bookings</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', margin: '4px 0 0 0' }}>View all bookings</p>
         </button>
         <button
           onClick={() => setShowAnnouncementModal(true)}
-          className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4 hover:border-red-500/50 transition-all group text-left"
+          style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#1a3050';
+          }}
         >
-          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">📢</div>
-          <p className="text-white font-medium text-sm">Send Announcement</p>
-          <p className="text-gray-500 text-xs">Notify all students</p>
+          <div style={{
+            fontSize: '24px',
+            marginBottom: '8px',
+            transition: 'transform 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          >◈</div>
+          <p style={{ color: '#eaf2ff', fontWeight: 500, fontSize: '14px', margin: 0 }}>Send Announcement</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', margin: '4px 0 0 0' }}>Notify all students</p>
+        </button>
+        <button
+          onClick={() => navigate('/admin/students')}
+          style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            padding: '16px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.5)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = '#1a3050';
+          }}
+        >
+          <div style={{
+            fontSize: '24px',
+            marginBottom: '8px',
+            transition: 'transform 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+          }}
+          >◉</div>
+          <p style={{ color: '#eaf2ff', fontWeight: 500, fontSize: '14px', margin: 0 }}>Manage Students</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', margin: '4px 0 0 0' }}>View all students</p>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 hover:border-cyan-500/30 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-xl">🚪</div>
-            <span className="text-2xl font-bold text-white">{stats.totalRooms}</span>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '20px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+          transition: 'all 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(167, 139, 250, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = '#1a3050';
+        }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'rgba(167, 139, 250, 0.2)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+            }}>◇</div>
+            <span style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+            }}>{stats.totalRooms}</span>
           </div>
-          <p className="text-gray-400 text-sm">Total Rooms</p>
-          <div className="mt-2 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full w-1/2 bg-purple-500 rounded-full"></div>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Total Rooms</p>
+          <div style={{
+            marginTop: '8px',
+            height: '4px',
+            width: '100%',
+            background: '#1a3050',
+            borderRadius: '4px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: '50%',
+              background: '#a78bfa',
+              borderRadius: '4px',
+            }}></div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 hover:border-cyan-500/30 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center text-xl">🎓</div>
-            <span className="text-2xl font-bold text-white">{stats.totalStudents}</span>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+          transition: 'all 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(29, 219, 168, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = '#1a3050';
+        }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'rgba(29, 219, 168, 0.2)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+            }}>◉</div>
+            <span style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+            }}>{stats.totalStudents}</span>
           </div>
-          <p className="text-gray-400 text-sm">Registered Students</p>
-          <div className="mt-2 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full w-3/4 bg-green-500 rounded-full"></div>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Registered Students</p>
+          <div style={{
+            marginTop: '8px',
+            height: '4px',
+            width: '100%',
+            background: '#1a3050',
+            borderRadius: '4px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: '75%',
+              background: '#1ddba8',
+              borderRadius: '4px',
+            }}></div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5 hover:border-cyan-500/30 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center text-xl">📊</div>
-            <span className="text-2xl font-bold text-white">{stats.occupancyRate}%</span>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+          transition: 'all 0.3s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(245, 166, 35, 0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = '#1a3050';
+        }}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px',
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'rgba(245, 166, 35, 0.2)',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '18px',
+            }}>◈</div>
+            <span style={{
+              fontSize: '28px',
+              fontWeight: 700,
+              color: '#eaf2ff',
+            }}>{stats.occupancyRate}%</span>
           </div>
-          <p className="text-gray-400 text-sm">Occupancy Rate</p>
-          <div className="mt-2 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
-            <div className={`h-full bg-orange-500 rounded-full`} style={{ width: `${stats.occupancyRate}%` }}></div>
+          <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Occupancy Rate</p>
+          <div style={{
+            marginTop: '8px',
+            height: '4px',
+            width: '100%',
+            background: '#1a3050',
+            borderRadius: '4px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: `${stats.occupancyRate}%`,
+              background: '#f5a623',
+              borderRadius: '4px',
+            }}></div>
           </div>
         </div>
       </div>
 
       {/* Second Row Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <div className="flex items-center justify-between">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '20px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
             <div>
-              <p className="text-gray-400 text-sm">Available Rooms</p>
-              <p className="text-2xl font-bold text-green-400">{stats.availableRooms}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Available Rooms</p>
+              <p style={{ color: '#1ddba8', fontSize: '28px', fontWeight: 700, margin: '4px 0 0 0' }}>{stats.availableRooms}</p>
             </div>
-            <div className="text-3xl">🟢</div>
+            <div style={{ fontSize: '28px' }}>●</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Out of {stats.totalRooms} total rooms</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', marginTop: '8px' }}>Out of {stats.totalRooms} total rooms</p>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <div className="flex items-center justify-between">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
             <div>
-              <p className="text-gray-400 text-sm">Occupied Rooms</p>
-              <p className="text-2xl font-bold text-yellow-400">{stats.occupiedRooms}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Occupied Rooms</p>
+              <p style={{ color: '#f5a623', fontSize: '28px', fontWeight: 700, margin: '4px 0 0 0' }}>{stats.occupiedRooms}</p>
             </div>
-            <div className="text-3xl">🟡</div>
+            <div style={{ fontSize: '28px' }}>○</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">Currently occupied rooms</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', marginTop: '8px' }}>Currently occupied rooms</p>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-5">
-          <div className="flex items-center justify-between">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '20px',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
             <div>
-              <p className="text-gray-400 text-sm">Pending Actions</p>
-              <p className="text-2xl font-bold text-red-400">{stats.pendingBookings + stats.pendingComplaints}</p>
+              <p style={{ color: '#6b8aaa', fontSize: '14px', margin: 0 }}>Pending Actions</p>
+              <p style={{ color: '#f87171', fontSize: '28px', fontWeight: 700, margin: '4px 0 0 0' }}>{stats.pendingBookings + stats.pendingComplaints}</p>
             </div>
-            <div className="text-3xl">🔴</div>
+            <div style={{ fontSize: '28px' }}>◆</div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">{stats.pendingBookings} bookings, {stats.pendingComplaints} complaints</p>
+          <p style={{ color: '#3a5070', fontSize: '12px', marginTop: '8px' }}>{stats.pendingBookings} bookings, {stats.pendingComplaints} complaints</p>
         </div>
       </div>
 
       {/* Calendar and Recent Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 2fr',
+        gap: '24px',
+      }}>
         {/* Calendar */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-800">
-            <div className="flex items-center justify-between">
-              <h2 className="text-white font-semibold">Calendar</h2>
-              <button
-                onClick={goToToday}
-                className="text-xs text-cyan-400 hover:text-cyan-300 px-2 py-1 bg-cyan-500/10 rounded-lg"
-              >
-                Today
-              </button>
-            </div>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '16px 24px',
+            borderBottom: '1px solid #1a3050',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <h2 style={{ color: '#eaf2ff', fontWeight: 600, margin: 0, fontSize: '16px' }}>Calendar</h2>
+            <button
+              onClick={goToToday}
+              style={{
+                fontSize: '12px',
+                color: '#f5a623',
+                background: 'rgba(245, 166, 35, 0.1)',
+                border: 'none',
+                padding: '4px 12px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+            >
+              Today
+            </button>
           </div>
           
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
+          <div style={{ padding: '24px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '24px',
+            }}>
               <button
                 onClick={prevMonth}
-                className="p-2 hover:bg-gray-800 rounded-lg transition text-gray-400 hover:text-white"
+                style={{
+                  padding: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#6b8aaa',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0f2040';
+                  e.currentTarget.style.color = '#eaf2ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#6b8aaa';
+                }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h3 className="text-white font-medium">
+              <h3 style={{ color: '#eaf2ff', fontWeight: 500, margin: 0, fontSize: '16px' }}>
                 {monthNames[month]} {year}
               </h3>
               <button
                 onClick={nextMonth}
-                className="p-2 hover:bg-gray-800 rounded-lg transition text-gray-400 hover:text-white"
+                style={{
+                  padding: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#6b8aaa',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0f2040';
+                  e.currentTarget.style.color = '#eaf2ff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#6b8aaa';
+                }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 mb-2">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, 1fr)',
+              gap: '4px',
+              marginBottom: '8px',
+            }}>
               {weekDays.map(day => (
-                <div key={day} className="text-center text-xs text-gray-500 py-2">
+                <div key={day} style={{
+                  textAlign: 'center',
+                  fontSize: '12px',
+                  color: '#3a5070',
+                  padding: '8px 0',
+                }}>
                   {day}
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-1">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, 1fr)',
+              gap: '4px',
+            }}>
               {Array.from({ length: firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} className="text-center py-2 text-xs text-gray-600"></div>
+                <div key={`empty-${i}`} style={{
+                  textAlign: 'center',
+                  padding: '8px 0',
+                  fontSize: '12px',
+                  color: '#1a3050',
+                }}></div>
               ))}
               {Array.from({ length: daysInMonth }).map((_, i) => {
                 const day = i + 1;
@@ -346,21 +783,48 @@ const AdminHomePage = () => {
                 return (
                   <div
                     key={day}
-                    className={`
-                      text-center py-2 text-xs rounded-lg relative
-                      ${isCurrentDay ? 'bg-cyan-500/20 text-cyan-400 font-bold' : 'text-gray-300 hover:bg-gray-800'}
-                      cursor-pointer transition
-                    `}
+                    style={{
+                      textAlign: 'center',
+                      padding: '8px 0',
+                      fontSize: '12px',
+                      borderRadius: '8px',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      backgroundColor: isCurrentDay ? 'rgba(245, 166, 35, 0.2)' : 'transparent',
+                      color: isCurrentDay ? '#f5a623' : '#c8daf0',
+                      fontWeight: isCurrentDay ? 700 : 400,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isCurrentDay) {
+                        e.currentTarget.style.background = '#0f2040';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isCurrentDay) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
                   >
                     {day}
                     {dayEvents.length > 0 && (
-                      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 flex gap-0.5">
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '2px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        display: 'flex',
+                        gap: '2px',
+                      }}>
                         {dayEvents.slice(0, 2).map((event, idx) => (
                           <div
                             key={idx}
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              event.type === 'booking' ? 'bg-green-500' : 'bg-red-500'
-                            }`}
+                            style={{
+                              width: '6px',
+                              height: '6px',
+                              borderRadius: '50%',
+                              background: event.type === 'booking' ? '#1ddba8' : '#f87171',
+                            }}
                             title={event.title}
                           ></div>
                         ))}
@@ -371,80 +835,192 @@ const AdminHomePage = () => {
               })}
             </div>
 
-            <div className="mt-6 pt-4 border-t border-gray-800 flex justify-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <span className="text-xs text-gray-500">Booking</span>
+            <div style={{
+              marginTop: '24px',
+              paddingTop: '16px',
+              borderTop: '1px solid #1a3050',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '16px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#1ddba8' }}></div>
+                <span style={{ fontSize: '12px', color: '#6b8aaa' }}>Booking</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                <span className="text-xs text-gray-500">Complaint</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f87171' }}></div>
+                <span style={{ fontSize: '12px', color: '#6b8aaa' }}>Complaint</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-cyan-500"></div>
-                <span className="text-xs text-gray-500">Today</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f5a623' }}></div>
+                <span style={{ fontSize: '12px', color: '#6b8aaa' }}>Today</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Recent Activity - Takes 2 columns */}
-        <div className="lg:col-span-2 space-y-6">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px',
+        }}>
           {/* Recent Bookings */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800 flex justify-between items-center">
-              <h2 className="text-white font-semibold">Recent Bookings</h2>
-              <button onClick={() => navigate('/admin/bookings')} className="text-cyan-400 text-xs hover:underline">
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <h2 style={{ color: '#eaf2ff', fontWeight: 600, margin: 0, fontSize: '16px' }}>Recent Bookings</h2>
+              <button onClick={() => navigate('/admin/bookings')} style={{
+                color: '#f5a623',
+                fontSize: '12px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+              >
                 View All →
               </button>
             </div>
-            <div className="divide-y divide-gray-800">
+            <div>
               {recentBookings.length > 0 ? (
                 recentBookings.map((booking) => (
-                  <div key={booking.id} className="px-6 py-3 flex items-center justify-between">
+                  <div key={booking.id} style={{
+                    padding: '12px 24px',
+                    borderBottom: '1px solid #1a3050',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}>
                     <div>
-                      <p className="text-white text-sm">Booking #{booking.id}</p>
-                      <p className="text-gray-500 text-xs">Room: {booking.room}</p>
+                      <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>Booking #{booking.id}</p>
+                      <p style={{ color: '#6b8aaa', fontSize: '12px', margin: '4px 0 0 0' }}>Room: {booking.room}</p>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(booking.status)}`}>
+                    <span style={{
+                      padding: '4px 12px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      color: getStatusColor(booking.status),
+                      background: getStatusBgColor(booking.status),
+                    }}>
                       {booking.status}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="px-6 py-8 text-center text-gray-500">No recent bookings</div>
+                <div style={{
+                  padding: '32px 24px',
+                  textAlign: 'center',
+                  color: '#6b8aaa',
+                }}>No recent bookings</div>
               )}
             </div>
           </div>
 
           {/* Recent Complaints */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-800 flex justify-between items-center">
-              <h2 className="text-white font-semibold">Recent Complaints</h2>
-              <button onClick={() => navigate('/admin/complaints')} className="text-cyan-400 text-xs hover:underline">
+          <div style={{
+            background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+            border: '1px solid #1a3050',
+            borderRadius: '12px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid #1a3050',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}>
+              <h2 style={{ color: '#eaf2ff', fontWeight: 600, margin: 0, fontSize: '16px' }}>Recent Complaints</h2>
+              <button onClick={() => navigate('/admin/complaints')} style={{
+                color: '#f5a623',
+                fontSize: '12px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#e09515';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#f5a623';
+              }}
+              >
                 View All →
               </button>
             </div>
-            <div className="divide-y divide-gray-800">
+            <div>
               {recentComplaints.length > 0 ? (
                 recentComplaints.map((complaint) => (
-                  <div key={complaint.id} className="px-6 py-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-white text-sm">{complaint.title}</p>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(complaint.status)}`}>
+                  <div key={complaint.id} style={{
+                    padding: '12px 24px',
+                    borderBottom: '1px solid #1a3050',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '4px',
+                    }}>
+                      <p style={{ color: '#eaf2ff', fontSize: '14px', margin: 0 }}>{complaint.title}</p>
+                      <span style={{
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: getStatusColor(complaint.status),
+                        background: getStatusBgColor(complaint.status),
+                      }}>
                         {complaint.status?.replace('_', ' ')}
                       </span>
                     </div>
-                    <p className="text-gray-500 text-xs truncate">{complaint.description}</p>
+                    <p style={{
+                      color: '#6b8aaa',
+                      fontSize: '12px',
+                      margin: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>{complaint.description}</p>
                   </div>
                 ))
               ) : (
-                <div className="px-6 py-8 text-center text-gray-500">No recent complaints</div>
+                <div style={{
+                  padding: '32px 24px',
+                  textAlign: 'center',
+                  color: '#6b8aaa',
+                }}>No recent complaints</div>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
 
       {/* Announcement Modal */}
       <CreateAnnouncementModal

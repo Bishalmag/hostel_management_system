@@ -8,7 +8,7 @@ const ManageRooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, residential, common
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetchRooms();
@@ -19,23 +19,17 @@ const ManageRooms = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Fetching from URL: /hostel/rooms/');
       const response = await api.get('/hostel/rooms/');
-      console.log('Response data:', response.data);
       
-      // Handle both array and paginated responses
       let roomsData = response.data;
       if (response.data.results) {
         roomsData = response.data.results;
       }
       
-      // Ensure it's an array
       if (!Array.isArray(roomsData)) {
-        console.error('Expected array but got:', typeof roomsData);
         roomsData = [];
       }
       
-      console.log(`Fetched ${roomsData.length} rooms`);
       setRooms(roomsData);
       
     } catch (err) {
@@ -56,7 +50,7 @@ const ManageRooms = () => {
     try {
       await api.delete(`/hostel/rooms/${roomId}/`);
       showSuccess('Room deleted successfully!', 'Success');
-      fetchRooms(); // Refresh the list
+      fetchRooms();
     } catch (err) {
       console.error('Error deleting room:', err);
       showError(err.response?.data?.detail || 'Failed to delete room', 'Error');
@@ -76,7 +70,6 @@ const ManageRooms = () => {
 
   const filteredRooms = getFilteredRooms();
   
-  // Statistics
   const stats = {
     total: rooms.length,
     residential: rooms.filter(r => r.room_purpose === 'residential').length,
@@ -87,10 +80,23 @@ const ManageRooms = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading rooms...</p>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading rooms...</p>
         </div>
       </div>
     );
@@ -98,11 +104,32 @@ const ManageRooms = () => {
 
   if (error) {
     return (
-      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
-        <p className="text-red-400">Error: {error}</p>
+      <div style={{
+        background: 'rgba(248, 113, 113, 0.1)',
+        border: '1px solid rgba(248, 113, 113, 0.3)',
+        borderRadius: '12px',
+        padding: '24px',
+      }}>
+        <p style={{ color: '#f87171' }}>Error: {error}</p>
         <button
           onClick={fetchRooms}
-          className="mt-3 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg text-sm"
+          style={{
+            marginTop: '12px',
+            padding: '8px 16px',
+            background: '#f5a623',
+            color: '#0a1628',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#e09515';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#f5a623';
+          }}
         >
           Try Again
         </button>
@@ -111,20 +138,57 @@ const ManageRooms = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
         <div>
-          <h1 className="text-2xl font-bold text-white">Manage Rooms</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Manage Rooms</h1>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+            marginBottom: 0,
+          }}>
             Total: {stats.total} rooms • {stats.residential} residential • {stats.common} common areas
           </p>
         </div>
         <button
           onClick={() => {/* Navigate to add room page */}}
-          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition flex items-center gap-2"
+          style={{
+            padding: '8px 16px',
+            background: '#1ddba8',
+            color: '#0a1628',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'background 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#16c39a';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#1ddba8';
+          }}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Add Room
@@ -132,65 +196,155 @@ const ManageRooms = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Total Rooms</p>
-          <p className="text-2xl font-bold text-white">{stats.total}</p>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '16px',
+      }}>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Total Rooms</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: '4px 0 0 0',
+          }}>{stats.total}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Residential</p>
-          <p className="text-2xl font-bold text-blue-400">{stats.residential}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Residential</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#60a5fa',
+            margin: '4px 0 0 0',
+          }}>{stats.residential}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Common Areas</p>
-          <p className="text-2xl font-bold text-purple-400">{stats.common}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Common Areas</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#a78bfa',
+            margin: '4px 0 0 0',
+          }}>{stats.common}</p>
         </div>
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-xl p-4">
-          <p className="text-gray-400 text-xs uppercase tracking-wide">Occupied</p>
-          <p className="text-2xl font-bold text-yellow-400">{stats.occupied}</p>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '16px',
+        }}>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            margin: 0,
+          }}>Occupied</p>
+          <p style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: '#f5a623',
+            margin: '4px 0 0 0',
+          }}>{stats.occupied}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 border-b border-gray-800">
-        <button
-          onClick={() => setFilter('all')}
-          className={`px-4 py-2 text-sm font-medium transition ${
-            filter === 'all'
-              ? 'text-cyan-400 border-b-2 border-cyan-400'
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-        >
-          All ({stats.total})
-        </button>
-        <button
-          onClick={() => setFilter('residential')}
-          className={`px-4 py-2 text-sm font-medium transition ${
-            filter === 'residential'
-              ? 'text-cyan-400 border-b-2 border-cyan-400'
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-        >
-          Residential ({stats.residential})
-        </button>
-        <button
-          onClick={() => setFilter('common')}
-          className={`px-4 py-2 text-sm font-medium transition ${
-            filter === 'common'
-              ? 'text-cyan-400 border-b-2 border-cyan-400'
-              : 'text-gray-400 hover:text-gray-300'
-          }`}
-        >
-          Common Areas ({stats.common})
-        </button>
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        borderBottom: '1px solid #1a3050',
+      }}>
+        {[
+          { key: 'all', label: `All (${stats.total})` },
+          { key: 'residential', label: `Residential (${stats.residential})` },
+          { key: 'common', label: `Common Areas (${stats.common})` },
+        ].map(item => (
+          <button
+            key={item.key}
+            onClick={() => setFilter(item.key)}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+              fontWeight: 500,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              color: filter === item.key ? '#f5a623' : '#6b8aaa',
+              borderBottom: filter === item.key ? '2px solid #f5a623' : '2px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (filter !== item.key) {
+                e.currentTarget.style.color = '#c8daf0';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (filter !== item.key) {
+                e.currentTarget.style.color = '#6b8aaa';
+              }
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       {/* Rooms Table */}
       {filteredRooms.length === 0 ? (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">🏠</div>
-          <h3 className="text-xl font-semibold text-white mb-2">No Rooms Found</h3>
-          <p className="text-gray-400 text-sm">
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          padding: '48px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>◇</div>
+          <h3 style={{
+            fontSize: '20px',
+            fontWeight: 600,
+            color: '#eaf2ff',
+            marginBottom: '8px',
+          }}>No Rooms Found</h3>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            margin: 0,
+          }}>
             {filter === 'all' 
               ? "No rooms have been added yet." 
               : filter === 'residential'
@@ -199,91 +353,190 @@ const ManageRooms = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-800/50 border-b border-gray-800">
-                <tr className="text-gray-500 text-xs uppercase tracking-wide">
-                  <th className="px-5 py-4 text-left">Room</th>
-                  <th className="px-5 py-4 text-left">Type</th>
-                  <th className="px-5 py-4 text-left">Purpose</th>
-                  <th className="px-5 py-4 text-left">Capacity</th>
-                  <th className="px-5 py-4 text-left">Occupancy</th>
-                  <th className="px-5 py-4 text-left">Price/Month</th>
-                  <th className="px-5 py-4 text-left">Actions</th>
+        <div style={{
+          background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+          border: '1px solid #1a3050',
+          borderRadius: '16px',
+          overflow: 'hidden',
+        }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{
+              width: '100%',
+              fontSize: '14px',
+              borderCollapse: 'collapse',
+            }}>
+              <thead style={{
+                background: 'rgba(15, 32, 64, 0.5)',
+                borderBottom: '1px solid #1a3050',
+              }}>
+                <tr style={{
+                  color: '#6b8aaa',
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Room</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Type</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Purpose</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Capacity</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Occupancy</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Price/Month</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'left' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800">
+              <tbody>
                 {filteredRooms.map((room) => {
                   const isOccupied = room.current_occupancy > 0;
                   const isFull = room.current_occupancy >= room.capacity;
                   const isResidential = room.room_purpose === 'residential';
                   
                   return (
-                    <tr key={room.id} className="hover:bg-gray-800/30 transition">
-                      <td className="px-5 py-4">
+                    <tr
+                      key={room.id}
+                      style={{
+                        borderBottom: '1px solid #1a3050',
+                        transition: 'background 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <td style={{ padding: '16px 20px' }}>
                         <div>
-                          <p className="text-white font-medium">Room {room.room_number}</p>
-                          <p className="text-gray-500 text-xs">Floor {room.floor_number || 'N/A'}</p>
+                          <p style={{
+                            color: '#eaf2ff',
+                            fontWeight: 500,
+                            margin: 0,
+                          }}>Room {room.room_number}</p>
+                          <p style={{
+                            color: '#6b8aaa',
+                            fontSize: '12px',
+                            margin: '4px 0 0 0',
+                          }}>Floor {room.floor_number || 'N/A'}</p>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="capitalize text-gray-300">
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{
+                          textTransform: 'capitalize',
+                          color: '#c8daf0',
+                        }}>
                           {room.room_type}
                           {room.ac_type && (
-                            <span className={`ml-1 px-1.5 py-0.5 text-xs rounded ${
-                              room.ac_type === 'ac' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
-                            }`}>
+                            <span style={{
+                              marginLeft: '4px',
+                              padding: '2px 6px',
+                              fontSize: '12px',
+                              borderRadius: '4px',
+                              background: room.ac_type === 'ac' ? 'rgba(96, 165, 250, 0.2)' : 'rgba(251, 146, 60, 0.2)',
+                              color: room.ac_type === 'ac' ? '#60a5fa' : '#fb923c',
+                            }}>
                               {room.ac_type.toUpperCase()}
                             </span>
                           )}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${
-                          isResidential 
-                            ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                            : 'bg-purple-500/20 text-purple-400 border-purple-500/30'
-                        }`}>
+                      <td style={{ padding: '16px 20px' }}>
+                        <span style={{
+                          padding: '4px 12px',
+                          borderRadius: '20px',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          border: '1px solid',
+                          background: isResidential ? 'rgba(29, 219, 168, 0.2)' : 'rgba(167, 139, 250, 0.2)',
+                          color: isResidential ? '#1ddba8' : '#a78bfa',
+                          borderColor: isResidential ? 'rgba(29, 219, 168, 0.3)' : 'rgba(167, 139, 250, 0.3)',
+                        }}>
                           {room.room_purpose || 'N/A'}
                         </span>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-gray-300">{room.capacity}</p>
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{ color: '#c8daf0', margin: 0 }}>{room.capacity}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-gray-700 rounded-full h-1.5 w-16">
-                            <div 
-                              className={`h-1.5 rounded-full transition-all ${
-                                isFull ? 'bg-red-500' : isOccupied ? 'bg-yellow-500' : 'bg-green-500'
-                              }`}
-                              style={{ width: `${(room.current_occupancy / room.capacity) * 100}%` }}
-                            />
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                        }}>
+                          <div style={{
+                            flex: 1,
+                            background: '#1a3050',
+                            borderRadius: '4px',
+                            height: '6px',
+                            width: '64px',
+                          }}>
+                            <div style={{
+                              height: '6px',
+                              borderRadius: '4px',
+                              transition: 'width 0.3s ease',
+                              background: isFull ? '#f87171' : isOccupied ? '#f5a623' : '#1ddba8',
+                              width: `${(room.current_occupancy / room.capacity) * 100}%`,
+                            }} />
                           </div>
-                          <span className={`text-xs ${
-                            isFull ? 'text-red-400' : isOccupied ? 'text-yellow-400' : 'text-green-400'
-                          }`}>
+                          <span style={{
+                            fontSize: '12px',
+                            color: isFull ? '#f87171' : isOccupied ? '#f5a623' : '#1ddba8',
+                          }}>
                             {room.current_occupancy}/{room.capacity}
                           </span>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-cyan-400 font-medium">
+                      <td style={{ padding: '16px 20px' }}>
+                        <p style={{
+                          color: '#f5a623',
+                          fontWeight: 500,
+                          margin: 0,
+                        }}>
                           {room.price_per_month ? `Rs. ${room.price_per_month}` : 'N/A'}
                         </p>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="flex gap-2">
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{
+                          display: 'flex',
+                          gap: '8px',
+                        }}>
                           <button
                             onClick={() => {/* Navigate to edit room */}}
-                            className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-lg transition"
+                            style={{
+                              padding: '4px 12px',
+                              background: '#0f2040',
+                              color: '#c8daf0',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                              transition: 'background 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = '#122448';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = '#0f2040';
+                            }}
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteRoom(room.id)}
-                            className="px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm rounded-lg transition"
+                            style={{
+                              padding: '4px 12px',
+                              background: 'rgba(248, 113, 113, 0.2)',
+                              color: '#f87171',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                              transition: 'background 0.3s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'rgba(248, 113, 113, 0.3)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'rgba(248, 113, 113, 0.2)';
+                            }}
                           >
                             Delete
                           </button>
@@ -297,6 +550,14 @@ const ManageRooms = () => {
           </div>
         </div>
       )}
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

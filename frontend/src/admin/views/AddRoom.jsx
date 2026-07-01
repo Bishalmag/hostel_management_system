@@ -27,10 +27,8 @@ const AddRoom = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Check if room is residential
   const isResidential = form.room_purpose === 'residential';
 
-  // Price suggestions based on room type, AC, and bathroom
   const getSuggestedPrice = (roomType, acType, bathroomType) => {
     const prices = {
       single: { non_ac: { shared: 5000, attached: 6000 }, ac: { shared: 8000, attached: 9000 } },
@@ -40,7 +38,6 @@ const AddRoom = () => {
     return prices[roomType]?.[acType]?.[bathroomType] || '';
   };
 
-  // Auto-suggest price when room type, AC, or bathroom changes (only for residential)
   useEffect(() => {
     if (isResidential && form.room_type && form.ac_type && form.bathroom_type) {
       const suggestedPrice = getSuggestedPrice(form.room_type, form.ac_type, form.bathroom_type);
@@ -50,7 +47,6 @@ const AddRoom = () => {
     }
   }, [form.room_type, form.ac_type, form.bathroom_type, isResidential]);
 
-  // Load hostels
   useEffect(() => {
     const fetchHostels = async () => {
       try {
@@ -69,7 +65,6 @@ const AddRoom = () => {
     fetchHostels();
   }, []);
 
-  // Load all floors initially
   useEffect(() => {
     const fetchAllFloors = async () => {
       try {
@@ -83,7 +78,6 @@ const AddRoom = () => {
     fetchAllFloors();
   }, []);
 
-  // Load blocks when hostel changes
   useEffect(() => {
     if (!form.hostel) {
       setBlocks([]);
@@ -103,7 +97,6 @@ const AddRoom = () => {
     fetchBlocks();
   }, [form.hostel]);
 
-  // Filter floors when block changes
   useEffect(() => {
     if (!form.block) {
       setFilteredFloors([]);
@@ -115,10 +108,8 @@ const AddRoom = () => {
     setForm(f => ({ ...f, floor: '' }));
   }, [form.block, allFloors]);
 
-  // Reset non-residential fields when purpose changes
   useEffect(() => {
     if (!isResidential) {
-      // Reset residential-specific fields
       setForm(f => ({
         ...f,
         room_type: 'single',
@@ -143,7 +134,6 @@ const AddRoom = () => {
         room_purpose: form.room_purpose,
       };
 
-      // Only add residential fields if room is residential
       if (isResidential) {
         payload.capacity = form.capacity;
         payload.room_type = form.room_type;
@@ -152,7 +142,6 @@ const AddRoom = () => {
         payload.current_occupancy = form.current_occupancy;
         payload.price_per_month = form.price_per_month;
       } else {
-        // Set default values for non-residential rooms
         payload.capacity = 0;
         payload.room_type = 'single';
         payload.ac_type = 'non_ac';
@@ -193,46 +182,103 @@ const AddRoom = () => {
     }));
 
   return (
-    <div className="max-w-lg space-y-6">
-
+    <div style={{
+      maxWidth: '512px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       <div>
         <button
           onClick={() => navigate('/admin/rooms')}
-          className="text-sm text-gray-500 hover:text-purple-400 mb-3"
+          style={{
+            fontSize: '14px',
+            color: '#6b8aaa',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '12px',
+            transition: 'color 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = '#a78bfa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = '#6b8aaa';
+          }}
         >
           ← Back
         </button>
 
-        <h1 className="text-2xl font-bold text-white">
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>
           Add Room
         </h1>
       </div>
 
       {message.text && (
-        <div className={`px-4 py-3 rounded-lg text-sm border ${
-          message.type === 'success'
-            ? 'bg-green-500/10 text-green-400 border-green-500/30'
-            : 'bg-red-500/10 text-red-400 border-red-500/30'
-        }`}>
+        <div style={{
+          padding: '12px 16px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          border: '1px solid',
+          backgroundColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.1)' : 'rgba(248, 113, 113, 0.1)',
+          color: message.type === 'success' ? '#1ddba8' : '#f87171',
+          borderColor: message.type === 'success' ? 'rgba(29, 219, 168, 0.3)' : 'rgba(248, 113, 113, 0.3)',
+        }}>
           {message.text}
         </div>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4"
+        style={{
+          backgroundColor: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
       >
-
-        {/* HOSTEL - Always visible */}
+        {/* HOSTEL */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             Hostel *
           </label>
 
           <select
             value={form.hostel}
             onChange={set('hostel')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={hostels.length === 1}
           >
@@ -242,20 +288,50 @@ const AddRoom = () => {
             ))}
           </select>
           {hostels.length === 1 && (
-            <p className="text-xs text-gray-500 mt-1">{hostels[0]?.name}</p>
+            <p style={{
+              fontSize: '12px',
+              color: '#6b8aaa',
+              marginTop: '4px',
+              marginBottom: 0,
+            }}>{hostels[0]?.name}</p>
           )}
         </div>
 
-        {/* BLOCK - Always visible */}
+        {/* BLOCK */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             Block *
           </label>
 
           <select
             value={form.block}
             onChange={set('block')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+              opacity: !form.hostel ? 0.5 : 1,
+              cursor: !form.hostel ? 'not-allowed' : 'pointer',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={!form.hostel}
           >
@@ -266,16 +342,41 @@ const AddRoom = () => {
           </select>
         </div>
 
-        {/* FLOOR - Always visible */}
+        {/* FLOOR */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             Floor *
           </label>
 
           <select
             value={form.floor}
             onChange={set('floor')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+              opacity: (!form.block || filteredFloors.length === 0) ? 0.5 : 1,
+              cursor: (!form.block || filteredFloors.length === 0) ? 'not-allowed' : 'pointer',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
             disabled={!form.block || filteredFloors.length === 0}
           >
@@ -287,15 +388,26 @@ const AddRoom = () => {
             ))}
           </select>
           {form.block && filteredFloors.length === 0 && (
-            <p className="text-xs text-yellow-500 mt-1">
+            <p style={{
+              fontSize: '12px',
+              color: '#f5a623',
+              marginTop: '4px',
+              marginBottom: 0,
+            }}>
               No floors available for this block. Please add a floor first.
             </p>
           )}
         </div>
 
-        {/* ROOM NUMBER - Always visible */}
+        {/* ROOM NUMBER */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             Room Number *
           </label>
 
@@ -304,21 +416,61 @@ const AddRoom = () => {
             value={form.room_number}
             onChange={set('room_number')}
             placeholder="e.g. 101"
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
           />
         </div>
 
-        {/* ROOM PURPOSE - Always visible */}
+        {/* ROOM PURPOSE */}
         <div>
-          <label className="block text-xs text-gray-500 uppercase mb-1">
+          <label style={{
+            display: 'block',
+            fontSize: '12px',
+            color: '#6b8aaa',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
             Room Purpose *
           </label>
 
           <select
             value={form.room_purpose}
             onChange={set('room_purpose')}
-            className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              backgroundColor: '#0f2040',
+              border: '1px solid #1a3050',
+              borderRadius: '8px',
+              color: '#eaf2ff',
+              fontSize: '14px',
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#f5a623';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#1a3050';
+            }}
             required
           >
             <option value="residential">Residential</option>
@@ -330,20 +482,34 @@ const AddRoom = () => {
             <option value="canteen">Canteen</option>
             <option value="hall">Hall</option>
           </select>
-          <p className={`text-xs mt-1 ${isResidential ? 'text-green-400' : 'text-yellow-400'}`}>
+          <p style={{
+            fontSize: '12px',
+            marginTop: '4px',
+            marginBottom: 0,
+            color: isResidential ? '#1ddba8' : '#f5a623',
+          }}>
             {isResidential 
               ? '✓ Residential rooms are available for student booking.' 
               : '⚠ Non-residential rooms are not available for student booking.'}
           </p>
         </div>
 
-        {/* ===== RESIDENTIAL-ONLY FIELDS ===== */}
+        {/* RESIDENTIAL-ONLY FIELDS */}
         {isResidential && (
           <>
-            {/* ROOM NUMBER + CAPACITY */}
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px',
+            }}>
               <div>
-                <label className="block text-xs text-gray-500 uppercase mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  color: '#6b8aaa',
+                  textTransform: 'uppercase',
+                  marginBottom: '4px',
+                }}>
                   Capacity *
                 </label>
                 <input
@@ -351,20 +517,60 @@ const AddRoom = () => {
                   value={form.capacity}
                   onChange={set('capacity')}
                   placeholder="e.g. 2"
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    backgroundColor: '#0f2040',
+                    border: '1px solid #1a3050',
+                    borderRadius: '8px',
+                    color: '#eaf2ff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.3s ease',
+                    boxSizing: 'border-box',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#1a3050';
+                  }}
                   required
                   min="1"
                 />
               </div>
 
               <div>
-                <label className="block text-xs text-gray-500 uppercase mb-1">
+                <label style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  color: '#6b8aaa',
+                  textTransform: 'uppercase',
+                  marginBottom: '4px',
+                }}>
                   Room Type *
                 </label>
                 <select
                   value={form.room_type}
                   onChange={set('room_type')}
-                  className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    backgroundColor: '#0f2040',
+                    border: '1px solid #1a3050',
+                    borderRadius: '8px',
+                    color: '#eaf2ff',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.3s ease',
+                    boxSizing: 'border-box',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#f5a623';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#1a3050';
+                  }}
                 >
                   <option value="single">Single</option>
                   <option value="double">Double</option>
@@ -373,39 +579,88 @@ const AddRoom = () => {
               </div>
             </div>
 
-            {/* AC TYPE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase mb-1">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                marginBottom: '4px',
+              }}>
                 AC Type *
               </label>
               <select
                 value={form.ac_type}
                 onChange={set('ac_type')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
               >
                 <option value="non_ac">Non-AC</option>
                 <option value="ac">AC</option>
               </select>
             </div>
 
-            {/* BATHROOM TYPE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase mb-1">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                marginBottom: '4px',
+              }}>
                 Bathroom Type *
               </label>
               <select
                 value={form.bathroom_type}
                 onChange={set('bathroom_type')}
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
               >
                 <option value="shared">Shared Bathroom</option>
                 <option value="attached">Attached Bathroom</option>
               </select>
             </div>
 
-            {/* PRICE */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase mb-1">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                marginBottom: '4px',
+              }}>
                 Price per Month (NPR)
               </label>
               <input
@@ -413,18 +668,45 @@ const AddRoom = () => {
                 value={form.price_per_month}
                 onChange={set('price_per_month')}
                 placeholder="e.g. 5000"
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
                 min="0"
               />
-              <p className="text-gray-500 text-xs mt-1">
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '12px',
+                marginTop: '4px',
+                marginBottom: 0,
+              }}>
                 Suggested price for {form.room_type}, {form.ac_type}, {form.bathroom_type}: 
                 Rs. {getSuggestedPrice(form.room_type, form.ac_type, form.bathroom_type) || 'N/A'}
               </p>
             </div>
 
-            {/* CURRENT OCCUPANCY */}
             <div>
-              <label className="block text-xs text-gray-500 uppercase mb-1">
+              <label style={{
+                display: 'block',
+                fontSize: '12px',
+                color: '#6b8aaa',
+                textTransform: 'uppercase',
+                marginBottom: '4px',
+              }}>
                 Current Occupancy
               </label>
               <input
@@ -432,18 +714,44 @@ const AddRoom = () => {
                 value={form.current_occupancy}
                 onChange={set('current_occupancy')}
                 placeholder="0"
-                className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  backgroundColor: '#0f2040',
+                  border: '1px solid #1a3050',
+                  borderRadius: '8px',
+                  color: '#eaf2ff',
+                  fontSize: '14px',
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = '#f5a623';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = '#1a3050';
+                }}
                 min="0"
               />
             </div>
           </>
         )}
 
-        {/* ===== NON-RESIDENTIAL MESSAGE ===== */}
+        {/* NON-RESIDENTIAL MESSAGE */}
         {!isResidential && (
-          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-            <p className="text-gray-400 text-sm">
-              <span className="text-yellow-400">ℹ️</span> This is a non-residential room. 
+          <div style={{
+            backgroundColor: 'rgba(15, 32, 64, 0.5)',
+            border: '1px solid #1a3050',
+            borderRadius: '8px',
+            padding: '16px',
+          }}>
+            <p style={{
+              color: '#6b8aaa',
+              fontSize: '14px',
+              margin: 0,
+            }}>
+              <span style={{ color: '#f5a623' }}>◆</span> This is a non-residential room. 
               It will be used for pathfinding and navigation only. 
               Students cannot book this room.
             </p>
@@ -453,11 +761,32 @@ const AddRoom = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50"
+          style={{
+            width: '100%',
+            padding: '10px',
+            backgroundColor: loading ? '#6b8aaa' : '#a78bfa',
+            color: '#0a1628',
+            fontWeight: 700,
+            fontSize: '14px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.3s ease',
+            opacity: loading ? 0.5 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#8b5cf6';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = '#a78bfa';
+            }
+          }}
         >
           {loading ? 'Adding...' : 'Add Room'}
         </button>
-
       </form>
     </div>
   );

@@ -56,32 +56,65 @@ const FindPath = () => {
   };
 
   const getBlockBadgeColor = (blockName) => {
-    if (!blockName) return 'bg-gray-600';
-    // Different colors for different blocks
+    if (!blockName) return { bg: 'rgba(107, 114, 128, 0.2)', color: '#6b8aaa', border: 'rgba(107, 114, 128, 0.3)' };
     const colors = {
-      'Block A': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      'Block B': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      'Block C': 'bg-green-500/20 text-green-400 border-green-500/30',
-      'Block D': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+      'Block A': { bg: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', border: 'rgba(59, 130, 246, 0.3)' },
+      'Block B': { bg: 'rgba(167, 139, 250, 0.2)', color: '#a78bfa', border: 'rgba(167, 139, 250, 0.3)' },
+      'Block C': { bg: 'rgba(29, 219, 168, 0.2)', color: '#1ddba8', border: 'rgba(29, 219, 168, 0.3)' },
+      'Block D': { bg: 'rgba(245, 166, 35, 0.2)', color: '#f5a623', border: 'rgba(245, 166, 35, 0.3)' },
     };
-    return colors[blockName] || 'bg-gray-600';
+    return colors[blockName] || { bg: 'rgba(107, 114, 128, 0.2)', color: '#6b8aaa', border: 'rgba(107, 114, 128, 0.3)' };
   };
 
   return (
-    <div className="max-w-4xl space-y-6">
-      <h1 className="text-2xl font-bold text-white">Find Shortest Path</h1>
+    <div style={{ maxWidth: '896px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <h1 style={{
+        fontSize: '24px',
+        fontWeight: 700,
+        color: '#eaf2ff',
+        margin: 0,
+      }}>Find Shortest Path</h1>
 
       {/* Selection */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div style={{
+        background: '#0a1628',
+        border: '1px solid #1a3050',
+        borderRadius: '12px',
+        padding: '24px',
+      }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px',
+          marginBottom: '16px',
+        }}>
           <div>
-            <label className="block text-xs text-gray-500 uppercase mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '4px',
+            }}>
               Start Location *
             </label>
             <select
               value={fromNode}
               onChange={e => setFromNode(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#a78bfa'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
             >
               <option value="">Select start...</option>
               {nodes.map(n => (
@@ -90,13 +123,32 @@ const FindPath = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 uppercase mb-1">
+            <label style={{
+              display: 'block',
+              fontSize: '10px',
+              color: '#6b8aaa',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '4px',
+            }}>
               Destination *
             </label>
             <select
               value={toNode}
               onChange={e => setToNode(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500"
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                background: '#0a1628',
+                border: '1px solid #1a3050',
+                borderRadius: '8px',
+                color: '#eaf2ff',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = '#a78bfa'}
+              onBlur={(e) => e.currentTarget.style.borderColor = '#1a3050'}
             >
               <option value="">Select destination...</option>
               {nodes.map(n => (
@@ -106,34 +158,86 @@ const FindPath = () => {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
             onClick={findPath}
             disabled={loading || !fromNode || !toNode}
-            className="flex-1 py-2.5 bg-purple-500 hover:bg-purple-400 text-white font-bold text-sm rounded-lg transition disabled:opacity-50"
+            style={{
+              flex: 1,
+              padding: '10px',
+              background: (loading || !fromNode || !toNode) ? '#1a3050' : '#a78bfa',
+              color: (loading || !fromNode || !toNode) ? '#3a5070' : '#0a1628',
+              fontWeight: 700,
+              fontSize: '14px',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: (loading || !fromNode || !toNode) ? 'not-allowed' : 'pointer',
+              opacity: (loading || !fromNode || !toNode) ? 0.5 : 1,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (!loading && fromNode && toNode) {
+                e.currentTarget.style.background = '#9370db';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading && fromNode && toNode) {
+                e.currentTarget.style.background = '#a78bfa';
+              }
+            }}
           >
             {loading ? 'Finding...' : 'Find Shortest Path'}
           </button>
           <button
             onClick={resetPath}
-            className="py-2.5 px-6 bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm rounded-lg transition"
+            style={{
+              padding: '10px 24px',
+              background: 'rgba(18, 36, 72, 0.5)',
+              color: '#c8daf0',
+              fontWeight: 700,
+              fontSize: '14px',
+              borderRadius: '8px',
+              border: '1px solid #1a3050',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.8)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(18, 36, 72, 0.5)';
+            }}
           >
             Reset
           </button>
         </div>
 
         {error && (
-          <div className="text-red-400 text-sm">{error}</div>
+          <div style={{
+            color: '#f87171',
+            fontSize: '14px',
+            marginTop: '12px',
+          }}>{error}</div>
         )}
       </div>
 
       {/* Path Result */}
       {path && (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Shortest Path</h3>
+        <div style={{
+          background: '#0a1628',
+          border: '1px solid #1a3050',
+          borderRadius: '12px',
+          padding: '24px',
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            color: '#eaf2ff',
+            margin: '0 0 16px 0',
+          }}>Shortest Path</h3>
           
           {/* Path steps with block and staircase indicators */}
-          <div className="space-y-3">
+          <div>
             {path.steps && path.steps.length > 0 ? (
               path.steps.map((step, index) => {
                 const isStart = index === 0;
@@ -141,81 +245,152 @@ const FindPath = () => {
                 const isStaircase = step.is_staircase;
                 const isBlockChange = step.block_change;
                 
+                const getStepColor = () => {
+                  if (isStart) return '#1ddba8';
+                  if (isEnd) return '#f87171';
+                  if (isStaircase) return '#f5a623';
+                  if (isBlockChange) return '#a78bfa';
+                  return '#6b8aaa';
+                };
+                
+                const getStepBg = () => {
+                  if (isStart) return 'rgba(29, 219, 168, 0.1)';
+                  if (isEnd) return 'rgba(248, 113, 113, 0.1)';
+                  if (isStaircase) return 'rgba(245, 166, 35, 0.1)';
+                  if (isBlockChange) return 'rgba(167, 139, 250, 0.1)';
+                  return 'rgba(18, 36, 72, 0.3)';
+                };
+                
+                const getStepBorder = () => {
+                  if (isStart) return 'rgba(29, 219, 168, 0.3)';
+                  if (isEnd) return 'rgba(248, 113, 113, 0.3)';
+                  if (isStaircase) return 'rgba(245, 166, 35, 0.3)';
+                  if (isBlockChange) return 'rgba(167, 139, 250, 0.3)';
+                  return 'transparent';
+                };
+                
                 return (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        isStart ? 'bg-green-500' : 
-                        isEnd ? 'bg-red-500' : 
-                        isStaircase ? 'bg-yellow-500' : 
-                        isBlockChange ? 'bg-purple-500' : 'bg-gray-600'
-                      }`}>
+                  <div key={index} style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                    marginBottom: '8px',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                    }}>
+                      <div style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        color: '#0a1628',
+                        background: getStepColor(),
+                        flexShrink: 0,
+                      }}>
                         {index + 1}
                       </div>
                       {index < path.steps.length - 1 && (
-                        <div className={`w-0.5 h-8 ${
-                          isStaircase ? 'bg-yellow-500/50' : 
-                          isBlockChange ? 'bg-purple-500/50' : 
-                          'bg-gray-600'
-                        }`} />
+                        <div style={{
+                          width: '2px',
+                          height: '32px',
+                          background: isStaircase ? 'rgba(245, 166, 35, 0.3)' : 
+                                      isBlockChange ? 'rgba(167, 139, 250, 0.3)' : 
+                                      'rgba(26, 48, 80, 0.5)',
+                        }} />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className={`px-3 py-2 rounded-lg ${
-                        isStart ? 'bg-green-500/20 border border-green-500/30' :
-                        isEnd ? 'bg-red-500/20 border border-red-500/30' :
-                        isStaircase ? 'bg-yellow-500/20 border border-yellow-500/30' :
-                        isBlockChange ? 'bg-purple-500/20 border border-purple-500/30' :
-                        'bg-gray-800'
-                      }`}>
-                        <div className="flex justify-between items-center">
-                          <span className={`font-medium ${
-                            isStart ? 'text-green-400' :
-                            isEnd ? 'text-red-400' :
-                            isStaircase ? 'text-yellow-400' :
-                            isBlockChange ? 'text-purple-400' :
-                            'text-white'
-                          }`}>
-                            {step.description}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            +{step.weight?.toFixed(1) || '0'}
-                          </span>
-                        </div>
-                        
-                        {/* Block information */}
-                        {step.to_block && (
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${getBlockBadgeColor(step.to_block)}`}>
-                              🏢 {step.to_block}
-                            </span>
-                            {step.to_floor !== undefined && (
-                              <span className="text-xs text-gray-400">
-                                Floor {step.to_floor}
-                              </span>
-                            )}
-                            {step.to_purpose && step.to_purpose !== 'residential' && (
-                              <span className="text-xs text-gray-400">
-                                • {step.to_purpose}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Staircase info */}
-                        {isStaircase && (
-                          <div className="text-xs text-yellow-400 mt-1">
-                            🪜 {step.floor_change_direction === 'up' ? 'Up' : 'Down'} {Math.abs(step.floor_change)} floor{Math.abs(step.floor_change) > 1 ? 's' : ''}
-                          </div>
-                        )}
-                        
-                        {/* Block change info */}
-                        {isBlockChange && (
-                          <div className="text-xs text-purple-400 mt-1">
-                            🚪 Moving from {step.from_block} → {step.to_block}
-                          </div>
-                        )}
+                    <div style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      background: getStepBg(),
+                      border: `1px solid ${getStepBorder()}`,
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}>
+                        <span style={{
+                          fontWeight: 500,
+                          color: getStepColor(),
+                          fontSize: '14px',
+                        }}>
+                          {step.description}
+                        </span>
+                        <span style={{
+                          fontSize: '12px',
+                          color: '#3a5070',
+                        }}>
+                          +{step.weight?.toFixed(1) || '0'}
+                        </span>
                       </div>
+                      
+                      {/* Block information */}
+                      {step.to_block && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          marginTop: '4px',
+                        }}>
+                          <span style={{
+                            fontSize: '10px',
+                            padding: '2px 8px',
+                            borderRadius: '9999px',
+                            border: `1px solid ${getBlockBadgeColor(step.to_block).border}`,
+                            background: getBlockBadgeColor(step.to_block).bg,
+                            color: getBlockBadgeColor(step.to_block).color,
+                          }}>
+                            🏢 {step.to_block}
+                          </span>
+                          {step.to_floor !== undefined && (
+                            <span style={{
+                              fontSize: '10px',
+                              color: '#6b8aaa',
+                            }}>
+                              Floor {step.to_floor}
+                            </span>
+                          )}
+                          {step.to_purpose && step.to_purpose !== 'residential' && (
+                            <span style={{
+                              fontSize: '10px',
+                              color: '#6b8aaa',
+                            }}>
+                              • {step.to_purpose}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Staircase info */}
+                      {isStaircase && (
+                        <div style={{
+                          fontSize: '10px',
+                          color: '#f5a623',
+                          marginTop: '4px',
+                        }}>
+                          🪜 {step.floor_change_direction === 'up' ? 'Up' : 'Down'} {Math.abs(step.floor_change)} floor{Math.abs(step.floor_change) > 1 ? 's' : ''}
+                        </div>
+                      )}
+                      
+                      {/* Block change info */}
+                      {isBlockChange && (
+                        <div style={{
+                          fontSize: '10px',
+                          color: '#a78bfa',
+                          marginTop: '4px',
+                        }}>
+                          🚪 Moving from {step.from_block} → {step.to_block}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -223,17 +398,35 @@ const FindPath = () => {
             ) : (
               // Fallback: simple path display
               path.path_names.map((name, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                    index === 0 ? 'bg-green-500' : 
-                    index === path.path_names.length - 1 ? 'bg-red-500' : 'bg-gray-600'
-                  }`}>
+                <div key={index} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '8px 0',
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    color: '#0a1628',
+                    background: index === 0 ? '#1ddba8' : 
+                                index === path.path_names.length - 1 ? '#f87171' : 
+                                '#6b8aaa',
+                  }}>
                     {index + 1}
                   </div>
-                  <span className={`font-medium ${
-                    index === 0 ? 'text-green-400' : 
-                    index === path.path_names.length - 1 ? 'text-red-400' : 'text-white'
-                  }`}>
+                  <span style={{
+                    fontWeight: 500,
+                    color: index === 0 ? '#1ddba8' : 
+                           index === path.path_names.length - 1 ? '#f87171' : 
+                           '#eaf2ff',
+                    fontSize: '14px',
+                  }}>
                     {name}
                     {index === 0 && ' (Start)'}
                     {index === path.path_names.length - 1 && ' (Destination)'}
@@ -244,32 +437,66 @@ const FindPath = () => {
           </div>
 
           {/* Summary */}
-          <div className="mt-4 pt-4 border-t border-gray-800">
-            <div className="flex justify-between items-center flex-wrap gap-2">
+          <div style={{
+            marginTop: '16px',
+            paddingTop: '16px',
+            borderTop: '1px solid #1a3050',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '8px',
+            }}>
               <div>
-                <p className="text-gray-400 text-sm">
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '14px',
+                  margin: 0,
+                }}>
                   {path.path_names && path.path_names.length > 0 && (
                     <>
                       {path.path_names[0]} → {path.path_names[path.path_names.length - 1]}
                     </>
                   )}
                 </p>
-                <p className="text-gray-500 text-xs">
+                <p style={{
+                  color: '#3a5070',
+                  fontSize: '12px',
+                  marginTop: '4px',
+                }}>
                   {path.path_names && path.path_names.length - 1} {path.path_names && path.path_names.length - 1 === 1 ? 'stop' : 'stops'}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-white font-bold">
+              <div style={{ textAlign: 'right' }}>
+                <p style={{
+                  color: '#eaf2ff',
+                  fontWeight: 700,
+                  margin: 0,
+                }}>
                   Distance: {path.total_cost} units
                 </p>
-                <div className="flex gap-2 justify-end flex-wrap">
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'flex-end',
+                  flexWrap: 'wrap',
+                  marginTop: '4px',
+                }}>
                   {path.steps && path.steps.filter(s => s.is_staircase).length > 0 && (
-                    <span className="text-yellow-400 text-xs">
+                    <span style={{
+                      color: '#f5a623',
+                      fontSize: '10px',
+                    }}>
                       🪜 {path.steps.filter(s => s.is_staircase).length} staircase{path.steps.filter(s => s.is_staircase).length > 1 ? 's' : ''}
                     </span>
                   )}
                   {path.steps && path.steps.filter(s => s.block_change).length > 0 && (
-                    <span className="text-purple-400 text-xs">
+                    <span style={{
+                      color: '#a78bfa',
+                      fontSize: '10px',
+                    }}>
                       🏢 {path.steps.filter(s => s.block_change).length} block change{path.steps.filter(s => s.block_change).length > 1 ? 's' : ''}
                     </span>
                   )}

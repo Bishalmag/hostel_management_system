@@ -5,7 +5,6 @@ import { NotificationProvider } from "./context/NotificationContext";
 
 /* Public */
 import LandingPage from "./pages/LandingPage";
-import SingleHostelPage from "./pages/SingleHostelPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import LoginPortal from "./pages/LoginPortal";
@@ -15,7 +14,7 @@ import ChangePassword from "./pages/ChangePassword";
 import ForgotPassword from "./pages/ForgotPassword";
 
 /* Student Panel */
-import StudentLayout from "./layouts/StudentLayouts";
+import Dashboard from "./students/components/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import StudentHomePage from "./students/components/layouts/HomePage";
 import BookHostel from "./students/pages/BookHostel";
@@ -55,12 +54,10 @@ import EditRoom from "./admin/views/EditRoom";
 import ManageStudents from "./admin/views/ManageStudents";
 import StudentDetail from "./admin/views/StudentDetail";
 import ManageBookings from "./admin/views/ManageBookings";
-import ApproveBooking from "./admin/views/ApproveBooking";
+import BookingDetails from "./admin/views/BookingDetails";
 import ManageAllocations from "./admin/views/ManageAllocations";
 import RunAllocation from "./admin/views/RunAllocation";
 import ManageComplaints from "./admin/views/ManageComplaints";
-import PendingComplaints from "./admin/views/PendingComplaints";
-import ResolvedComplaints from "./admin/views/ResolvedComplaints";
 import ManageFeedbacks from "./admin/views/ManageFeedbacks";
 import ManageEvents from './admin/pages/ManageEvents';
 import AddEvent from './admin/pages/AddEvents';
@@ -96,7 +93,6 @@ export default function App() {
             {/* PUBLIC */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/hostel" element={<SingleHostelPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/loginPortal" element={<LoginPortal />} />
               <Route path="/signup" element={<SignupPage />} />
@@ -110,7 +106,7 @@ export default function App() {
               path="/students"
               element={
                 <ProtectedRoute allowedRoles={["Student"]}>
-                  <StudentLayout />
+                  <Dashboard />
                 </ProtectedRoute>
               }
             >
@@ -162,14 +158,12 @@ export default function App() {
               <Route path="floors/add" element={<AddFloor />} />
               <Route path="floors/edit/:id" element={<EditFloor />} />
               <Route path="bookings" element={<ManageBookings />} />
-              <Route path="bookings/:id" element={<ApproveBooking />} />
+              <Route path="bookings/:id" element={<BookingDetails />} />
               <Route path="students" element={<ManageStudents />} />
               <Route path="students/:id" element={<StudentDetail />} />
               <Route path="students/allocation" element={<ManageAllocations />} />
               <Route path="students/run-allocation" element={<RunAllocation />} />
-              <Route path="complaints" element={<ManageComplaints />} />
-              <Route path="complaints/pending" element={<PendingComplaints />} />
-              <Route path="complaints/resolved" element={<ResolvedComplaints />} />
+              <Route path="complaints" element={<ManageComplaints />} /> 
               <Route path="complaint/:complaintId" element={<AdminComplaintDetails />} />
               <Route path="feedbacks" element={<ManageFeedbacks />} />
               <Route path="events" element={<ManageEvents />} />

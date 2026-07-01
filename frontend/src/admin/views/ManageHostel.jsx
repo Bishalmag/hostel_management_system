@@ -32,7 +32,7 @@ const ManageHostel = () => {
 
     try {
       await api.delete(`/hostel/hostels/${id}/`);
-      fetchHostels(); // refresh list
+      fetchHostels();
     } catch {
       alert('Failed to delete hostel');
     }
@@ -40,67 +40,173 @@ const ManageHostel = () => {
 
   if (loading) {
     return (
-      <div className="text-gray-400 p-6">Loading hostels...</div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '256px',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #1a3050',
+            borderTop: '3px solid #f5a623',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#6b8aaa' }}>Loading hostels...</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+    }}>
       {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Manage Hostels</h1>
-
-        {/* <button
-          onClick={() => navigate('/admin/hostels/add')}
-          className="px-4 py-2 text-sm bg-purple-500 hover:bg-purple-400 text-white rounded-lg transition"
-        >
-          + Add Hostel
-        </button> */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Manage Hostels</h1>
       </div>
 
       {/* ERROR */}
       {error && (
-        <div className="text-red-400 text-sm">{error}</div>
+        <div style={{
+          color: '#f87171',
+          fontSize: '14px',
+        }}>
+          {error}
+        </div>
       )}
 
       {/* TABLE */}
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-        <table className="w-full text-sm text-left text-gray-300">
-          <thead className="text-xs uppercase bg-gray-800 text-gray-400">
+      <div style={{
+        background: '#0a1628',
+        border: '1px solid #1a3050',
+        borderRadius: '12px',
+        overflow: 'hidden',
+      }}>
+        <table style={{
+          width: '100%',
+          fontSize: '14px',
+          textAlign: 'left',
+          color: '#c8daf0',
+          borderCollapse: 'collapse',
+        }}>
+          <thead style={{
+            fontSize: '12px',
+            textTransform: 'uppercase',
+            background: '#0f2040',
+            color: '#6b8aaa',
+          }}>
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Address</th>
-              <th className="px-4 py-3">Actions</th>
+              <th style={{
+                padding: '12px 16px',
+              }}>ID</th>
+              <th style={{
+                padding: '12px 16px',
+              }}>Name</th>
+              <th style={{
+                padding: '12px 16px',
+              }}>Address</th>
+              <th style={{
+                padding: '12px 16px',
+              }}>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {hostels.length === 0 ? (
               <tr>
-                <td colSpan="4" className="text-center py-6 text-gray-500">
+                <td colSpan="4" style={{
+                  textAlign: 'center',
+                  padding: '24px 0',
+                  color: '#3a5070',
+                }}>
                   No hostels found
                 </td>
               </tr>
             ) : (
               hostels.map(h => (
-                <tr key={h.id} className="border-t border-gray-800">
-                  <td className="px-4 py-3">{h.id}</td>
-                  <td className="px-4 py-3">{h.name}</td>
-                  <td className="px-4 py-3">{h.address}</td>
+                <tr
+                  key={h.id}
+                  style={{
+                    borderTop: '1px solid #1a3050',
+                    transition: 'background 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(18, 36, 72, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  <td style={{
+                    padding: '12px 16px',
+                  }}>{h.id}</td>
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#eaf2ff',
+                  }}>{h.name}</td>
+                  <td style={{
+                    padding: '12px 16px',
+                    color: '#c8daf0',
+                  }}>{h.address}</td>
 
-                  <td className="px-4 py-3 flex gap-3">
+                  <td style={{
+                    padding: '12px 16px',
+                    display: 'flex',
+                    gap: '12px',
+                  }}>
                     <button
                       onClick={() => navigate(`/admin/hostels/edit/${h.id}`)}
-                      className="text-blue-400 hover:text-blue-300"
+                      style={{
+                        color: '#60a5fa',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'color 0.3s ease',
+                        fontSize: '14px',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#3b82f6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#60a5fa';
+                      }}
                     >
                       Edit
                     </button>
 
                     <button
                       onClick={() => handleDelete(h.id)}
-                      className="text-red-400 hover:text-red-300"
+                      style={{
+                        color: '#f87171',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'color 0.3s ease',
+                        fontSize: '14px',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#ef4444';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#f87171';
+                      }}
                     >
                       Delete
                     </button>
@@ -111,6 +217,14 @@ const ManageHostel = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

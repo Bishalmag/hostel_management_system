@@ -34,11 +34,6 @@ export const colors = {
   danger:    "#f87171",
 };
 
-export const fonts = {
-  display: "'Syne', sans-serif",
-  mono:    "'Space Mono', monospace",
-};
-
 export const radii = {
   sm: "2px",
   md: "4px",
@@ -51,8 +46,12 @@ export const transitions = {
   slow:   "all 0.4s ease",
 };
 
-// Google Fonts import string — add to your index.html or inject via a <style> tag
-export const fontImport = `@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap');`;
+export const fonts = {
+  display: "'Nunito', -apple-system, BlinkMacSystemFont, sans-serif",
+  mono:    "'Fira Mono', 'Courier New', monospace",
+};
+
+export const fontImport = `@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fira+Mono:wght@400;500&display=swap');`;
 
 // Base CSS reset + global styles to inject once at the app root
 export const globalStyles = `

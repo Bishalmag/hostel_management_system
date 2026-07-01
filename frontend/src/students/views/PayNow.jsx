@@ -36,31 +36,62 @@ const PayNowPage = () => {
   };
 
   const formatPrice = (price) => {
-    if (!price) return 'N/A';
-    return new Intl.NumberFormat('en-NP', {
+    if (!price || price === 0) return 'Rs. 0';
+    const formatted = new Intl.NumberFormat('en-NP', {
       style: 'currency',
       currency: 'NPR',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(price);
+    return formatted.replace('NPR', 'Rs.');
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '256px',
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          border: '3px solid #1a3050',
+          borderTop: '3px solid #f5a623',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+        }} />
       </div>
     );
   }
 
   if (error || !booking) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <p className="text-red-400">{error || 'Booking not found'}</p>
+      <div style={{ maxWidth: '672px', margin: '0 auto', padding: '24px' }}>
+        <div style={{
+          background: 'rgba(248, 113, 113, 0.1)',
+          border: '1px solid rgba(248, 113, 113, 0.3)',
+          borderRadius: '8px',
+          padding: '24px',
+          textAlign: 'center',
+        }}>
+          <p style={{ color: '#f87171' }}>{error || 'Booking not found'}</p>
           <button
             onClick={() => navigate('/students/my-bookings')}
-            className="mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-lg"
+            style={{
+              marginTop: '16px',
+              padding: '8px 16px',
+              background: '#f5a623',
+              color: '#0a1628',
+              fontWeight: 600,
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s ease',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#e09515'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#f5a623'}
           >
             View My Bookings
           </button>
@@ -70,60 +101,196 @@ const PayNowPage = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div style={{ maxWidth: '672px', margin: '0 auto', padding: '24px' }}>
       <button
         onClick={() => navigate('/students/my-bookings')}
-        className="text-gray-400 hover:text-cyan-400 mb-4 flex items-center gap-1 text-sm"
+        style={{
+          color: '#6b8aaa',
+          background: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          marginBottom: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '14px',
+          transition: 'color 0.2s ease',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.color = '#f5a623'}
+        onMouseLeave={(e) => e.currentTarget.style.color = '#6b8aaa'}
       >
         ← Back to Bookings
       </button>
 
-      <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-800 bg-gray-800/30">
-          <h2 className="text-xl font-bold text-white">Payment Details</h2>
-          <p className="text-gray-400 text-sm mt-1">Complete your payment to confirm your booking</p>
+      <div style={{
+        background: 'linear-gradient(to bottom right, #0a1628, #050d1a)',
+        border: '1px solid #1a3050',
+        borderRadius: '16px',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          padding: '16px 24px',
+          borderBottom: '1px solid #1a3050',
+          background: 'rgba(18, 36, 72, 0.3)',
+        }}>
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#eaf2ff',
+            margin: 0,
+          }}>Payment Details</h2>
+          <p style={{
+            color: '#6b8aaa',
+            fontSize: '14px',
+            marginTop: '4px',
+          }}>Complete your payment to confirm your booking</p>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div style={{ padding: '24px' }}>
           {/* Booking Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-800/50 rounded-xl p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Room</p>
-              <p className="text-white font-bold text-lg mt-1">Room {booking.room_number || booking.room}</p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '16px',
+            marginBottom: '16px',
+          }}>
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.5)',
+              borderRadius: '12px',
+              padding: '16px',
+            }}>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: 0,
+              }}>Room</p>
+              <p style={{
+                color: '#eaf2ff',
+                fontWeight: 700,
+                fontSize: '18px',
+                marginTop: '4px',
+              }}>Room {booking.room_number || booking.room}</p>
             </div>
-            <div className="bg-gray-800/50 rounded-xl p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Status</p>
-              <p className="text-yellow-400 font-bold text-lg mt-1 capitalize">{booking.status}</p>
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.5)',
+              borderRadius: '12px',
+              padding: '16px',
+            }}>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: 0,
+              }}>Status</p>
+              <p style={{
+                color: '#f5a623',
+                fontWeight: 700,
+                fontSize: '18px',
+                textTransform: 'capitalize',
+                marginTop: '4px',
+              }}>{booking.status}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gray-800/50 rounded-xl p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Check-in</p>
-              <p className="text-white font-semibold mt-1">{formatDate(booking.check_in_date)}</p>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '16px',
+            marginBottom: '16px',
+          }}>
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.5)',
+              borderRadius: '12px',
+              padding: '16px',
+            }}>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: 0,
+              }}>Check-in</p>
+              <p style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                marginTop: '4px',
+              }}>{formatDate(booking.check_in_date)}</p>
             </div>
-            <div className="bg-gray-800/50 rounded-xl p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wide">Check-out</p>
-              <p className="text-white font-semibold mt-1">{formatDate(booking.check_out_date)}</p>
+            <div style={{
+              background: 'rgba(18, 36, 72, 0.5)',
+              borderRadius: '12px',
+              padding: '16px',
+            }}>
+              <p style={{
+                color: '#6b8aaa',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                margin: 0,
+              }}>Check-out</p>
+              <p style={{
+                color: '#eaf2ff',
+                fontWeight: 600,
+                marginTop: '4px',
+              }}>{formatDate(booking.check_out_date)}</p>
             </div>
           </div>
 
-          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
-            <div className="flex justify-between items-center">
+          <div style={{
+            background: 'rgba(245, 166, 35, 0.05)',
+            border: '1px solid rgba(245, 166, 35, 0.2)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}>
               <div>
-                <p className="text-gray-400 text-sm">Total Amount</p>
-                <p className="text-cyan-400 font-bold text-3xl">{formatPrice(booking.total_amount)}</p>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '14px',
+                  margin: 0,
+                }}>Total Amount</p>
+                <p style={{
+                  color: '#f5a623',
+                  fontWeight: 700,
+                  fontSize: '32px',
+                  marginTop: '4px',
+                }}>{formatPrice(booking.total_amount)}</p>
               </div>
-              <div className="text-right">
-                <p className="text-gray-400 text-sm">Payment Method</p>
-                <div className="flex items-center gap-2 mt-1">
+              <div style={{ textAlign: 'right' }}>
+                <p style={{
+                  color: '#6b8aaa',
+                  fontSize: '14px',
+                  margin: 0,
+                }}>Payment Method</p>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '4px',
+                }}>
                   <img 
                     src="https://esewa.com.np/common/images/esewa_logo.png" 
                     alt="eSewa" 
-                    className="h-8 w-auto"
+                    style={{
+                      height: '32px',
+                      width: 'auto',
+                    }}
                     onError={(e) => e.target.style.display = 'none'}
                   />
-                  <span className="text-white font-medium">eSewa</span>
+                  <span style={{
+                    color: '#eaf2ff',
+                    fontWeight: 500,
+                  }}>eSewa</span>
                 </div>
               </div>
             </div>
@@ -133,14 +300,47 @@ const PayNowPage = () => {
           <PayNowButton 
             bookingId={booking.id} 
             amount={booking.total_amount}
-            className="w-full py-4 text-lg font-bold shadow-xl shadow-green-500/30 hover:shadow-green-500/50"
+            style={{
+              width: '100%',
+              padding: '16px',
+              fontSize: '18px',
+              fontWeight: 700,
+              boxShadow: '0 4px 20px rgba(245, 166, 35, 0.3)',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              background: 'linear-gradient(to right, #f5a623, #e09515)',
+              color: '#0a1628',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #e09515, #c47d0e)';
+              e.currentTarget.style.boxShadow = '0 4px 30px rgba(245, 166, 35, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(to right, #f5a623, #e09515)';
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(245, 166, 35, 0.3)';
+            }}
           />
 
-          <p className="text-gray-500 text-xs text-center">
+          <p style={{
+            color: '#3a5070',
+            fontSize: '12px',
+            textAlign: 'center',
+            marginTop: '12px',
+          }}>
             You will be redirected to eSewa secure payment gateway to complete the transaction
           </p>
         </div>
       </div>
+
+      {/* Keyframe animation for spinner */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
