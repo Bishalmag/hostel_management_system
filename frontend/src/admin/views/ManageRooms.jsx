@@ -1,9 +1,11 @@
 // src/admin/pages/ManageRooms.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // ← Add this import
 import api from '../../api/axios';
 import { useNotification } from '../../context/NotificationContext';
 
 const ManageRooms = () => {
+  const navigate = useNavigate(); // ← Add this
   const { showSuccess, showError } = useNotification();
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -166,7 +168,7 @@ const ManageRooms = () => {
           </p>
         </div>
         <button
-          onClick={() => {/* Navigate to add room page */}}
+          onClick={() => navigate('/admin/rooms/add')} // ← Fixed: Navigate to add room page
           style={{
             padding: '8px 16px',
             background: '#1ddba8',
@@ -499,7 +501,7 @@ const ManageRooms = () => {
                           gap: '8px',
                         }}>
                           <button
-                            onClick={() => {/* Navigate to edit room */}}
+                            onClick={() => navigate(`/admin/rooms/edit/${room.id}`)} // ← Fixed: Navigate to edit room page
                             style={{
                               padding: '4px 12px',
                               background: '#0f2040',

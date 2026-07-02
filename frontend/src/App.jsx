@@ -131,7 +131,7 @@ export default function App() {
               <Route path="pay/:bookingId" element={<PayNowPage />} />
               <Route path="allevents" element={<AllEvents />} />
               <Route path="receipts/:bookingId" element={<ViewReceipts />} />
-              <Route path="find-path" element={<FindPath />} />
+              <Route path="find-path" element={<FindPath />} /> 
             </Route>
 
             {/* ADMIN Section */}

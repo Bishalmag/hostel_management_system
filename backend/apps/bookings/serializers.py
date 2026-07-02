@@ -41,10 +41,8 @@ class BookingSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         """Validate booking data"""
-        # Check if student exists
         student = data.get('student')
         if student:
-            # Check if student has any pending/approved bookings for this room
             room = data.get('room')
             check_in = data.get('check_in_date')
             check_out = data.get('check_out_date')
@@ -52,28 +50,32 @@ class BookingSerializer(serializers.ModelSerializer):
             if room and check_in and check_out:
                 # Check if dates are valid
                 if check_in > check_out:
-                    raise serializers.ValidationError("Check-in date must be before check-out date")
-                
-                # Check if room is available
-                if room.current_occupancy >= room.capacity:
                     raise serializers.ValidationError(
-                        f"Room {room.room_number} is fully occupied (Capacity: {room.capacity})"
+                        "Check-in date must be before check-out date"
                     )
-                
-                # Check for overlapping bookings
-                overlapping = Booking.objects.filter(
+
+                overlapping_bookings = Booking.objects.filter(
                     room=room,
                     status__in=['pending', 'approved'],
                     check_in_date__lt=check_out,
                     check_out_date__gt=check_in
                 )
-                if self.instance:
-                    overlapping = overlapping.exclude(id=self.instance.id)
                 
-                if overlapping.exists():
+                if self.instance:
+                    overlapping_bookings = overlapping_bookings.exclude(id=self.instance.id)
+                
+                if overlapping_bookings.count() >= room.capacity:
                     raise serializers.ValidationError(
-                        "This room is already booked for the selected dates"
+                        f"Room {room.room_number} is already fully booked for the selected dates. "
+                        f"Capacity: {room.capacity}, Already booked: {overlapping_bookings.count()}"
                     )
+                
+                if room.current_occupancy >= room.capacity:
+                    approved_overlapping = overlapping_bookings.filter(status='approved')
+                    if approved_overlapping.count() >= room.capacity:
+                        raise serializers.ValidationError(
+                            f"Room {room.room_number} is currently fully occupied by approved bookings"
+                        )
         
         return data
 

@@ -25,11 +25,7 @@ const Footer = () => {
           color: '#6b8aaa',
           margin: 0,
         }}>
-          © {new Date().getFullYear()} <span style={{ 
-            fontFamily: 'monospace', 
-            color: '#6b8aaa',
-            fontWeight: 600,
-          }}>HIVEHMS</span>
+          © {new Date().getFullYear()}
         </p>
         <span style={{
           width: '1px',
@@ -96,44 +92,7 @@ const Footer = () => {
         </a>
       </div>
 
-      {/* Right Section - Version & Status */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-      }}>
-        <span style={{
-          fontSize: '11px',
-          color: '#3a5070',
-        }}>
-          v1.0.0
-        </span>
-        <span style={{
-          width: '1px',
-          height: '12px',
-          backgroundColor: '#1a3050',
-        }} />
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-        }}>
-          <span style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            backgroundColor: '#1ddba8',
-            display: 'inline-block',
-            animation: 'pulse 2s ease-in-out infinite',
-          }} />
-          <span style={{
-            fontSize: '10px',
-            color: '#3a5070',
-          }}>
-            System Online
-          </span>
-        </div>
-      </div>
+    
     </footer>
   );
 };
