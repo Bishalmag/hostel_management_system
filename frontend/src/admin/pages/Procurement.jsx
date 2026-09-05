@@ -1112,52 +1112,7 @@ export default function Procurement() {
               color: '#eaf2ff',
               marginTop: '2px',
               marginBottom: 0,
-            }}>0/1 Knapsack (DP)</p>
-          </div>
-          <div>
-            <span style={{
-              color: '#6b8aaa',
-              fontSize: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}>DP Table Size</span>
-            <p style={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color: '#eaf2ff',
-              marginTop: '2px',
-              marginBottom: 0,
-            }}>{result.dp_table_size}</p>
-          </div>
-          <div>
-            <span style={{
-              color: '#6b8aaa',
-              fontSize: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}>Complexity</span>
-            <p style={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color: '#eaf2ff',
-              marginTop: '2px',
-              marginBottom: 0,
-            }}>O(n × W)</p>
-          </div>
-          <div>
-            <span style={{
-              color: '#6b8aaa',
-              fontSize: '12px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}>Session</span>
-            <p style={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color: '#eaf2ff',
-              marginTop: '2px',
-              marginBottom: 0,
-            }}>#{result.session_id}</p>
+            }}>0/1 Knapsack</p>
           </div>
           <div>
             <span style={{

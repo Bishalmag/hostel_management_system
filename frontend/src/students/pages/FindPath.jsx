@@ -66,6 +66,60 @@ const FindPath = () => {
     return colors[blockName] || { bg: 'rgba(107, 114, 128, 0.2)', color: '#6b8aaa', border: 'rgba(107, 114, 128, 0.3)' };
   };
 
+  // Get block name for a node
+  const getBlockName = (node) => {
+    // Try to get block from node's block property
+    if (node.block_name) return node.block_name;
+    if (node.block) return node.block.name || node.block;
+    if (node.block_id) {
+      // Find block from blocks list if available
+      // This would require fetching blocks separately or having them in node data
+      return '';
+    }
+    return '';
+  };
+
+  // Get formatted display name for a node
+  const getDisplayName = (node) => {
+    const blockName = getBlockName(node);
+    if (blockName) {
+      return `${node.name} (${blockName})`;
+    }
+    return node.name;
+  };
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: '896px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <h1 style={{
+          fontSize: '24px',
+          fontWeight: 700,
+          color: '#eaf2ff',
+          margin: 0,
+        }}>Find Shortest Path</h1>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '256px',
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '48px',
+              height: '48px',
+              border: '3px solid #1a3050',
+              borderTop: '3px solid #f5a623',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px',
+            }} />
+            <p style={{ color: '#6b8aaa' }}>Finding path...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: '896px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <h1 style={{
@@ -118,7 +172,7 @@ const FindPath = () => {
             >
               <option value="">Select start...</option>
               {nodes.map(n => (
-                <option key={n.id} value={n.id}>{n.name}</option>
+                <option key={n.id} value={n.id}>{getDisplayName(n)}</option>
               ))}
             </select>
           </div>
@@ -152,7 +206,7 @@ const FindPath = () => {
             >
               <option value="">Select destination...</option>
               {nodes.map(n => (
-                <option key={n.id} value={n.id}>{n.name}</option>
+                <option key={n.id} value={n.id}>{getDisplayName(n)}</option>
               ))}
             </select>
           </div>
@@ -506,6 +560,14 @@ const FindPath = () => {
           </div>
         </div>
       )}
+
+      {/* Add spin animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
